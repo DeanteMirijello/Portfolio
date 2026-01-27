@@ -469,3 +469,10 @@ nav a.active {
   border-color: var(--brand);
 }
 
+.profile-photo {
+  width: 400px;
+  height: 500px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
