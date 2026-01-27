@@ -1,12 +1,12 @@
 ---
-import Nav from "../components/Nav.astro";
+import Nav from "../components/nav.astro";
 ---
 
-<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/global.css" />
     <title>About | Deante Mirijello</title>
   </head>
 
@@ -14,53 +14,90 @@ import Nav from "../components/Nav.astro";
     <Nav />
 
     <main>
-      <h1>About Me</h1>
+      <header class="page-header">
+        <h1>About Me</h1>
+        <p>
+          I’m Deante Mirijello, a Computer Science student in Montreal. I’m interested in
+          full-stack development and building practical software.
+        </p>
+      </header>
 
-      <p>
-        I’m Deante Mirijello, a Computer Science student based in Montreal, QC.
-        I’m interested in full-stack development and building practical software.
-      </p>
+      <section class="about-grid">
+        <article class="about-card">
+          <h2>Skills</h2>
 
-      <h2>Skills</h2>
+          <div class="about-block">
+            <h3>Languages</h3>
+            <div class="tags">
+              <span class="tag">Java</span>
+              <span class="tag">Python</span>
+              <span class="tag">C#</span>
+              <span class="tag">JavaScript</span>
+              <span class="tag">HTML</span>
+              <span class="tag">CSS</span>
+            </div>
+          </div>
 
-      <h3>Languages</h3>
-      <ul>
-        <li>Java, Python, C#</li>
-        <li>JavaScript, HTML, CSS</li>
-      </ul>
+          <div class="about-block">
+            <h3>Frameworks & Tools</h3>
+            <div class="tags">
+              <span class="tag">Spring</span>
+              <span class="tag">React</span>
+              <span class="tag">GitHub</span>
+              <span class="tag">Docker</span>
+              <span class="tag">Postman</span>
+              <span class="tag">REST</span>
+              <span class="tag">Jira</span>
+              <span class="tag">Agile/Scrum</span>
+              <span class="tag">Unity</span>
+            </div>
+          </div>
 
-      <h3>Frameworks & Tools</h3>
-      <ul>
-        <li>Spring, React</li>
-        <li>GitHub, Docker, Postman</li>
-        <li>Agile/Scrum, REST, Jira</li>
-        <li>Unity</li>
-      </ul>
+          <div class="about-block">
+            <h3>Databases</h3>
+            <div class="tags">
+              <span class="tag">PostgreSQL</span>
+              <span class="tag">MySQL</span>
+              <span class="tag">MongoDB</span>
+            </div>
+          </div>
 
-      <h3>Databases</h3>
-      <ul>
-        <li>PostgreSQL, MySQL, MongoDB</li>
-      </ul>
+          <div class="about-block">
+            <h3>Design</h3>
+            <div class="tags">
+              <span class="tag">UML</span>
+              <span class="tag">Figma</span>
+              <span class="tag">Photoshop</span>
+            </div>
+          </div>
+        </article>
 
-      <h3>Design</h3>
-      <ul>
-        <li>UML, Photoshop, Figma</li>
-      </ul>
+        <article class="about-card">
+          <h2>Experience</h2>
 
-      <h2>Work Experience</h2>
-      <h3>Costco — Stocker (Jun 2023 – Present)</h3>
-      <ul>
-        <li>Collaborated with coworkers to manage inventory</li>
-        <li>Assisted customers in both English and French</li>
-        <li>Trained new employees</li>
-      </ul>
+          <div class="info-row">
+            <div>
+              <h3>Costco — Stocker</h3>
+              <p class="muted">Jun 2023 – Present</p>
+            </div>
+          </div>
 
-      <h2>Education</h2>
-      <ul>
-        <li>Champlain College (2022 – 2026)</li>
-        <li>LBP High School (2021 – 2022)</li>
-        <li>VMC High School (2017 – 2021)</li>
-      </ul>
+          <ul class="clean-list">
+            <li>Worked with a team to manage inventory and daily tasks.</li>
+            <li>Helped customers in both English and French.</li>
+            <li>Trained new employees and supported new staff.</li>
+          </ul>
+
+          <div class="divider"></div>
+
+          <h2>Education</h2>
+          <ul class="clean-list">
+            <li><strong>Champlain College</strong> — 2022 – 2026</li>
+            <li><strong>LBP High School</strong> — 2021 – 2022</li>
+            <li><strong>VMC High School</strong> — 2017 – 2021</li>
+          </ul>
+        </article>
+      </section>
     </main>
   </body>
 </html>

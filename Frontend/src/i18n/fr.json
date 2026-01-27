@@ -1,0 +1,31 @@
+{
+  "nav.home": "Accueil",
+  "nav.about": "À propos",
+  "nav.projects": "Projets",
+  "nav.contact": "Contact",
+  "nav.lang": "EN",
+
+  "home.title": "Salut, moi c’est Deante",
+  "home.subtitle": "Je suis étudiant en informatique et je m’intéresse au développement logiciel et aux applications concrètes.",
+  "home.section.find": "Ce que tu trouveras ici",
+  "home.li1": "Des infos sur moi et mon parcours",
+  "home.li2": "Des projets réalisés pendant mes études",
+  "home.li3": "Comment me contacter",
+
+  "about.title": "À propos de moi",
+  "about.intro": "Je m’appelle Deante Mirijello, étudiant en informatique à Montréal. Je m’intéresse au développement full-stack et aux projets concrets.",
+  "about.skills": "Compétences",
+  "about.experience": "Expérience",
+  "about.education": "Éducation",
+
+  "projects.title": "Projets",
+  "projects.subtitle": "Quelques projets sur lesquels j’ai travaillé à l’école et en équipe.",
+
+  "contact.title": "Contact",
+  "contact.subtitle": "Les meilleures façons de me joindre.",
+  "contact.location": "Ville",
+  "contact.email": "Courriel",
+  "contact.phone": "Téléphone",
+  "contact.github": "GitHub",
+  "contact.linkedin": "LinkedIn"
+}

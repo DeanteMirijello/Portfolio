@@ -1,12 +1,12 @@
 ---
-import Nav from "../components/Nav.astro";
+import Nav from "../components/nav.astro";
 ---
 
-<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/global.css" />
     <title>Contact | Deante Mirijello</title>
   </head>
 
@@ -14,15 +14,43 @@ import Nav from "../components/Nav.astro";
     <Nav />
 
     <main>
-      <h1>Contact</h1>
-      <p>If you’d like to reach me, here’s the best way:</p>
+      <header class="page-header">
+        <h1>Contact</h1>
+        <p>Best ways to reach me.</p>
+      </header>
 
-      <ul>
-        <li>Email: <a href="mailto:deante.mirijello@gmail.com">deante.mirijello@gmail.com</a></li>
-        <li>Phone: (438) 498-5685</li>
-        <li>GitHub: <a href="https://github.com/DeanteMirijello" target="_blank">github.com/DeanteMirijello</a></li>
-        <li>LinkedIn: <a href="https://linkedin.com/in/deante-mirijello" target="_blank">linkedin.com/in/deante-mirijello</a></li>
-      </ul>
+      <section class="contact-card">
+        <div class="contact-row">
+          <span class="contact-label">Location</span>
+          <span class="contact-value">Montreal, QC</span>
+        </div>
+
+        <div class="contact-row">
+          <span class="contact-label">Email</span>
+          <a class="contact-link" href="mailto:deante.mirijello@gmail.com">
+            deante.mirijello@gmail.com
+          </a>
+        </div>
+
+        <div class="contact-row">
+          <span class="contact-label">Phone</span>
+          <a class="contact-link" href="tel:+14384985685">(438) 498-5685</a>
+        </div>
+
+        <div class="contact-row">
+          <span class="contact-label">GitHub</span>
+          <a class="contact-link" href="https://github.com/DeanteMirijello" target="_blank" rel="noreferrer">
+            github.com/DeanteMirijello
+          </a>
+        </div>
+
+        <div class="contact-row">
+          <span class="contact-label">LinkedIn</span>
+          <a class="contact-link" href="https://linkedin.com/in/deante-mirijello" target="_blank" rel="noreferrer">
+            linkedin.com/in/deante-mirijello
+          </a>
+        </div>
+      </section>
     </main>
   </body>
 </html>

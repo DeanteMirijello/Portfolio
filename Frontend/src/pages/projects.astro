@@ -1,12 +1,12 @@
 ---
-import Nav from "../components/Nav.astro";
+import Nav from "../components/nav.astro";
 ---
 
-<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/global.css" />
     <title>Projects | Deante Mirijello</title>
   </head>
 
@@ -14,43 +14,82 @@ import Nav from "../components/Nav.astro";
     <Nav />
 
     <main>
-      <h1>Projects</h1>
-      <p>Here are a few projects I worked on during school and team projects.</p>
+      <header class="page-header">
+        <h1>Projects</h1>
+        <p>Some projects I’ve worked on during school and team projects.</p>
+      </header>
 
-      <section>
-        <h2>DM Creations (Aug 2025 – Feb 2026)</h2>
-        <p>
-          Party decoration e-commerce web app built for a real client in a team of 5
-          using Scrum/Agile. Designed architecture (C4 diagrams) and implemented REST APIs.
-        </p>
-        <p><strong>Tech:</strong> React, Spring Boot, MySQL, Java, TypeScript, Auth0, SMTP2GO</p>
-      </section>
+      <section class="projects-grid">
+        <article class="project-card">
+          <div class="project-top">
+            <h2>DM Creations</h2>
+            <span class="project-date">Aug 2025 – Feb 2026</span>
+          </div>
+          <p>
+            Party decoration e-commerce web app for a real client. Built in a team of 5
+            using Scrum/Agile. Designed C4 architecture and implemented REST APIs.
+          </p>
+          <div class="tags">
+            <span class="tag">React</span>
+            <span class="tag">Spring Boot</span>
+            <span class="tag">MySQL</span>
+            <span class="tag">TypeScript</span>
+            <span class="tag">Auth0</span>
+          </div>
+        </article>
 
-      <section>
-        <h2>Champlain Pet Clinic (Sep 2025 – Oct 2025)</h2>
-        <p>
-          Full-stack pet clinic simulation built with 44 students across multiple microservices.
-          I worked on bill-related microservices, bill data features, and UI improvements.
-        </p>
-        <p><strong>Tech:</strong> TypeScript, React, Spring Boot, MongoDB, Docker, Git, Scrum/Agile</p>
-      </section>
+        <article class="project-card">
+          <div class="project-top">
+            <h2>Champlain Pet Clinic</h2>
+            <span class="project-date">Sep 2025 – Oct 2025</span>
+          </div>
+          <p>
+            Full-stack pet clinic simulation with 44 students across microservices.
+            I worked on bill-related services and UI improvements.
+          </p>
+          <div class="tags">
+            <span class="tag">TypeScript</span>
+            <span class="tag">React</span>
+            <span class="tag">Spring Boot</span>
+            <span class="tag">MongoDB</span>
+            <span class="tag">Docker</span>
+          </div>
+        </article>
 
-      <section>
-        <h2>IoT Home Automation & Security System (Oct 2025 – Nov 2025)</h2>
-        <p>
-          Smart-home system using Raspberry Pi and sensors. Built a Flask + Chart.js dashboard
-          for live monitoring, control, and historical graphs. Added cloud integration with offline caching.
-        </p>
-        <p><strong>Tech:</strong> Python, Flask, MQTT, PostgreSQL, SQLite, Raspberry Pi, Chart.js, Adafruit IO, NeonDB</p>
-      </section>
+        <article class="project-card">
+          <div class="project-top">
+            <h2>IoT Home Automation & Security</h2>
+            <span class="project-date">Oct 2025 – Nov 2025</span>
+          </div>
+          <p>
+            Raspberry Pi smart-home system. Built a Flask + Chart.js dashboard for live
+            monitoring, device control, and historical graphs. Added cloud sync + caching.
+          </p>
+          <div class="tags">
+            <span class="tag">Python</span>
+            <span class="tag">Flask</span>
+            <span class="tag">MQTT</span>
+            <span class="tag">PostgreSQL</span>
+            <span class="tag">Chart.js</span>
+          </div>
+        </article>
 
-      <section>
-        <h2>Employee Bowling Alley System (Jan 2025 – May 2025)</h2>
-        <p>
-          Distributed microservices system to manage rented shoes, bowling balls, and lanes
-          using an API Gateway.
-        </p>
-        <p><strong>Tech:</strong> Java, Spring Boot, MySQL, PostgreSQL, MongoDB, Docker, Gradle, Postman</p>
+        <article class="project-card">
+          <div class="project-top">
+            <h2>Bowling Alley Microservices System</h2>
+            <span class="project-date">Jan 2025 – May 2025</span>
+          </div>
+          <p>
+            Distributed system to manage rented shoes, bowling balls, and lanes through an API Gateway.
+          </p>
+          <div class="tags">
+            <span class="tag">Java</span>
+            <span class="tag">Spring Boot</span>
+            <span class="tag">Docker</span>
+            <span class="tag">PostgreSQL</span>
+            <span class="tag">Postman</span>
+          </div>
+        </article>
       </section>
     </main>
   </body>

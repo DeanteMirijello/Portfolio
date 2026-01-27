@@ -1,0 +1,384 @@
+/* Global base styles – simple, clean, and extendable */
+
+/* CSS Reset + base */
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #f8fafc;
+  --text: #111827;
+  --muted: #4b5563;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --brand: #3245ff;
+  --brand-hover: #2837d6;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1220;
+    --text: #e5e7eb;
+    --muted: #cbd5e1;
+    --card: #0f172a;
+    --border: #1f2937;
+    --brand: #7aa2ff;
+    --brand-hover: #b1c4ff;
+  }
+}
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Layout */
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+section { 
+  margin-top: 1.5rem; 
+}
+
+/* Typography */
+h1 {
+  font-size: 2rem;
+  margin: 0 0 1rem;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin: 1.5rem 0 0.75rem;
+}
+
+h3 {
+  font-size: 1.125rem;
+  margin: 1rem 0 0.5rem;
+}
+
+p { 
+  margin: 0 0 1rem; 
+  color: var(--muted); 
+}
+
+ul { 
+  margin: 0 0 1rem; 
+  padding-left: 1.25rem; 
+}
+
+li { 
+  margin: 0.25rem 0; 
+}
+
+/* Links */
+a { 
+  color: var(--brand); 
+  text-decoration: none; 
+}
+
+a:hover { 
+  color: var(--brand-hover); 
+  text-decoration: underline; 
+}
+
+code, pre code {
+  background: rgba(127, 127, 127, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Simple nav styling */
+nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+}
+
+nav a {
+  color: var(--text);
+  font-weight: 500;
+}
+
+nav a + span,
+nav span {
+  color: var(--border);
+  margin: 0 0.5rem;
+}
+
+/* Cards (optional for later) */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+/* Projects page */
+.page-header {
+  margin-bottom: 1.25rem;
+}
+
+.page-header p {
+  margin-top: 0.25rem;
+}
+
+/* Grid layout */
+.projects-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* 2 columns on wider screens */
+@media (min-width: 800px) {
+  .projects-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Card styling (builds on your theme vars) */
+.project-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(127, 127, 127, 0.35);
+}
+
+.project-card h2 {
+  font-size: 1.15rem;
+  margin: 0;
+  color: var(--text);
+}
+
+.project-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.project-date {
+  font-size: 0.9rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.project-card p {
+  margin: 0.5rem 0 0.75rem;
+}
+
+/* Tech tags */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(127, 127, 127, 0.08);
+  color: var(--text);
+}
+
+/* Contact page */
+.contact-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.contact-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.contact-row:last-child {
+  border-bottom: 0;
+}
+
+.contact-label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.contact-value {
+  color: var(--muted);
+}
+
+.contact-link {
+  color: var(--brand);
+  word-break: break-word;
+}
+
+.contact-link:hover {
+  color: var(--brand-hover);
+  text-decoration: underline;
+}
+
+@media (max-width: 520px) {
+  .contact-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .contact-label {
+    font-size: 0.95rem;
+  }
+}
+
+/* Navigation bar */
+nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1rem;
+
+  display: flex;
+  justify-content: center;   /* center horizontally */
+}
+
+nav a {
+  color: var(--text);
+  font-size: 1.1rem;         /* bigger text */
+  font-weight: 600;
+  margin: 0 0.75rem;         /* spacing between tabs */
+}
+
+nav a:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+nav a.active {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+/* About page */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 900px) {
+  .about-grid {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: start;
+  }
+}
+
+.about-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.about-card h2 {
+  margin-top: 0;
+}
+
+.about-block {
+  margin-top: 1rem;
+}
+
+.muted {
+  color: var(--muted);
+  margin: 0.25rem 0 0;
+}
+
+.clean-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.75rem 0 0;
+}
+
+.clean-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.clean-list li:last-child {
+  border-bottom: 0;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 1rem 0;
+}
+
+.site-nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-nav a {
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.site-nav a:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+.lang-btn {
+  border: 1px solid var(--border);
+  background: rgba(127, 127, 127, 0.08);
+  color: var(--text);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+}
+
+.lang-btn:hover {
+  border-color: rgba(127, 127, 127, 0.35);
+}

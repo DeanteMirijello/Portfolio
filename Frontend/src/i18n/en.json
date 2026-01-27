@@ -1,0 +1,31 @@
+{
+  "nav.home": "Home",
+  "nav.about": "About",
+  "nav.projects": "Projects",
+  "nav.contact": "Contact",
+  "nav.lang": "FR",
+
+  "home.title": "Hello, I’m Deante",
+  "home.subtitle": "I am a computer science student interested in software development and building practical applications.",
+  "home.section.find": "What you’ll find here",
+  "home.li1": "Information about me and my background",
+  "home.li2": "Projects I have worked on during my studies",
+  "home.li3": "Ways to contact me",
+
+  "about.title": "About Me",
+  "about.intro": "I’m Deante Mirijello, a Computer Science student in Montreal. I’m interested in full-stack development and building practical software.",
+  "about.skills": "Skills",
+  "about.experience": "Experience",
+  "about.education": "Education",
+
+  "projects.title": "Projects",
+  "projects.subtitle": "Some projects I’ve worked on during school and team projects.",
+
+  "contact.title": "Contact",
+  "contact.subtitle": "Best ways to reach me.",
+  "contact.location": "Location",
+  "contact.email": "Email",
+  "contact.phone": "Phone",
+  "contact.github": "GitHub",
+  "contact.linkedin": "LinkedIn"
+}
