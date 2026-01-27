@@ -1,0 +1,47 @@
+{
+  "nav.home": "Accueil",
+  "nav.about": "À propos",
+  "nav.projects": "Projets",
+  "nav.contact": "Contact",
+  "nav.lang": "EN",
+
+  "home.title": "Salut, moi c’est Deante",
+  "home.subtitle": "Je suis étudiant en informatique et je m’intéresse au développement logiciel et aux applications concrètes.",
+  "home.section.find": "Ce que tu trouveras ici",
+  "home.li1": "Des infos sur moi et mon parcours",
+  "home.li2": "Des projets réalisés pendant mes études",
+  "home.li3": "Comment me contacter",
+
+  "about.title": "À propos de moi",
+  "about.intro": "Je m’appelle Deante Mirijello, étudiant en informatique à Montréal. Je m’intéresse au développement full-stack et aux projets concrets.",
+  "about.skills": "Compétences",
+  "about.experience": "Expérience",
+  "about.education": "Éducation",
+
+  "projects.title": "Projets",
+  "projects.subtitle": "Quelques projets sur lesquels j’ai travaillé à l’école et en équipe.",
+
+  "projects.dm.title": "DM Creations",
+  "projects.dm.date": "août 2025 – février 2026",
+  "projects.dm.desc": "Application e-commerce de décoration événementielle pour un vrai client. Réalisée en équipe de 5 avec Scrum/Agile. Conception de l’architecture C4 et implémentation d’API REST.",
+
+  "projects.pet.title": "Clinique vétérinaire de Champlain",
+  "projects.pet.date": "septembre 2025 – octobre 2025",
+  "projects.pet.desc": "Simulation full‑stack d’une clinique vétérinaire avec 44 étudiants et des microservices. J’ai travaillé sur les services de facturation et les améliorations UI.",
+
+  "projects.iot.title": "Domotique et sécurité IoT",
+  "projects.iot.date": "octobre 2025 – novembre 2025",
+  "projects.iot.desc": "Système de maison intelligente avec Raspberry Pi. Tableau de bord Flask + Chart.js pour le suivi en temps réel, le contrôle des appareils et les graphiques historiques. Synchronisation cloud et mise en cache ajoutées.",
+
+  "projects.bowling.title": "Système de microservices pour une salle de quilles",
+  "projects.bowling.date": "janvier 2025 – mai 2025",
+  "projects.bowling.desc": "Système distribué pour gérer la location de chaussures, boules et allées via une passerelle d’API.",
+
+  "contact.title": "Contact",
+  "contact.subtitle": "Les meilleures façons de me joindre.",
+  "contact.location": "Ville",
+  "contact.email": "Courriel",
+  "contact.phone": "Téléphone",
+  "contact.github": "GitHub",
+  "contact.linkedin": "LinkedIn"
+}

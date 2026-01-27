@@ -118,6 +118,20 @@ nav span {
   margin: 0 0.5rem;
 }
 
+.site-nav a.active {
+  color: var(--brand);
+  position: relative;
+}
+
+.site-nav a.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  background: var(--brand);
+}
+
 /* Cards (optional for later) */
 .card {
   background: var(--card);
@@ -382,3 +396,76 @@ nav a.active {
 .lang-btn:hover {
   border-color: rgba(127, 127, 127, 0.35);
 }
+
+/* Home page hero */
+.home-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+/* Two columns on desktop */
+@media (min-width: 900px) {
+  .home-hero {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}
+
+.hero-text h1 {
+  margin-bottom: 0.75rem;
+}
+
+.hero-text p {
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+}
+
+.hero-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.hero-list li {
+  padding: 0.5rem 0;
+  color: var(--muted);
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.hero-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--brand);
+}
+
+/* Photo placeholder */
+.hero-photo {
+  display: flex;
+  justify-content: center;
+}
+
+.photo-placeholder {
+  width: 400px;
+  height: 600px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px dashed var(--border);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Slight hover (optional but nice) */
+.photo-placeholder:hover {
+  border-color: var(--brand);
+}
+

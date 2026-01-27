@@ -15,3 +15,20 @@
     FR
   </button>
 </nav>
+
+<script>
+  // Highlight active nav link
+  const currentPath = window.location.pathname.replace(/\/$/, "");
+
+  document.querySelectorAll(".site-nav a").forEach((link) => {
+    const linkPath = link.getAttribute("href").replace(/\/$/, "");
+
+    // Handle home page separately
+    if (linkPath === "" && currentPath === "") {
+      link.classList.add("active");
+    } else if (linkPath !== "" && currentPath === linkPath) {
+      link.classList.add("active");
+    }
+  });
+</script>
+<script type="module" src="/js/i18n.js"></script>

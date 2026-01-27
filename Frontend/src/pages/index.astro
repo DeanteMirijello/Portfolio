@@ -1,43 +1,42 @@
 ---
+import Layout from "../layouts/Layout.astro";
 import Nav from "../components/nav.astro";
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/styles/global.css" />
-    <title>My Portfolio</title>
-  </head>
+<Layout>
+  <Nav />
 
-  <body>
-    <Nav />
+  <main>
+    <section class="home-hero">
+      <div class="hero-text">
+        <h1 data-i18n="home.title">
+          Hello, I’m Deante
+        </h1>
 
-    <main>
-      <h1>Hello, I’m Deante</h1>
+        <p data-i18n="home.subtitle">
+          I am a computer science student interested in software development and
+          building practical applications.
+        </p>
 
-      <p>
-        I am a computer science student interested in software development and
-        building practical applications.
-      </p>
-
-      <section>
-        <h2>What you’ll find here</h2>
-        <ul>
-          <li>Information about me and my background</li>
-          <li>Projects I have worked on during my studies</li>
-          <li>Ways to contact me</li>
+        <ul class="hero-list">
+          <li data-i18n="home.li1">
+            Information about me and my background
+          </li>
+          <li data-i18n="home.li2">
+            Projects I have worked on during my studies
+          </li>
+          <li data-i18n="home.li3">
+            Ways to contact me
+          </li>
         </ul>
-      </section>
+      </div>
 
-      <section>
-        <h2>Quick Links</h2>
-        <ul>
-          <li><a href="/about">About Me</a></li>
-          <li><a href="/projects">Projects</a></li>
-          <li><a href="/contact">Contact</a></li>
-        </ul>
-      </section>
-    </main>
-  </body>
-</html>
+      <div class="hero-photo">
+        <!-- Photo placeholder (replace later with real image) -->
+        <div class="photo-placeholder">
+          <span>Photo</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>

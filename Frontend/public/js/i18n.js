@@ -11,23 +11,23 @@ function getSavedLang() {
 }
 
 async function loadDict(lang) {
-  if (lang === "fr") return (await import("./fr.json")).default;
-  return (await import("./en.json")).default;
+  const res = await fetch(`/js/${lang}.json`, { cache: "no-store" });
+  return await res.json();
 }
 
 function applyTranslations(dict) {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
-    if (dict[key]) el.textContent = dict[key];
+    if (dict[key] !== undefined) el.textContent = dict[key];
   });
 
-  document.documentElement.lang = window.__lang;
+  document.documentElement.lang = window.__lang || DEFAULT_LANG;
 }
 
 function updateToggleButton(dict) {
   const btn = document.querySelector("[data-lang-toggle]");
   if (!btn) return;
-  btn.textContent = dict["nav.lang"] || "FR";
+  btn.textContent = dict["nav.lang"] || (window.__lang === "fr" ? "EN" : "FR");
 }
 
 async function setLanguage(lang) {
