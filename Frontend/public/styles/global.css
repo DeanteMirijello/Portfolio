@@ -476,3 +476,29 @@ nav a.active {
   object-fit: cover;
   border: 1px solid var(--border);
 }
+
+/* High-contrast form inputs for admin edit UIs */
+@media (prefers-color-scheme: dark) {
+  .contact-card input.contact-value,
+  .contact-card select.contact-value,
+  .contact-card textarea.contact-value {
+    background-color: #15233d; /* deep navy for contrast */
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .contact-card input.contact-value::placeholder,
+  .contact-card textarea.contact-value::placeholder {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .contact-card input.contact-value:focus,
+  .contact-card select.contact-value:focus,
+  .contact-card textarea.contact-value:focus {
+    outline: none;
+    border-color: #3245ff; /* brand */
+    box-shadow: 0 0 0 2px rgba(50, 69, 255, 0.35);
+  }
+}

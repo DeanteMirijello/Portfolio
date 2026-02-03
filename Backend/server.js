@@ -5,6 +5,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import contactRoutes from "./routes/contact.js";
 import testimonialsRoutes from "./routes/testimonials.js";
+import skillsRoutes from "./routes/skills.js";
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.get(["/", "/health"], (req, res) => {
 // Routes
 app.use("/contact", contactRoutes);
 app.use("/testimonials", testimonialsRoutes);
+app.use("/skills", skillsRoutes);
 
 // 404 handler
 app.use((req, res) => {
