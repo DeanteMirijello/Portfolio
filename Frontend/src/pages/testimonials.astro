@@ -1,0 +1,170 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/nav.astro";
+---
+
+<Layout>
+  <Nav />
+  <main>
+    <header class="page-header" style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;">
+      <div>
+        <h1>Testimonials</h1>
+        <p class="muted">Add, edit, and delete testimonials from teachers or bosses.</p>
+      </div>
+      <button id="toggleAdmin" class="lang-btn" type="button">Edit</button>
+    </header>
+
+    <!-- List -->
+    <section class="contact-card" id="listCard" hidden>
+      <div id="items"></div>
+    </section>
+
+    <!-- Editor -->
+    <section class="contact-card" id="editorCard" hidden>
+      <form id="editorForm">
+        <input type="hidden" id="id" />
+        <div class="contact-row">
+          <label class="contact-label" for="author">Author</label>
+          <input id="author" name="author" type="text" class="contact-value" required />
+        </div>
+        <div class="contact-row">
+          <label class="contact-label" for="role">Role</label>
+          <input id="role" name="role" type="text" class="contact-value" />
+        </div>
+        <div class="contact-row">
+          <label class="contact-label" for="quote">Quote</label>
+          <input id="quote" name="quote" type="text" class="contact-value" required />
+        </div>
+        <div style="display:flex;gap:.5rem;justify-content:flex-end;padding-top:.75rem;">
+          <button type="button" id="cancelBtn" class="lang-btn">Cancel</button>
+          <button type="submit" class="lang-btn">Save</button>
+        </div>
+        <p id="formMsg" class="muted" style="margin-top:.5rem;"></p>
+      </form>
+    </section>
+  </main>
+
+  <script type="module">
+    const API = "http://localhost:3001/testimonials";
+    const toggleAdmin = document.getElementById("toggleAdmin");
+    const listCard = document.getElementById("listCard");
+    const editorCard = document.getElementById("editorCard");
+    const itemsDiv = document.getElementById("items");
+    const form = document.getElementById("editorForm");
+    const msg = document.getElementById("formMsg");
+
+    const inputs = {
+      id: document.getElementById("id"),
+      author: document.getElementById("author"),
+      role: document.getElementById("role"),
+      quote: document.getElementById("quote"),
+    };
+
+    function render(items) {
+      itemsDiv.innerHTML = "";
+      if (!items.length) {
+        itemsDiv.innerHTML = '<p class="muted">No testimonials yet.</p>';
+        return;
+      }
+      for (const t of items) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "card";
+        wrapper.style.marginBottom = "0.75rem";
+        wrapper.innerHTML = `
+          <p style="margin:0"><strong>${t.author}</strong> ${t.role ? `— ${t.role}` : ""}</p>
+          <p style="margin:0.25rem 0">“${t.quote}”</p>
+          <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+            <button class="lang-btn" data-edit="${t.id}">Edit</button>
+            <button class="lang-btn" data-delete="${t.id}">Delete</button>
+          </div>
+        `;
+        itemsDiv.appendChild(wrapper);
+      }
+    }
+
+    async function load() {
+      const res = await fetch(API);
+      const items = await res.json();
+      render(items);
+      listCard.hidden = false;
+      editorCard.hidden = true;
+    }
+
+    toggleAdmin.addEventListener("click", () => {
+      const toEditor = editorCard.hidden;
+      editorCard.hidden = !toEditor;
+      listCard.hidden = toEditor;
+      toggleAdmin.textContent = toEditor ? "List" : "Admin";
+      if (!toEditor) {
+        // reset form when leaving editor
+        inputs.id.value = "";
+        inputs.author.value = "";
+        inputs.role.value = "";
+        inputs.quote.value = "";
+        msg.textContent = "";
+      }
+    });
+
+    itemsDiv.addEventListener("click", async (e) => {
+      const editId = e.target.getAttribute("data-edit");
+      const deleteId = e.target.getAttribute("data-delete");
+      if (editId) {
+        const res = await fetch(API);
+        const items = await res.json();
+        const t = items.find(i => i.id === editId);
+        if (!t) return;
+        inputs.id.value = t.id;
+        inputs.author.value = t.author;
+        inputs.role.value = t.role || "";
+        inputs.quote.value = t.quote;
+        editorCard.hidden = false;
+        listCard.hidden = true;
+        toggleAdmin.textContent = "List";
+      } else if (deleteId) {
+        const res = await fetch(`${API}/${deleteId}`, { method: "DELETE" });
+        if (res.ok) load();
+      }
+    });
+
+    document.getElementById("cancelBtn").addEventListener("click", () => {
+      editorCard.hidden = true;
+      listCard.hidden = false;
+      toggleAdmin.textContent = "Admin";
+      msg.textContent = "";
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      msg.textContent = "Saving...";
+      const payload = {
+        author: inputs.author.value.trim(),
+        role: inputs.role.value.trim(),
+        quote: inputs.quote.value.trim(),
+      };
+      let res;
+      if (inputs.id.value) {
+        res = await fetch(`${API}/${inputs.id.value}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        res = await fetch(API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        msg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed";
+        return;
+      }
+      msg.textContent = "Saved.";
+      await load();
+      toggleAdmin.textContent = "Admin";
+    });
+
+    load();
+  </script>
+</Layout>

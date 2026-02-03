@@ -1,25 +1,45 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import dotenv from "dotenv";
+import contactRoutes from "./routes/contact.js";
+import testimonialsRoutes from "./routes/testimonials.js";
+
+dotenv.config();
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
+const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || "http://localhost:4321"; // Astro dev default
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: ALLOW_ORIGIN,
+  })
+);
+app.use(helmet());
+app.use(morgan("dev"));
 app.use(express.json());
 
-// Test route
-app.get("/", (req, res) => {
-  res.send("Backend is running");
+// Health check
+app.get(["/", "/health"], (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
-// Contact route
-app.post("/contact", (req, res) => {
-  const { name, email, message } = req.body;
+// Routes
+app.use("/contact", contactRoutes);
+app.use("/testimonials", testimonialsRoutes);
 
-  console.log("Contact request:", name, email, message);
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: "Not Found" });
+});
 
-  res.status(200).json({ success: true });
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({ error: err.message || "Server error" });
 });
 
 app.listen(PORT, () => {
