@@ -44,7 +44,7 @@ body {
 
 /* Layout */
 main {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 2rem 1rem;
 }
@@ -444,6 +444,8 @@ nav a.active {
   grid-template-columns: 220px 1fr;
   gap: 1rem;
   margin-top: 1rem;
+  align-items: stretch;
+  min-height: 70vh; /* keep sidebar stable height */
 }
 
 .admin-sidebar {
@@ -453,6 +455,8 @@ nav a.active {
   padding: 0.75rem;
   display: grid;
   gap: 0.5rem;
+  height: 100%;
+  max-height: 500px; /* prevent sidebar from growing too tall on large screens */
 }
 
 .sidebar-btn {
@@ -477,10 +481,67 @@ nav a.active {
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1rem;
+  height: 100%;
+  overflow: auto;
 }
 
 .admin-section h2 {
   margin-top: 0;
+}
+
+/* Admin inputs – consistent with site theme */
+.admin-content input,
+.admin-content textarea,
+.admin-content select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.admin-content input::placeholder,
+.admin-content textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.85;
+}
+
+.admin-content input:focus,
+.admin-content textarea:focus,
+.admin-content select:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(50, 69, 255, 0.2);
+}
+
+.admin-content textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin-content input,
+  .admin-content textarea,
+  .admin-content select {
+    background: #0e1a2b; /* slightly deeper than card for contrast */
+    border-color: #1f2937;
+    color: var(--text);
+  }
+
+  .admin-content input:focus,
+  .admin-content textarea:focus,
+  .admin-content select:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(122, 162, 255, 0.25);
+  }
+
+  .admin-content input::placeholder,
+  .admin-content textarea::placeholder {
+    color: #9ca3af;
+  }
 }
 .home-hero {
   display: grid;

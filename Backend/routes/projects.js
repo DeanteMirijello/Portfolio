@@ -1,12 +1,10 @@
 import express from "express";
 import { body, validationResult, param } from "express-validator";
-import { listProjects, getProject, updateProject } from "../controllers/projectsController.js";
+import { listProjects, getProject, updateProject, createProject, deleteProject } from "../controllers/projectsController.js";
 
 const router = express.Router();
-const PROJECT_IDS = ["dm", "pet", "iot", "bowling"];
-
 const validateId = [
-  param("id").isString().custom((v) => PROJECT_IDS.includes(v)).withMessage("Invalid project id"),
+  param("id").isString().matches(/^[a-z0-9-]{2,}$/i).withMessage("Invalid project id"),
 ];
 
 const validatePayload = [
@@ -32,6 +30,21 @@ router.put("/:id", [...validateId, ...validatePayload], (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
   return updateProject(req, res, next);
+});
+
+router.post("/", [
+  body("id").isString().matches(/^[a-z0-9-]{2,}$/i).withMessage("Invalid id"),
+  ...validatePayload,
+], (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  return createProject(req, res, next);
+});
+
+router.delete("/:id", validateId, (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+  return deleteProject(req, res, next);
 });
 
 export default router;

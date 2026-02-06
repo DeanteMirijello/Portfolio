@@ -17,7 +17,7 @@ import Nav from "../components/nav.astro";
   </main>
 
   <script type="module">
-    const API = "http://localhost:3001/testimonials";
+    const API = (import.meta.env.PUBLIC_API_BASE || "http://localhost:3001") + "/testimonials";
     const listCard = document.getElementById("listCard");
     const itemsDiv = document.getElementById("items");
 

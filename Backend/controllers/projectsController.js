@@ -9,7 +9,9 @@ const DATA_PATH = path.resolve(__dirname, "../data/projects.json");
 const FRONTEND_EN_PATH = path.resolve(__dirname, "../../Frontend/public/js/en.json");
 const FRONTEND_FR_PATH = path.resolve(__dirname, "../../Frontend/public/js/fr.json");
 
-const PROJECT_IDS = ["dm", "pet", "iot", "bowling"];
+function isValidId(id) {
+  return typeof id === "string" && /^[a-z0-9-]{2,}$/i.test(id);
+}
 
 function pickProjectKeys(dict, id) {
   return {
@@ -19,14 +21,15 @@ function pickProjectKeys(dict, id) {
   };
 }
 
-async function getI18nDefaults() {
+async function getI18nDefaults(existingIds = []) {
   try {
     const enRaw = await fs.readFile(FRONTEND_EN_PATH, "utf-8");
     const frRaw = await fs.readFile(FRONTEND_FR_PATH, "utf-8");
     const en = JSON.parse(enRaw);
     const fr = JSON.parse(frRaw);
     const def = {};
-    for (const id of PROJECT_IDS) {
+    const ids = existingIds.length ? existingIds : Object.keys(en).filter(k => k.startsWith("projects.")).map(k => k.split(".")[1]);
+    for (const id of ids) {
       def[id] = {
         image: "/assets/image1.png",
         en: pickProjectKeys(en, id),
@@ -36,7 +39,8 @@ async function getI18nDefaults() {
     return def;
   } catch {
     const def = {};
-    for (const id of PROJECT_IDS) {
+    const ids = existingIds.length ? existingIds : ["dm","pet","iot","bowling"];
+    for (const id of ids) {
       def[id] = {
         image: "/assets/image1.png",
         en: { title: "", date: "", desc: "" },
@@ -51,13 +55,14 @@ async function readProjects() {
   try {
     const raw = await fs.readFile(DATA_PATH, "utf-8");
     const data = JSON.parse(raw);
-    const defaults = await getI18nDefaults();
+    const ids = Object.keys(data);
+    const defaults = await getI18nDefaults(ids);
     const merged = {};
-    for (const id of PROJECT_IDS) {
+    for (const id of ids) {
       merged[id] = {
-        image: (data[id]?.image) || defaults[id].image,
-        en: { ...defaults[id].en, ...(data[id]?.en || {}) },
-        fr: { ...defaults[id].fr, ...(data[id]?.fr || {}) },
+        image: (data[id]?.image) || defaults[id]?.image || "/assets/image1.png",
+        en: { ...(defaults[id]?.en || {}), ...(data[id]?.en || {}) },
+        fr: { ...(defaults[id]?.fr || {}), ...(data[id]?.fr || {}) },
       };
     }
     return merged;
@@ -106,8 +111,8 @@ export async function listProjects(req, res, next) {
 export async function getProject(req, res, next) {
   try {
     const id = req.params.id;
-    if (!PROJECT_IDS.includes(id)) return res.status(404).json({ error: "Invalid project id" });
     const projects = await readProjects();
+    if (!projects[id]) return res.status(404).json({ error: "Invalid project id" });
     res.status(200).json(projects[id]);
   } catch (err) {
     next(err);
@@ -117,9 +122,9 @@ export async function getProject(req, res, next) {
 export async function updateProject(req, res, next) {
   try {
     const id = req.params.id;
-    if (!PROJECT_IDS.includes(id)) return res.status(404).json({ error: "Invalid project id" });
     const projects = await readProjects();
     const curr = projects[id];
+    if (!curr) return res.status(404).json({ error: "Invalid project id" });
     const { image, en, fr } = req.body;
     const nextEntry = {
       image: typeof image === "string" && image.trim() ? image.trim() : curr.image,
@@ -139,6 +144,61 @@ export async function updateProject(req, res, next) {
     await writeProjects(projects);
     await updateFrontendI18n(id, nextEntry);
     res.status(200).json(nextEntry);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function createProject(req, res, next) {
+  try {
+    const { id, image, en, fr } = req.body;
+    if (!isValidId(id)) return res.status(400).json({ error: "Invalid id. Use letters, numbers, dashes." });
+    let projects = {};
+    try {
+      const raw = await fs.readFile(DATA_PATH, "utf-8");
+      projects = JSON.parse(raw);
+    } catch (err) {
+      if (err.code !== "ENOENT") throw err;
+    }
+    if (projects[id]) return res.status(409).json({ error: "Project id already exists" });
+
+    const entry = {
+      image: typeof image === "string" && image.trim() ? image.trim() : "/assets/image1.png",
+      en: {
+        title: en?.title ?? "",
+        date: en?.date ?? "",
+        desc: en?.desc ?? "",
+      },
+      fr: {
+        title: fr?.title ?? "",
+        date: fr?.date ?? "",
+        desc: fr?.desc ?? "",
+      },
+    };
+
+    projects[id] = entry;
+    await writeProjects(projects);
+    await updateFrontendI18n(id, entry);
+    res.status(201).json(entry);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteProject(req, res, next) {
+  try {
+    const id = req.params.id;
+    let projects = {};
+    try {
+      const raw = await fs.readFile(DATA_PATH, "utf-8");
+      projects = JSON.parse(raw);
+    } catch (err) {
+      if (err.code !== "ENOENT") throw err;
+    }
+    if (!projects[id]) return res.status(404).json({ error: "Invalid project id" });
+    delete projects[id];
+    await writeProjects(projects);
+    res.status(204).end();
   } catch (err) {
     next(err);
   }

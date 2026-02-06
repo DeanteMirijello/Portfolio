@@ -29,12 +29,8 @@ import Nav from "../components/nav.astro";
                     <form id="projectsForm" style="display:grid;gap:.75rem;">
                       <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
                         <label class="contact-label" for="proj_id" style="min-width:120px;">Project</label>
-                        <select id="proj_id">
-                          <option value="dm">DM Creations</option>
-                          <option value="pet">Champlain Pet Clinic</option>
-                          <option value="iot">IoT Home Automation & Security</option>
-                          <option value="bowling">Bowling Alley Microservices System</option>
-                        </select>
+                        <select id="proj_id"></select>
+                        <input id="proj_new_id" placeholder="new-project-id" style="display:none;" />
                       </div>
                       <div>
                         <label class="contact-label" for="proj_image">Image URL</label>
@@ -172,7 +168,7 @@ import Nav from "../components/nav.astro";
   </main>
 
   <script type="module">
-    const API_BASE = "http://localhost:3001";
+    const API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
 
     // Sidebar switching
     const sections = {
@@ -509,7 +505,22 @@ import Nav from "../components/nav.astro";
       }
     }
 
-    pId.addEventListener("change", () => loadProject(pId.value));
+    pId.addEventListener("change", () => {
+      const val = pId.value;
+      const isNew = val === "__new__";
+      document.getElementById("proj_new_id").style.display = isNew ? "inline-block" : "none";
+      if (!isNew) loadProject(val);
+      else {
+        // Reset fields for new project
+        pInputs.image.value = "";
+        pInputs.en.title.value = "";
+        pInputs.en.date.value = "";
+        pInputs.en.desc.value = "";
+        pInputs.fr.title.value = "";
+        pInputs.fr.date.value = "";
+        pInputs.fr.desc.value = "";
+      }
+    });
 
     pForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -528,10 +539,12 @@ import Nav from "../components/nav.astro";
         },
       };
       try {
-        const res = await fetch(`${API_BASE}/projects/${pId.value}`, {
-          method: "PUT",
+        const isNew = pId.value === "__new__";
+        const idForNew = document.getElementById("proj_new_id").value.trim();
+        const res = await fetch(isNew ? `${API_BASE}/projects` : `${API_BASE}/projects/${pId.value}`, {
+          method: isNew ? "POST" : "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(isNew ? { id: idForNew, ...payload } : payload),
         });
         const data = await res.json();
         if (!res.ok) {
@@ -539,14 +552,42 @@ import Nav from "../components/nav.astro";
           return;
         }
         pMsg.textContent = "Saved.";
+        await loadProjectsList();
+        if (isNew && idForNew) {
+          pId.value = idForNew;
+        }
       } catch (e) {
         console.error(e);
         pMsg.textContent = "Network error";
       }
     });
 
+    async function loadProjectsList() {
+      try {
+        const res = await fetch(`${API_BASE}/projects`);
+        const data = await res.json();
+        pId.innerHTML = "";
+        // Add existing projects
+        Object.entries(data).forEach(([id, entry]) => {
+          const opt = document.createElement("option");
+          opt.value = id;
+          opt.textContent = entry.en?.title || id;
+          pId.appendChild(opt);
+        });
+        // Add New option
+        const newOpt = document.createElement("option");
+        newOpt.value = "__new__";
+        newOpt.textContent = "New…";
+        pId.appendChild(newOpt);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     loadHome();
-    loadProject(pId.value);
+    await loadProjectsList();
+    pId.value = pId.options[0]?.value || "__new__";
+    if (pId.value !== "__new__") loadProject(pId.value);
     loadContact();
     renderTestimonials();
     loadSkills();

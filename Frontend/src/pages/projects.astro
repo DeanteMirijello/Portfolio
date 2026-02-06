@@ -23,118 +23,83 @@ import Nav from "../components/nav.astro";
         <p data-i18n="projects.subtitle">Some projects I’ve worked on during school and team projects.</p>
       </header>
 
-      <section class="projects-grid">
-        <article class="project-card">
-          <div class="project-image"><img id="proj-img-dm" alt="DM Creations screenshot" /></div>
-          <div class="project-top">
-            <h2 data-i18n="projects.dm.title">DM Creations</h2>
-            <span class="project-date" data-i18n="projects.dm.date">Aug 2025 – Feb 2026</span>
-          </div>
-          <p data-i18n="projects.dm.desc">
-            Party decoration e-commerce web app for a real client. Built in a team of 5
-            using Scrum/Agile. Designed C4 architecture and implemented REST APIs.
-          </p>
-          <div class="tags">
-            <span class="tag">React</span>
-            <span class="tag">Spring Boot</span>
-            <span class="tag">MySQL</span>
-            <span class="tag">TypeScript</span>
-            <span class="tag">Auth0</span>
-          </div>
-          <div style="margin-top:.5rem;">
-            <a class="contact-link" href="https://github.com/Ayoub-Seddik/dm-creation" target="_blank" rel="noreferrer">GitHub Repository</a>
-            <a class="contact-link" href="https://www.dmcreations.ca/" target="_blank" rel="noreferrer" style="margin-left:1rem;">Live Site</a>
-          </div>
-        </article>
-
-        <article class="project-card">
-          <div class="project-image"><img id="proj-img-pet" alt="Champlain Pet Clinic screenshot" /></div>
-          <div class="project-top">
-            <h2 data-i18n="projects.pet.title">Champlain Pet Clinic</h2>
-            <span class="project-date" data-i18n="projects.pet.date">Sep 2025 – Oct 2025</span>
-          </div>
-          <p data-i18n="projects.pet.desc">
-            Full-stack pet clinic simulation with 44 students across microservices.
-            I worked on bill-related services and UI improvements.
-          </p>
-          <div class="tags">
-            <span class="tag">TypeScript</span>
-            <span class="tag">React</span>
-            <span class="tag">Spring Boot</span>
-            <span class="tag">MongoDB</span>
-            <span class="tag">Docker</span>
-          </div>
-          <div style="margin-top:.5rem;">
-            <a class="contact-link" href="https://github.com/cgerard321/champlain_petclinic" target="_blank" rel="noreferrer">GitHub Repository</a>
-            <a class="contact-link" href="https://petclinic.benmusicgeek.synology.me/" target="_blank" rel="noreferrer" style="margin-left:1rem;">Live Site</a>
-          </div>
-        </article>
-
-        <article class="project-card">
-          <div class="project-image"><img id="proj-img-iot" alt="IoT Home Automation screenshot" /></div>
-          <div class="project-top">
-            <h2 data-i18n="projects.iot.title">IoT Home Automation & Security</h2>
-            <span class="project-date" data-i18n="projects.iot.date">Oct 2025 – Nov 2025</span>
-          </div>
-          <p data-i18n="projects.iot.desc">
-            Raspberry Pi smart-home system. Built a Flask + Chart.js dashboard for live
-            monitoring, device control, and historical graphs. Added cloud sync + caching.
-          </p>
-          <div class="tags">
-            <span class="tag">Python</span>
-            <span class="tag">Flask</span>
-            <span class="tag">MQTT</span>
-            <span class="tag">PostgreSQL</span>
-            <span class="tag">Chart.js</span>
-          </div>
-          <div style="margin-top:.5rem;">
-            <a class="contact-link" href="https://github.com/DeanteMirijello/IOT-Living-Home-System" target="_blank" rel="noreferrer">GitHub Repository</a>
-          </div>
-        </article>
-
-        <article class="project-card">
-          <div class="project-image"><img id="proj-img-bowling" alt="Bowling Microservices screenshot" /></div>
-          <div class="project-top">
-            <h2 data-i18n="projects.bowling.title">Bowling Alley Microservices System</h2>
-            <span class="project-date" data-i18n="projects.bowling.date">Jan 2025 – May 2025</span>
-          </div>
-          <p data-i18n="projects.bowling.desc">
-            Distributed system to manage rented shoes, bowling balls, and lanes through an API Gateway.
-          </p>
-          <div class="tags">
-            <span class="tag">Java</span>
-            <span class="tag">Spring Boot</span>
-            <span class="tag">Docker</span>
-            <span class="tag">PostgreSQL</span>
-            <span class="tag">Postman</span>
-          </div>
-          <div style="margin-top:.5rem;">
-            <a class="contact-link" href="https://github.com/DeanteMirijello/Bowling-Alley-System" target="_blank" rel="noreferrer">GitHub Repository</a>
-          </div>
-        </article>
-      </section>
+      <section id="projectsGrid" class="projects-grid"></section>
       <script type="module">
-        async function setProjectImages() {
+        const API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
+        async function renderProjects() {
           try {
-            const res = await fetch("http://localhost:3001/projects");
+            const res = await fetch(`${API_BASE}/projects`);
             const data = await res.json();
-            const map = {
-              dm: document.getElementById("proj-img-dm"),
-              pet: document.getElementById("proj-img-pet"),
-              iot: document.getElementById("proj-img-iot"),
-              bowling: document.getElementById("proj-img-bowling"),
+            const grid = document.getElementById("projectsGrid");
+            grid.innerHTML = "";
+            const lang = window.__lang || "en";
+
+            const linkMap = {
+              dm: {
+                github: "https://github.com/Ayoub-Seddik/dm-creation",
+                live: "https://www.dmcreations.ca/",
+              },
+              pet: {
+                github: "https://github.com/cgerard321/champlain_petclinic",
+                live: "https://petclinic.benmusicgeek.synology.me/",
+              },
+              iot: {
+                github: "https://github.com/DeanteMirijello/IOT-Living-Home-System",
+              },
+              bowling: {
+                github: "https://github.com/DeanteMirijello/Bowling-Alley-System",
+              },
             };
-            for (const key of Object.keys(map)) {
-              const imgEl = map[key];
-              if (imgEl && data[key]?.image) {
-                imgEl.src = data[key].image;
+
+            Object.entries(data).forEach(([id, entry]) => {
+              const card = document.createElement("article");
+              card.className = "project-card";
+              const txt = entry[lang] || entry.en || {};
+              card.innerHTML = `
+                <div class="project-image"><img alt="${txt.title || id} screenshot" src="${entry.image || ''}" /></div>
+                <div class="project-top">
+                  <h2>${txt.title || id}</h2>
+                  <span class="project-date">${txt.date || ''}</span>
+                </div>
+                <p>${txt.desc || ''}</p>
+              `;
+              const links = linkMap[id];
+              if (links && (links.github || links.live)) {
+                const linkDiv = document.createElement("div");
+                linkDiv.style.marginTop = ".5rem";
+                if (links.github) {
+                  const a = document.createElement("a");
+                  a.className = "contact-link";
+                  a.href = links.github;
+                  a.target = "_blank";
+                  a.rel = "noreferrer";
+                  a.textContent = "GitHub Repository";
+                  linkDiv.appendChild(a);
+                }
+                if (links.live) {
+                  const a2 = document.createElement("a");
+                  a2.className = "contact-link";
+                  a2.href = links.live;
+                  a2.target = "_blank";
+                  a2.rel = "noreferrer";
+                  a2.textContent = "Live Site";
+                  a2.style.marginLeft = "1rem";
+                  linkDiv.appendChild(a2);
+                }
+                card.appendChild(linkDiv);
               }
-            }
+              grid.appendChild(card);
+            });
           } catch (e) {
-            console.error("Failed to load project images", e);
+            console.error("Failed to load projects", e);
           }
         }
-        setProjectImages();
+
+        renderProjects();
+        // Update when language changes
+        document.addEventListener("click", (e) => {
+          if (e.target.closest("[data-lang-toggle]")) setTimeout(renderProjects, 100);
+        });
       </script>
     </main>
   </body>

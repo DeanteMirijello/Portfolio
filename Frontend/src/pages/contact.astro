@@ -41,7 +41,7 @@ import Nav from "../components/nav.astro";
   </main>
 
   <script type="module">
-    const API = "http://localhost:3001/contact";
+    const API = (import.meta.env.PUBLIC_API_BASE || "http://localhost:3001") + "/contact";
     const viewCard = document.getElementById("viewCard");
 
     const viewEls = {
