@@ -1,5 +1,6 @@
 ---
 import Nav from "../components/nav.astro";
+const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
 ---
 
 <html lang="en">
@@ -17,7 +18,7 @@ import Nav from "../components/nav.astro";
   <body>
     <Nav />
 
-    <main>
+    <main data-api-base={API_BASE_VALUE}>
       <header class="page-header">
         <h1 data-i18n="projects.title">Projects</h1>
         <p data-i18n="projects.subtitle">Some projects I’ve worked on during school and team projects.</p>
@@ -25,7 +26,7 @@ import Nav from "../components/nav.astro";
 
       <section id="projectsGrid" class="projects-grid"></section>
       <script type="module">
-        const API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
+        const API_BASE = document.querySelector("main").dataset.apiBase;
         async function renderProjects() {
           try {
             const res = await fetch(`${API_BASE}/projects`);

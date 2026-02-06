@@ -1,11 +1,12 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Nav from "../components/nav.astro";
+const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
 ---
 
 <Layout>
   <Nav />
-  <main>
+  <main data-api-base={API_BASE_VALUE}>
     <header class="page-header">
       <h1>Testimonials</h1>
       <p class="muted">Feedback from teachers and supervisors.</p>
@@ -17,7 +18,8 @@ import Nav from "../components/nav.astro";
   </main>
 
   <script type="module">
-    const API = (import.meta.env.PUBLIC_API_BASE || "http://localhost:3001") + "/testimonials";
+    const API_BASE = document.querySelector("main").dataset.apiBase;
+    const API = `${API_BASE}/testimonials`;
     const listCard = document.getElementById("listCard");
     const itemsDiv = document.getElementById("items");
 

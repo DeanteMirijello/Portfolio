@@ -1,12 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Nav from "../components/nav.astro";
+const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
 ---
 
 <Layout>
   <Nav />
 
-  <main>
+  <main data-api-base={API_BASE_VALUE}>
     <header class="page-header">
       <h1>Admin</h1>
       <p class="muted">Manage site content from one place.</p>
@@ -168,7 +169,7 @@ import Nav from "../components/nav.astro";
   </main>
 
   <script type="module">
-    const API_BASE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
+    const API_BASE = document.querySelector("main").dataset.apiBase;
 
     // Sidebar switching
     const sections = {
