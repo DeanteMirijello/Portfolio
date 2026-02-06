@@ -12,10 +12,9 @@ import Nav from "../components/nav.astro";
         <h1 data-i18n="contact.title">Contact</h1>
         <p data-i18n="contact.subtitle">Best ways to reach me.</p>
       </div>
-      <button id="editToggle" class="lang-btn" type="button" aria-label="Edit contact info">Edit</button>
     </header>
 
-    <!-- View mode -->
+    <!-- View-only -->
     <section class="contact-card" id="viewCard" hidden>
       <div class="contact-row">
         <span class="contact-label" data-i18n="contact.location">Location</span>
@@ -38,52 +37,12 @@ import Nav from "../components/nav.astro";
       </div>
     </section>
 
-    <!-- Edit mode -->
-    <section class="contact-card" id="editCard" hidden>
-      <form id="contactForm">
-        <div class="contact-row">
-          <label class="contact-label" for="location" data-i18n="contact.location">Location</label>
-          <input id="location" name="location" type="text" class="contact-value" />
-        </div>
-
-        <div class="contact-row">
-          <label class="contact-label" for="email" data-i18n="contact.email">Email</label>
-          <input id="email" name="email" type="email" class="contact-value" required />
-        </div>
-
-        <div class="contact-row">
-          <label class="contact-label" for="github" data-i18n="contact.github">GitHub</label>
-          <input id="github" name="github" type="url" class="contact-value" />
-        </div>
-
-        <div class="contact-row">
-          <label class="contact-label" for="linkedin" data-i18n="contact.linkedin">LinkedIn</label>
-          <input id="linkedin" name="linkedin" type="url" class="contact-value" />
-        </div>
-
-        <div style="display:flex;gap:.5rem;justify-content:flex-end;padding-top:.75rem;">
-          <button type="button" id="cancelBtn" class="lang-btn">Cancel</button>
-          <button type="submit" class="lang-btn">Save</button>
-        </div>
-        <p id="formMsg" class="muted" style="margin-top:.5rem;"></p>
-      </form>
-    </section>
+    <!-- Edit mode removed; Admin page handles updates -->
   </main>
 
   <script type="module">
     const API = "http://localhost:3001/contact";
-    const editToggle = document.getElementById("editToggle");
-    const editCard = document.getElementById("editCard");
     const viewCard = document.getElementById("viewCard");
-    const form = document.getElementById("contactForm");
-    const formMsg = document.getElementById("formMsg");
-
-    const inputs = {
-      location: document.getElementById("location"),
-      email: document.getElementById("email"),
-      github: document.getElementById("github"),
-      linkedin: document.getElementById("linkedin"),
-    };
 
     const viewEls = {
       vLocation: document.getElementById("vLocation"),
@@ -102,73 +61,17 @@ import Nav from "../components/nav.astro";
       viewEls.vLinkedinLink.textContent = data.linkedin?.replace("https://", "") || "";
     }
 
-    function setForm(data) {
-      inputs.location.value = data.location || "";
-      inputs.email.value = data.email || "";
-      inputs.github.value = data.github || "";
-      inputs.linkedin.value = data.linkedin || "";
-    }
-
     async function load() {
       try {
         const res = await fetch(API);
         const data = await res.json();
         setView(data);
-        setForm(data);
-        // Default to view mode
         viewCard.hidden = false;
-        editCard.hidden = true;
       } catch (e) {
         console.error(e);
-        formMsg.textContent = "Failed to load contact info.";
+        // no inline error shown in view-only mode
       }
     }
-
-    editToggle.addEventListener("click", () => {
-      const goingEdit = editCard.hidden;
-      editCard.hidden = !goingEdit;
-      viewCard.hidden = goingEdit;
-      editToggle.textContent = goingEdit ? "View" : "Edit";
-    });
-
-    document.getElementById("cancelBtn").addEventListener("click", () => {
-      editCard.hidden = true;
-      viewCard.hidden = false;
-      editToggle.textContent = "Edit";
-      formMsg.textContent = "";
-    });
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      formMsg.textContent = "Saving...";
-      const payload = {
-        location: inputs.location.value.trim(),
-        email: inputs.email.value.trim(),
-        github: inputs.github.value.trim(),
-        linkedin: inputs.linkedin.value.trim(),
-      };
-      try {
-        const res = await fetch(API, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          formMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed";
-          return;
-        }
-        // Refresh view with new data
-        setView(payload);
-        editCard.hidden = true;
-        viewCard.hidden = false;
-        editToggle.textContent = "Edit";
-        formMsg.textContent = "Saved.";
-      } catch (err) {
-        console.error(err);
-        formMsg.textContent = "Network error";
-      }
-    });
 
     load();
   </script>

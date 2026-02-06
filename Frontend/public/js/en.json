@@ -4,39 +4,31 @@
   "nav.projects": "Projects",
   "nav.contact": "Contact",
   "nav.lang": "FR",
-
   "home.title": "Hello, I’m Deante",
   "home.subtitle": "I am a computer science student interested in software development and building practical applications.",
   "home.section.find": "What you’ll find here",
   "home.li1": "Information about me and my background",
   "home.li2": "Projects I have worked on during my studies",
   "home.li3": "Ways to contact me",
-
   "about.title": "About Me",
   "about.intro": "I’m Deante Mirijello, a Computer Science student in Montreal. I’m interested in full-stack development and building practical software.",
   "about.skills": "Skills",
   "about.experience": "Experience",
   "about.education": "Education",
-
   "projects.title": "Projects",
   "projects.subtitle": "Some projects I’ve worked on during school and team projects.",
-
   "projects.dm.title": "DM Creations",
   "projects.dm.date": "Aug 2025 – Feb 2026",
   "projects.dm.desc": "Party decoration e-commerce web app for a real client. Built in a team of 5 using Scrum/Agile. Designed C4 architecture and implemented REST APIs.",
-
   "projects.pet.title": "Champlain Pet Clinic",
   "projects.pet.date": "Sep 2025 – Oct 2025",
   "projects.pet.desc": "Full-stack pet clinic simulation with 44 students across microservices. I worked on bill-related services and UI improvements.",
-
   "projects.iot.title": "IoT Home Automation & Security",
   "projects.iot.date": "Oct 2025 – Nov 2025",
   "projects.iot.desc": "Raspberry Pi smart-home system. Built a Flask + Chart.js dashboard for live monitoring, device control, and historical graphs. Added cloud sync + caching.",
-
   "projects.bowling.title": "Bowling Alley Microservices System",
   "projects.bowling.date": "Jan 2025 – May 2025",
   "projects.bowling.desc": "Distributed system to manage rented shoes, bowling balls, and lanes through an API Gateway.",
-
   "contact.title": "Contact",
   "contact.subtitle": "Best ways to reach me.",
   "contact.location": "Location",

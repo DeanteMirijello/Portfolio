@@ -172,6 +172,22 @@ nav span {
   padding: 1rem;
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
+.project-image {
+  width: 100%;
+  height: 160px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(127,127,127,0.06);
+  margin-bottom: 0.75rem;
+}
+
+.project-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 
 .project-card:hover {
   transform: translateY(-2px);
@@ -361,15 +377,16 @@ nav a.active {
 
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; /* center main tabs */
   gap: 1rem;
+  position: relative; /* allow right-side absolute positioning */
 }
 
 .nav-links {
   display: flex;
   gap: 1.25rem;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .site-nav a {
@@ -379,6 +396,28 @@ nav a.active {
 }
 
 .site-nav a:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
+.nav-right {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.admin-link {
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.admin-link:hover,
+.admin-link.active {
   color: var(--brand);
   text-decoration: underline;
 }
@@ -398,6 +437,51 @@ nav a.active {
 }
 
 /* Home page hero */
+
+/* Admin page */
+.admin-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-sidebar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.sidebar-btn {
+  border: 1px solid var(--border);
+  background: rgba(127, 127, 127, 0.08);
+  color: var(--text);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sidebar-btn:hover,
+.sidebar-btn.active {
+  border-color: rgba(127, 127, 127, 0.35);
+  color: var(--brand);
+}
+
+.admin-content {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.admin-section h2 {
+  margin-top: 0;
+}
 .home-hero {
   display: grid;
   grid-template-columns: 1fr;

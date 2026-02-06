@@ -29,9 +29,6 @@ import Nav from "../components/nav.astro";
       <section class="about-grid">
         <article class="about-card">
           <h2 data-i18n="about.skills">Skills</h2>
-          <div style="display:flex;justify-content:flex-end;">
-            <button id="skillsEditToggle" class="lang-btn" type="button">Edit</button>
-          </div>
 
           <div class="about-block">
             <h3>Languages</h3>
@@ -53,39 +50,6 @@ import Nav from "../components/nav.astro";
             <div class="tags" id="skills-design"></div>
           </div>
 
-          <!-- Admin editor -->
-          <section class="contact-card" id="skillsEditor" hidden>
-            <form id="skillsForm">
-              <div class="contact-row">
-                <label class="contact-label" for="skillsCategory">Category</label>
-                <select id="skillsCategory" class="contact-value">
-                  <option value="languages">Languages</option>
-                  <option value="frameworks">Frameworks & Tools</option>
-                  <option value="databases">Databases</option>
-                  <option value="design">Design</option>
-                </select>
-              </div>
-
-              <div class="contact-row">
-                <label class="contact-label" for="skillsValue">Value</label>
-                <input id="skillsValue" type="text" class="contact-value" />
-              </div>
-
-              <div class="contact-row" id="skillsOldRow" hidden>
-                <label class="contact-label" for="skillsOldValue">Editing</label>
-                <input id="skillsOldValue" type="text" class="contact-value" readonly />
-              </div>
-
-              <div style="display:flex;gap:.5rem;justify-content:flex-end;padding-top:.75rem;">
-                <button type="button" id="skillsCancel" class="lang-btn">Cancel</button>
-                <button type="button" id="skillsAdd" class="lang-btn">Add</button>
-                <button type="button" id="skillsUpdate" class="lang-btn">Update</button>
-                <button type="button" id="skillsDelete" class="lang-btn">Delete</button>
-              </div>
-              <p id="skillsMsg" class="muted" style="margin-top:.5rem;"></p>
-              <p class="muted">Tip: Click a tag to edit or delete it.</p>
-            </form>
-          </section>
         </article>
 
         <article class="about-card">
@@ -123,14 +87,6 @@ import Nav from "../components/nav.astro";
         databases: document.getElementById("skills-databases"),
         design: document.getElementById("skills-design"),
       };
-      const editToggle = document.getElementById("skillsEditToggle");
-      const editor = document.getElementById("skillsEditor");
-      const form = document.getElementById("skillsForm");
-      const categorySel = document.getElementById("skillsCategory");
-      const valueInput = document.getElementById("skillsValue");
-      const msg = document.getElementById("skillsMsg");
-      const oldRow = document.getElementById("skillsOldRow");
-      const oldValueInput = document.getElementById("skillsOldValue");
 
       function renderList(cat, list) {
         const container = ids[cat];
@@ -152,73 +108,8 @@ import Nav from "../components/nav.astro";
         renderList("frameworks", skills.frameworks || []);
         renderList("databases", skills.databases || []);
         renderList("design", skills.design || []);
-        editor.hidden = true;
+        // view-only
       }
-
-      editToggle.addEventListener("click", () => {
-        editor.hidden = !editor.hidden;
-        editToggle.textContent = editor.hidden ? "Edit" : "Close";
-        msg.textContent = "";
-        oldRow.hidden = true;
-        oldValueInput.value = "";
-        valueInput.value = "";
-      });
-
-      // Click tag to prefill editor
-      document.addEventListener("click", (e) => {
-        const el = e.target;
-        if (el.classList?.contains("tag") && el.dataset.cat) {
-          editor.hidden = false;
-          editToggle.textContent = "Close";
-          categorySel.value = el.dataset.cat;
-          valueInput.value = el.dataset.value;
-          oldValueInput.value = el.dataset.value;
-          oldRow.hidden = false;
-        }
-      });
-
-      document.getElementById("skillsCancel").addEventListener("click", () => {
-        editor.hidden = true;
-        editToggle.textContent = "Edit";
-        msg.textContent = "";
-        oldRow.hidden = true;
-        oldValueInput.value = "";
-        valueInput.value = "";
-      });
-
-      async function postJSON(url, method, body) {
-        const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error((data.errors?.[0]?.msg) || data.error || "Request failed");
-        return data;
-      }
-
-      document.getElementById("skillsAdd").addEventListener("click", async () => {
-        msg.textContent = "Saving...";
-        try {
-          await postJSON(`${API}/items`, "POST", { category: categorySel.value, value: valueInput.value.trim() });
-          await loadSkills();
-          msg.textContent = "Added.";
-        } catch (e) { msg.textContent = e.message; }
-      });
-
-      document.getElementById("skillsUpdate").addEventListener("click", async () => {
-        msg.textContent = "Saving...";
-        try {
-          await postJSON(`${API}/items`, "PUT", { category: categorySel.value, oldValue: oldValueInput.value.trim(), newValue: valueInput.value.trim() });
-          await loadSkills();
-          msg.textContent = "Updated.";
-        } catch (e) { msg.textContent = e.message; }
-      });
-
-      document.getElementById("skillsDelete").addEventListener("click", async () => {
-        msg.textContent = "Deleting...";
-        try {
-          await postJSON(`${API}/items`, "DELETE", { category: categorySel.value, value: oldValueInput.value.trim() || valueInput.value.trim() });
-          await loadSkills();
-          msg.textContent = "Deleted.";
-        } catch (e) { msg.textContent = e.message; }
-      });
 
       loadSkills();
     </script>

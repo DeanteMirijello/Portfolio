@@ -34,11 +34,26 @@ import Nav from "../components/nav.astro";
       <div class="hero-photo">
         <!-- Photo placeholder (replace later with real image) -->
         <img
-        src="assets/image1.png"
+        src="/assets/image1.png"
         alt="Photo of Deante Mirijello"
         class="profile-photo"
+        id="homeProfilePhoto"
         />
       </div>
     </section>
   </main>
+  <script type="module">
+    // Load dynamic image from backend Home settings
+    async function loadHomeImage() {
+      try {
+        const res = await fetch("http://localhost:3001/home");
+        const data = await res.json();
+        const img = document.getElementById("homeProfilePhoto");
+        if (img && data.image) img.src = data.image;
+      } catch (e) {
+        console.error("Failed to load home image", e);
+      }
+    }
+    loadHomeImage();
+  </script>
 </Layout>

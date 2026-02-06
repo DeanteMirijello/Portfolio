@@ -1,0 +1,54 @@
+{
+  "dm": {
+    "image": "/assets/image1.png",
+    "en": {
+      "title": "DM Creations",
+      "date": "Aug 2025 – Feb 2026",
+      "desc": "Party decoration e-commerce web app for a real client. Built in a team of 5 using Scrum/Agile. Designed C4 architecture and implemented REST APIs."
+    },
+    "fr": {
+      "title": "DM Creations",
+      "date": "août 2025 – février 2026",
+      "desc": "Application e-commerce de décoration événementielle pour un vrai client. Réalisée en équipe de 5 avec Scrum/Agile. Conception de l’architecture C4 et implémentation d’API REST."
+    }
+  },
+  "pet": {
+    "image": "/assets/image1.png",
+    "en": {
+      "title": "Champlain Pet Clinic",
+      "date": "Sep 2025 – Oct 2025",
+      "desc": "Full-stack pet clinic simulation with 44 students across microservices. I worked on bill-related services and UI improvements."
+    },
+    "fr": {
+      "title": "Clinique vétérinaire de Champlain",
+      "date": "septembre 2025 – octobre 2025",
+      "desc": "Simulation full‑stack d’une clinique vétérinaire avec 44 étudiants et des microservices. J’ai travaillé sur les services de facturation et les améliorations UI."
+    }
+  },
+  "iot": {
+    "image": "/assets/image1.png",
+    "en": {
+      "title": "IoT Home Automation & Security",
+      "date": "Oct 2025 – Nov 2025",
+      "desc": "Raspberry Pi smart-home system. Built a Flask + Chart.js dashboard for live monitoring, device control, and historical graphs. Added cloud sync + caching."
+    },
+    "fr": {
+      "title": "Domotique et sécurité IoT",
+      "date": "octobre 2025 – novembre 2025",
+      "desc": "Système de maison intelligente avec Raspberry Pi. Tableau de bord Flask + Chart.js pour le suivi en temps réel, le contrôle des appareils et les graphiques historiques. Synchronisation cloud et mise en cache ajoutées."
+    }
+  },
+  "bowling": {
+    "image": "/assets/image1.png",
+    "en": {
+      "title": "Bowling Alley Microservices System",
+      "date": "Jan 2025 – May 2025",
+      "desc": "Distributed system to manage rented shoes, bowling balls, and lanes through an API Gateway."
+    },
+    "fr": {
+      "title": "Système de microservices pour une salle de quilles",
+      "date": "janvier 2025 – mai 2025",
+      "desc": "Système distribué pour gérer la location de chaussures, boules et allées via une passerelle d’API."
+    }
+  }
+}

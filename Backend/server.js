@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 import contactRoutes from "./routes/contact.js";
 import testimonialsRoutes from "./routes/testimonials.js";
 import skillsRoutes from "./routes/skills.js";
+import homeRoutes from "./routes/home.js";
+import projectsRoutes from "./routes/projects.js";
 
 dotenv.config();
 
@@ -32,6 +34,8 @@ app.get(["/", "/health"], (req, res) => {
 app.use("/contact", contactRoutes);
 app.use("/testimonials", testimonialsRoutes);
 app.use("/skills", skillsRoutes);
+app.use("/home", homeRoutes);
+app.use("/projects", projectsRoutes);
 
 // 404 handler
 app.use((req, res) => {

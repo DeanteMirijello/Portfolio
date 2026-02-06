@@ -25,6 +25,7 @@ import Nav from "../components/nav.astro";
 
       <section class="projects-grid">
         <article class="project-card">
+          <div class="project-image"><img id="proj-img-dm" alt="DM Creations screenshot" /></div>
           <div class="project-top">
             <h2 data-i18n="projects.dm.title">DM Creations</h2>
             <span class="project-date" data-i18n="projects.dm.date">Aug 2025 – Feb 2026</span>
@@ -47,6 +48,7 @@ import Nav from "../components/nav.astro";
         </article>
 
         <article class="project-card">
+          <div class="project-image"><img id="proj-img-pet" alt="Champlain Pet Clinic screenshot" /></div>
           <div class="project-top">
             <h2 data-i18n="projects.pet.title">Champlain Pet Clinic</h2>
             <span class="project-date" data-i18n="projects.pet.date">Sep 2025 – Oct 2025</span>
@@ -69,6 +71,7 @@ import Nav from "../components/nav.astro";
         </article>
 
         <article class="project-card">
+          <div class="project-image"><img id="proj-img-iot" alt="IoT Home Automation screenshot" /></div>
           <div class="project-top">
             <h2 data-i18n="projects.iot.title">IoT Home Automation & Security</h2>
             <span class="project-date" data-i18n="projects.iot.date">Oct 2025 – Nov 2025</span>
@@ -90,6 +93,7 @@ import Nav from "../components/nav.astro";
         </article>
 
         <article class="project-card">
+          <div class="project-image"><img id="proj-img-bowling" alt="Bowling Microservices screenshot" /></div>
           <div class="project-top">
             <h2 data-i18n="projects.bowling.title">Bowling Alley Microservices System</h2>
             <span class="project-date" data-i18n="projects.bowling.date">Jan 2025 – May 2025</span>
@@ -109,6 +113,29 @@ import Nav from "../components/nav.astro";
           </div>
         </article>
       </section>
+      <script type="module">
+        async function setProjectImages() {
+          try {
+            const res = await fetch("http://localhost:3001/projects");
+            const data = await res.json();
+            const map = {
+              dm: document.getElementById("proj-img-dm"),
+              pet: document.getElementById("proj-img-pet"),
+              iot: document.getElementById("proj-img-iot"),
+              bowling: document.getElementById("proj-img-bowling"),
+            };
+            for (const key of Object.keys(map)) {
+              const imgEl = map[key];
+              if (imgEl && data[key]?.image) {
+                imgEl.src = data[key].image;
+              }
+            }
+          } catch (e) {
+            console.error("Failed to load project images", e);
+          }
+        }
+        setProjectImages();
+      </script>
     </main>
   </body>
 </html>

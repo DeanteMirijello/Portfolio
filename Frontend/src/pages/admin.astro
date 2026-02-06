@@ -1,0 +1,554 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/nav.astro";
+---
+
+<Layout>
+  <Nav />
+
+  <main>
+    <header class="page-header">
+      <h1>Admin</h1>
+      <p class="muted">Manage site content from one place.</p>
+    </header>
+
+    <section class="admin-layout">
+      <aside class="admin-sidebar">
+        <button class="sidebar-btn" data-section="home">Home</button>
+        <button class="sidebar-btn" data-section="projects">Projects</button>
+        <button class="sidebar-btn" data-section="contact">Contact</button>
+        <button class="sidebar-btn" data-section="testimonials">Testimonials</button>
+        <button class="sidebar-btn" data-section="skills">Skills</button>
+      </aside>
+
+      <div class="admin-content">
+                <!-- Projects management -->
+                <div id="section-projects" class="admin-section" hidden>
+                  <h2>Projects</h2>
+                  <div class="card" style="margin-top:.5rem;">
+                    <form id="projectsForm" style="display:grid;gap:.75rem;">
+                      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+                        <label class="contact-label" for="proj_id" style="min-width:120px;">Project</label>
+                        <select id="proj_id">
+                          <option value="dm">DM Creations</option>
+                          <option value="pet">Champlain Pet Clinic</option>
+                          <option value="iot">IoT Home Automation & Security</option>
+                          <option value="bowling">Bowling Alley Microservices System</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label class="contact-label" for="proj_image">Image URL</label>
+                        <input id="proj_image" placeholder="/assets/image1.png" />
+                      </div>
+                      <div style="display:grid;gap:.5rem;grid-template-columns:1fr 1fr;">
+                        <div>
+                          <h3 style="margin:.25rem 0;">English</h3>
+                          <input id="proj_en_title" placeholder="Title" />
+                          <input id="proj_en_date" placeholder="Date range" />
+                          <textarea id="proj_en_desc" placeholder="Description" rows="3"></textarea>
+                        </div>
+                        <div>
+                          <h3 style="margin:.25rem 0;">Français</h3>
+                          <input id="proj_fr_title" placeholder="Titre" />
+                          <input id="proj_fr_date" placeholder="Période" />
+                          <textarea id="proj_fr_desc" placeholder="Description" rows="3"></textarea>
+                        </div>
+                      </div>
+                      <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+                        <button type="submit" class="lang-btn">Save</button>
+                      </div>
+                      <p id="projectsMsg" class="muted" style="margin-top:.25rem;"></p>
+                    </form>
+                  </div>
+                </div>
+        <!-- Home management -->
+        <div id="section-home" class="admin-section" hidden>
+          <h2>Home</h2>
+          <div class="card" style="margin-top:.5rem;">
+            <form id="homeForm" style="display:grid;gap:.75rem;">
+              <div>
+                <label class="contact-label" for="home_image">Image URL (e.g., /assets/image1.png)</label>
+                <input id="home_image" placeholder="/assets/image1.png" />
+              </div>
+              <div style="display:grid;gap:.5rem;grid-template-columns:1fr 1fr;">
+                <div>
+                  <h3 style="margin:.25rem 0;">English</h3>
+                  <input id="en_title" placeholder="Title" />
+                  <textarea id="en_subtitle" placeholder="Subtitle" rows="2"></textarea>
+                  <input id="en_li1" placeholder="List item 1" />
+                  <input id="en_li2" placeholder="List item 2" />
+                  <input id="en_li3" placeholder="List item 3" />
+                </div>
+                <div>
+                  <h3 style="margin:.25rem 0;">Français</h3>
+                  <input id="fr_title" placeholder="Titre" />
+                  <textarea id="fr_subtitle" placeholder="Sous-titre" rows="2"></textarea>
+                  <input id="fr_li1" placeholder="Élément de liste 1" />
+                  <input id="fr_li2" placeholder="Élément de liste 2" />
+                  <input id="fr_li3" placeholder="Élément de liste 3" />
+                </div>
+              </div>
+              <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+                <button type="submit" class="lang-btn">Save</button>
+              </div>
+              <p id="homeMsg" class="muted" style="margin-top:.25rem;"></p>
+            </form>
+          </div>
+        </div>
+        <!-- Contact management -->
+        <div id="section-contact" class="admin-section" hidden>
+          <h2>Contact</h2>
+          <div class="contact-card">
+            <form id="adminContactForm">
+              <div class="contact-row">
+                <label class="contact-label" for="admin_location">Location</label>
+                <input id="admin_location" name="location" type="text" class="contact-value" />
+              </div>
+
+              <div class="contact-row">
+                <label class="contact-label" for="admin_email">Email</label>
+                <input id="admin_email" name="email" type="email" class="contact-value" required />
+              </div>
+
+              <div class="contact-row">
+                <label class="contact-label" for="admin_github">GitHub</label>
+                <input id="admin_github" name="github" type="url" class="contact-value" />
+              </div>
+
+              <div class="contact-row">
+                <label class="contact-label" for="admin_linkedin">LinkedIn</label>
+                <input id="admin_linkedin" name="linkedin" type="url" class="contact-value" />
+              </div>
+
+              <div style="display:flex;gap:.5rem;justify-content:flex-end;padding-top:.75rem;">
+                <button type="submit" class="lang-btn">Save</button>
+              </div>
+              <p id="adminContactMsg" class="muted" style="margin-top:.5rem;"></p>
+            </form>
+          </div>
+        </div>
+
+        <!-- Testimonials management -->
+        <div id="section-testimonials" class="admin-section" hidden>
+          <h2>Testimonials</h2>
+          <div class="card" style="margin-top:.5rem;">
+            <form id="newTestimonialForm" style="display:grid;gap:.5rem;">
+              <input id="t_author" placeholder="Author" />
+              <textarea id="t_message" placeholder="Message" rows="3"></textarea>
+              <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+                <button type="submit" class="lang-btn">Add</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="testimonialsList" style="margin-top:1rem;display:grid;gap:.75rem;"></div>
+        </div>
+
+        <!-- Skills management -->
+        <div id="section-skills" class="admin-section" hidden>
+          <h2>Skills</h2>
+          <div class="card" style="margin-top:.5rem;">
+            <form id="skillsForm" style="display:grid;gap:.5rem;">
+              <select id="sk_category">
+                <option value="languages">Languages</option>
+                <option value="frameworks">Frameworks</option>
+                <option value="databases">Databases</option>
+                <option value="design">Design</option>
+              </select>
+              <input id="sk_value" placeholder="Skill value (e.g., React)" />
+              <div style="display:flex;gap:.5rem;justify-content:flex-end;">
+                <button type="button" id="sk_add" class="lang-btn">Add</button>
+                <button type="button" id="sk_update" class="lang-btn">Update</button>
+                <button type="button" id="sk_delete" class="lang-btn">Delete</button>
+              </div>
+              <p id="skillsMsg" class="muted" style="margin-top:.5rem;"></p>
+            </form>
+          </div>
+
+          <div id="skillsLists" style="margin-top:1rem;display:grid;gap:.75rem;"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    const API_BASE = "http://localhost:3001";
+
+    // Sidebar switching
+    const sections = {
+      home: document.getElementById("section-home"),
+      projects: document.getElementById("section-projects"),
+      contact: document.getElementById("section-contact"),
+      testimonials: document.getElementById("section-testimonials"),
+      skills: document.getElementById("section-skills"),
+    };
+    const sidebarBtns = document.querySelectorAll(".sidebar-btn");
+    function showSection(key) {
+      Object.values(sections).forEach((el) => (el.hidden = true));
+      sections[key].hidden = false;
+      sidebarBtns.forEach((b) => b.classList.toggle("active", b.dataset.section === key));
+    }
+    // default to Home
+    showSection("home");
+
+    sidebarBtns.forEach((btn) => btn.addEventListener("click", () => showSection(btn.dataset.section)));
+
+    // Contact API
+    const cInputs = {
+      location: document.getElementById("admin_location"),
+      email: document.getElementById("admin_email"),
+      github: document.getElementById("admin_github"),
+      linkedin: document.getElementById("admin_linkedin"),
+    };
+    const cForm = document.getElementById("adminContactForm");
+    const cMsg = document.getElementById("adminContactMsg");
+
+    async function loadContact() {
+      try {
+        const res = await fetch(`${API_BASE}/contact`);
+        const data = await res.json();
+        cInputs.location.value = data.location || "";
+        cInputs.email.value = data.email || "";
+        cInputs.github.value = data.github || "";
+        cInputs.linkedin.value = data.linkedin || "";
+      } catch (e) {
+        console.error(e);
+        cMsg.textContent = "Failed to load contact info.";
+      }
+    }
+
+    cForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      cMsg.textContent = "Saving...";
+      const payload = {
+        location: cInputs.location.value.trim(),
+        email: cInputs.email.value.trim(),
+        github: cInputs.github.value.trim(),
+        linkedin: cInputs.linkedin.value.trim(),
+      };
+      try {
+        const res = await fetch(`${API_BASE}/contact`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          cMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed";
+          return;
+        }
+        cMsg.textContent = "Saved.";
+      } catch (err) {
+        console.error(err);
+        cMsg.textContent = "Network error";
+      }
+    });
+
+    // Testimonials API
+    const tList = document.getElementById("testimonialsList");
+    const tForm = document.getElementById("newTestimonialForm");
+    const tAuthor = document.getElementById("t_author");
+    const tMessage = document.getElementById("t_message");
+
+    async function renderTestimonials() {
+      tList.innerHTML = "Loading...";
+      try {
+        const res = await fetch(`${API_BASE}/testimonials`);
+        const items = await res.json();
+        tList.innerHTML = "";
+        items.forEach((t) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.style.padding = "0.75rem";
+          card.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;">
+              <strong>${t.author}</strong>
+              <div style="display:flex;gap:.5rem;">
+                <button class="lang-btn" data-edit="${t.id}">Edit</button>
+                <button class="lang-btn" data-del="${t.id}">Delete</button>
+              </div>
+            </div>
+            <p style="margin:.5rem 0 0">${t.message}</p>
+          `;
+          const editBtn = card.querySelector(`[data-edit="${t.id}"]`);
+          const delBtn = card.querySelector(`[data-del="${t.id}"]`);
+          editBtn.addEventListener("click", () => editTestimonial(t));
+          delBtn.addEventListener("click", () => deleteTestimonial(t.id));
+          tList.appendChild(card);
+        });
+      } catch (e) {
+        console.error(e);
+        tList.textContent = "Failed to load testimonials.";
+      }
+    }
+
+    tForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const payload = { author: tAuthor.value.trim(), message: tMessage.value.trim() };
+      if (!payload.author || !payload.message) return;
+      try {
+        const res = await fetch(`${API_BASE}/testimonials`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          tAuthor.value = "";
+          tMessage.value = "";
+          renderTestimonials();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    async function editTestimonial(item) {
+      const newAuthor = prompt("Edit author", item.author);
+      if (newAuthor === null) return;
+      const newMessage = prompt("Edit message", item.message);
+      if (newMessage === null) return;
+      try {
+        await fetch(`${API_BASE}/testimonials/${item.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ author: newAuthor, message: newMessage }),
+        });
+        renderTestimonials();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function deleteTestimonial(id) {
+      if (!confirm("Delete this testimonial?")) return;
+      try {
+        await fetch(`${API_BASE}/testimonials/${id}`, { method: "DELETE" });
+        renderTestimonials();
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Skills API
+    const skCategory = document.getElementById("sk_category");
+    const skValue = document.getElementById("sk_value");
+    const skMsg = document.getElementById("skillsMsg");
+    const skLists = document.getElementById("skillsLists");
+
+    async function loadSkills() {
+      skLists.innerHTML = "Loading...";
+      try {
+        const res = await fetch(`${API_BASE}/skills`);
+        const data = await res.json();
+        skLists.innerHTML = "";
+        Object.entries(data).forEach(([cat, arr]) => {
+          const block = document.createElement("div");
+          block.className = "card";
+          block.innerHTML = `<h3 style="margin-top:0;text-transform:capitalize;">${cat}</h3>`;
+          const tags = document.createElement("div");
+          tags.className = "tags";
+          arr.forEach((val) => {
+            const tag = document.createElement("span");
+            tag.className = "tag";
+            tag.textContent = val;
+            tag.style.cursor = "pointer";
+            tag.addEventListener("click", () => {
+              skCategory.value = cat;
+              skValue.value = val;
+            });
+            tags.appendChild(tag);
+          });
+          block.appendChild(tags);
+          skLists.appendChild(block);
+        });
+      } catch (e) {
+        console.error(e);
+        skLists.textContent = "Failed to load skills.";
+      }
+    }
+
+    async function skAction(method) {
+      skMsg.textContent = "Working...";
+      const payload = { category: skCategory.value, value: skValue.value.trim() };
+      try {
+        const res = await fetch(`${API_BASE}/skills/items`, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          skMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Request failed";
+          return;
+        }
+        skMsg.textContent = "Done.";
+        loadSkills();
+      } catch (e) {
+        console.error(e);
+        skMsg.textContent = "Network error";
+      }
+    }
+
+    document.getElementById("sk_add").addEventListener("click", () => skAction("POST"));
+    document.getElementById("sk_update").addEventListener("click", () => skAction("PUT"));
+    document.getElementById("sk_delete").addEventListener("click", () => skAction("DELETE"));
+
+    // Initial loads
+    // Home
+    const hForm = document.getElementById("homeForm");
+    const hMsg = document.getElementById("homeMsg");
+    const hInputs = {
+      image: document.getElementById("home_image"),
+      en: {
+        title: document.getElementById("en_title"),
+        subtitle: document.getElementById("en_subtitle"),
+        li1: document.getElementById("en_li1"),
+        li2: document.getElementById("en_li2"),
+        li3: document.getElementById("en_li3"),
+      },
+      fr: {
+        title: document.getElementById("fr_title"),
+        subtitle: document.getElementById("fr_subtitle"),
+        li1: document.getElementById("fr_li1"),
+        li2: document.getElementById("fr_li2"),
+        li3: document.getElementById("fr_li3"),
+      },
+    };
+
+    async function loadHome() {
+      try {
+        const res = await fetch(`${API_BASE}/home`);
+        const data = await res.json();
+        hInputs.image.value = data.image || "";
+        hInputs.en.title.value = data.en?.title || "";
+        hInputs.en.subtitle.value = data.en?.subtitle || "";
+        hInputs.en.li1.value = data.en?.li1 || "";
+        hInputs.en.li2.value = data.en?.li2 || "";
+        hInputs.en.li3.value = data.en?.li3 || "";
+        hInputs.fr.title.value = data.fr?.title || "";
+        hInputs.fr.subtitle.value = data.fr?.subtitle || "";
+        hInputs.fr.li1.value = data.fr?.li1 || "";
+        hInputs.fr.li2.value = data.fr?.li2 || "";
+        hInputs.fr.li3.value = data.fr?.li3 || "";
+      } catch (e) {
+        console.error(e);
+        hMsg.textContent = "Failed to load home content.";
+      }
+    }
+
+    hForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      hMsg.textContent = "Saving...";
+      const payload = {
+        image: hInputs.image.value.trim(),
+        en: {
+          title: hInputs.en.title.value.trim(),
+          subtitle: hInputs.en.subtitle.value.trim(),
+          li1: hInputs.en.li1.value.trim(),
+          li2: hInputs.en.li2.value.trim(),
+          li3: hInputs.en.li3.value.trim(),
+        },
+        fr: {
+          title: hInputs.fr.title.value.trim(),
+          subtitle: hInputs.fr.subtitle.value.trim(),
+          li1: hInputs.fr.li1.value.trim(),
+          li2: hInputs.fr.li2.value.trim(),
+          li3: hInputs.fr.li3.value.trim(),
+        },
+      };
+      try {
+        const res = await fetch(`${API_BASE}/home`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          hMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed";
+          return;
+        }
+        hMsg.textContent = "Saved.";
+      } catch (e) {
+        console.error(e);
+        hMsg.textContent = "Network error";
+      }
+    });
+
+    // Projects
+    const pForm = document.getElementById("projectsForm");
+    const pMsg = document.getElementById("projectsMsg");
+    const pId = document.getElementById("proj_id");
+    const pInputs = {
+      image: document.getElementById("proj_image"),
+      en: {
+        title: document.getElementById("proj_en_title"),
+        date: document.getElementById("proj_en_date"),
+        desc: document.getElementById("proj_en_desc"),
+      },
+      fr: {
+        title: document.getElementById("proj_fr_title"),
+        date: document.getElementById("proj_fr_date"),
+        desc: document.getElementById("proj_fr_desc"),
+      },
+    };
+
+    async function loadProject(id) {
+      try {
+        const res = await fetch(`${API_BASE}/projects/${id}`);
+        const data = await res.json();
+        pInputs.image.value = data.image || "";
+        pInputs.en.title.value = data.en?.title || "";
+        pInputs.en.date.value = data.en?.date || "";
+        pInputs.en.desc.value = data.en?.desc || "";
+        pInputs.fr.title.value = data.fr?.title || "";
+        pInputs.fr.date.value = data.fr?.date || "";
+        pInputs.fr.desc.value = data.fr?.desc || "";
+      } catch (e) {
+        console.error(e);
+        pMsg.textContent = "Failed to load project.";
+      }
+    }
+
+    pId.addEventListener("change", () => loadProject(pId.value));
+
+    pForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      pMsg.textContent = "Saving...";
+      const payload = {
+        image: pInputs.image.value.trim(),
+        en: {
+          title: pInputs.en.title.value.trim(),
+          date: pInputs.en.date.value.trim(),
+          desc: pInputs.en.desc.value.trim(),
+        },
+        fr: {
+          title: pInputs.fr.title.value.trim(),
+          date: pInputs.fr.date.value.trim(),
+          desc: pInputs.fr.desc.value.trim(),
+        },
+      };
+      try {
+        const res = await fetch(`${API_BASE}/projects/${pId.value}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          pMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed";
+          return;
+        }
+        pMsg.textContent = "Saved.";
+      } catch (e) {
+        console.error(e);
+        pMsg.textContent = "Network error";
+      }
+    });
+
+    loadHome();
+    loadProject(pId.value);
+    loadContact();
+    renderTestimonials();
+    loadSkills();
+  </script>
+</Layout>
