@@ -15,11 +15,32 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN || "http://localhost:4321"; // Astro dev default
+const ALLOW_ORIGINS = (process.env.ALLOW_ORIGINS || "")
+  .split(",")
+  .map((v) => v.trim())
+  .filter(Boolean);
+
+function isAllowedOrigin(origin) {
+  // Allow non-browser requests
+  if (!origin) return true;
+  if (origin === ALLOW_ORIGIN) return true;
+  if (ALLOW_ORIGINS.includes(origin)) return true;
+  try {
+    const { hostname } = new URL(origin);
+    // Allow all Vercel subdomains (preview + prod)
+    if (hostname.endsWith(".vercel.app")) return true;
+  } catch {}
+  return false;
+}
 
 // Middleware
 app.use(
   cors({
-    origin: ALLOW_ORIGIN,
+    origin: (origin, callback) => {
+      const ok = isAllowedOrigin(origin);
+      callback(null, ok);
+    },
+    optionsSuccessStatus: 200,
   })
 );
 app.use(helmet());
