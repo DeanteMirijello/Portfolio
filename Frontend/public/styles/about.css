@@ -1,0 +1,17 @@
+/* About page specific styles */
+.about-grid { display:grid; gap:1rem; }
+.about-card { padding:1.25rem; border:1px solid var(--border); border-radius:12px; background:var(--card); }
+.about-actions { display:flex; gap:.5rem; }
+
+/* Contact block styles */
+.contact-card { margin-top:.75rem; }
+.contact-row { display:flex; justify-content:space-between; align-items:center; gap:.75rem; padding:.5rem 0; border-bottom:1px dashed var(--border); }
+.contact-row:last-child { border-bottom:none; }
+.contact-label { font-weight:600; min-width:120px; }
+.contact-value, .contact-link { color: var(--muted); }
+.contact-link { text-decoration:none; }
+.contact-link:hover { text-decoration:underline; }
+
+@media (min-width: 900px) {
+  .about-grid { grid-template-columns: 1fr 1fr; }
+}

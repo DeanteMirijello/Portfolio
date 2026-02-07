@@ -10,16 +10,16 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
   <main data-api-base={API_BASE_VALUE}>
     <header class="page-header">
       <h1>Admin</h1>
-      <p class="muted">Manage site content from one place.</p>
     </header>
 
     <section class="admin-layout">
       <aside class="admin-sidebar">
         <button class="sidebar-btn" data-section="home">Home</button>
+        <button class="sidebar-btn" data-section="about">About</button>
         <button class="sidebar-btn" data-section="projects">Projects</button>
-        <button class="sidebar-btn" data-section="contact">Contact</button>
         <button class="sidebar-btn" data-section="testimonials">Testimonials</button>
-        <button class="sidebar-btn" data-section="skills">Skills</button>
+        <button class="sidebar-btn" data-section="contact">Contact</button>
+        
       </aside>
 
       <div class="admin-content">
@@ -29,7 +29,6 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
                   <div class="card" style="margin-top:.5rem;">
                     <form id="projectsForm" style="display:grid;gap:.75rem;">
                       <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-                        <label class="contact-label" for="proj_id" style="min-width:120px;">Project</label>
                         <select id="proj_id"></select>
                         <input id="proj_new_id" placeholder="new-project-id" style="display:none;" />
                       </div>
@@ -70,18 +69,28 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
               <div style="display:grid;gap:.5rem;grid-template-columns:1fr 1fr;">
                 <div>
                   <h3 style="margin:.25rem 0;">English</h3>
+                  <label class="contact-label" for="en_title">Title</label>
                   <input id="en_title" placeholder="Title" />
-                  <textarea id="en_subtitle" placeholder="Subtitle" rows="2"></textarea>
+                  <label class="contact-label" for="en_subtitle">Description</label>
+                  <textarea id="en_subtitle" placeholder="Description" rows="4"></textarea>
+                  <label class="contact-label" for="en_li1">List item 1</label>
                   <input id="en_li1" placeholder="List item 1" />
+                  <label class="contact-label" for="en_li2">List item 2</label>
                   <input id="en_li2" placeholder="List item 2" />
+                  <label class="contact-label" for="en_li3">List item 3</label>
                   <input id="en_li3" placeholder="List item 3" />
                 </div>
                 <div>
                   <h3 style="margin:.25rem 0;">Français</h3>
+                  <label class="contact-label" for="fr_title">Titre</label>
                   <input id="fr_title" placeholder="Titre" />
-                  <textarea id="fr_subtitle" placeholder="Sous-titre" rows="2"></textarea>
+                  <label class="contact-label" for="fr_subtitle">Description</label>
+                  <textarea id="fr_subtitle" placeholder="Description" rows="4"></textarea>
+                  <label class="contact-label" for="fr_li1">Élément de liste 1</label>
                   <input id="fr_li1" placeholder="Élément de liste 1" />
+                  <label class="contact-label" for="fr_li2">Élément de liste 2</label>
                   <input id="fr_li2" placeholder="Élément de liste 2" />
+                  <label class="contact-label" for="fr_li3">Élément de liste 3</label>
                   <input id="fr_li3" placeholder="Élément de liste 3" />
                 </div>
               </div>
@@ -95,33 +104,24 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         <!-- Contact management -->
         <div id="section-contact" class="admin-section" hidden>
           <h2>Contact</h2>
-          <div class="contact-card">
-            <form id="adminContactForm">
-              <div class="contact-row">
-                <label class="contact-label" for="admin_location">Location</label>
-                <input id="admin_location" name="location" type="text" class="contact-value" />
-              </div>
+          <div class="card" style="margin-top:.5rem;">
+            <div style="display:flex;justify-content:flex-end;gap:.5rem;">
+              <button type="button" id="contactAddBtn" class="lang-btn">Add</button>
+            </div>
+            <div id="contactItems" class="contact-card" style="margin-top:.75rem;"></div>
+            <p id="adminContactMsg" class="muted" style="margin-top:.5rem;"></p>
+          </div>
+        </div>
 
-              <div class="contact-row">
-                <label class="contact-label" for="admin_email">Email</label>
-                <input id="admin_email" name="email" type="email" class="contact-value" required />
-              </div>
-
-              <div class="contact-row">
-                <label class="contact-label" for="admin_github">GitHub</label>
-                <input id="admin_github" name="github" type="url" class="contact-value" />
-              </div>
-
-              <div class="contact-row">
-                <label class="contact-label" for="admin_linkedin">LinkedIn</label>
-                <input id="admin_linkedin" name="linkedin" type="url" class="contact-value" />
-              </div>
-
-              <div style="display:flex;gap:.5rem;justify-content:flex-end;padding-top:.75rem;">
-                <button type="submit" class="lang-btn">Save</button>
-              </div>
-              <p id="adminContactMsg" class="muted" style="margin-top:.5rem;"></p>
-            </form>
+        <!-- About management (consolidates Skills) -->
+        <div id="section-about" class="admin-section" hidden>
+          <h2>About</h2>
+          <div class="card" style="margin-top:.5rem; display:grid; gap:.75rem;">
+            <div style="display:flex; gap:.5rem; align-items:center; justify-content:flex-end;">
+              <button type="button" id="about_type_add" class="lang-btn">Add Skill Type</button>
+            </div>
+            <div id="about_skills_list" style="display:grid; gap:.75rem;"></div>
+            <p id="aboutMsg" class="muted" style="margin-top:.25rem;"></p>
           </div>
         </div>
 
@@ -141,29 +141,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           <div id="testimonialsList" style="margin-top:1rem;display:grid;gap:.75rem;"></div>
         </div>
 
-        <!-- Skills management -->
-        <div id="section-skills" class="admin-section" hidden>
-          <h2>Skills</h2>
-          <div class="card" style="margin-top:.5rem;">
-            <form id="skillsForm" style="display:grid;gap:.5rem;">
-              <select id="sk_category">
-                <option value="languages">Languages</option>
-                <option value="frameworks">Frameworks</option>
-                <option value="databases">Databases</option>
-                <option value="design">Design</option>
-              </select>
-              <input id="sk_value" placeholder="Skill value (e.g., React)" />
-              <div style="display:flex;gap:.5rem;justify-content:flex-end;">
-                <button type="button" id="sk_add" class="lang-btn">Add</button>
-                <button type="button" id="sk_update" class="lang-btn">Update</button>
-                <button type="button" id="sk_delete" class="lang-btn">Delete</button>
-              </div>
-              <p id="skillsMsg" class="muted" style="margin-top:.5rem;"></p>
-            </form>
-          </div>
-
-          <div id="skillsLists" style="margin-top:1rem;display:grid;gap:.75rem;"></div>
-        </div>
+        
       </div>
     </section>
   </main>
@@ -174,10 +152,10 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     // Sidebar switching
     const sections = {
       home: document.getElementById("section-home"),
+      about: document.getElementById("section-about"),
       projects: document.getElementById("section-projects"),
-      contact: document.getElementById("section-contact"),
       testimonials: document.getElementById("section-testimonials"),
-      skills: document.getElementById("section-skills"),
+      contact: document.getElementById("section-contact"),
     };
     const sidebarBtns = document.querySelectorAll(".sidebar-btn");
     function showSection(key) {
@@ -190,56 +168,258 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 
     sidebarBtns.forEach((btn) => btn.addEventListener("click", () => showSection(btn.dataset.section)));
 
-    // Contact API
-    const cInputs = {
-      location: document.getElementById("admin_location"),
-      email: document.getElementById("admin_email"),
-      github: document.getElementById("admin_github"),
-      linkedin: document.getElementById("admin_linkedin"),
-    };
-    const cForm = document.getElementById("adminContactForm");
+    // Contact Items API with modal add/edit per item
     const cMsg = document.getElementById("adminContactMsg");
+    const contactItemsDiv = document.getElementById("contactItems");
+    const contactAddBtn = document.getElementById("contactAddBtn");
 
-    async function loadContact() {
+    let contactItems = [];
+
+    function renderContactItems() {
+      contactItemsDiv.innerHTML = "";
+      if (!contactItems.length) {
+        contactItemsDiv.innerHTML = '<p class="muted">No contact items yet.</p>';
+        return;
+      }
+      contactItems.forEach((item) => {
+        const row = document.createElement("div");
+        row.className = "contact-row";
+        const label = document.createElement("span");
+        label.className = "contact-label";
+        label.textContent = item.title;
+        const valueCell = document.createElement("div");
+        const v = item.value || "";
+        const isEmail = v.includes("@") && !/^https?:\/\//i.test(v);
+        const isUrl = /^https?:\/\//i.test(v);
+        if (isEmail || isUrl) {
+          const a = document.createElement("a");
+          a.className = "contact-link";
+          a.href = isEmail ? `mailto:${v}` : v;
+          a.target = "_blank";
+          a.rel = "noreferrer";
+          a.textContent = isEmail ? v : v.replace(/^https?:\/\//i, "");
+          valueCell.appendChild(a);
+        } else {
+          const span = document.createElement("span");
+          span.className = "contact-value";
+          span.textContent = v;
+          valueCell.appendChild(span);
+        }
+        const controls = document.createElement("div");
+        controls.style.display = "inline-flex";
+        controls.style.gap = ".5rem";
+        controls.style.marginLeft = "1rem";
+        const editBtn = document.createElement("button");
+        editBtn.className = "lang-btn";
+        editBtn.textContent = "Edit";
+        editBtn.addEventListener("click", () => openModal("contactItem", "edit", item));
+        const delBtn = document.createElement("button");
+        delBtn.className = "lang-btn";
+        delBtn.textContent = "Delete";
+        delBtn.addEventListener("click", () => deleteContactItem(item.id));
+        controls.appendChild(editBtn);
+        controls.appendChild(delBtn);
+        valueCell.appendChild(controls);
+        row.appendChild(label);
+        row.appendChild(valueCell);
+        contactItemsDiv.appendChild(row);
+      });
+    }
+
+    async function loadContactItems() {
+      cMsg.textContent = "Loading...";
       try {
-        const res = await fetch(`${API_BASE}/contact`);
-        const data = await res.json();
-        cInputs.location.value = data.location || "";
-        cInputs.email.value = data.email || "";
-        cInputs.github.value = data.github || "";
-        cInputs.linkedin.value = data.linkedin || "";
+        const res = await fetch(`${API_BASE}/contact/items`);
+        contactItems = await res.json();
+        if (!contactItems.length) {
+          const res2 = await fetch(`${API_BASE}/contact`);
+          const base = await res2.json();
+          const seedPairs = [
+            ["Location", base.location],
+            ["Email", base.email],
+            ["GitHub", base.github],
+            ["LinkedIn", base.linkedin],
+          ];
+          for (const [title, value] of seedPairs) {
+            if (value) {
+              await fetch(`${API_BASE}/contact/items`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, value }),
+              });
+            }
+          }
+          const res3 = await fetch(`${API_BASE}/contact/items`);
+          contactItems = await res3.json();
+        }
+        renderContactItems();
+        cMsg.textContent = "";
       } catch (e) {
         console.error(e);
-        cMsg.textContent = "Failed to load contact info.";
+        cMsg.textContent = "Failed to load contact items.";
       }
     }
 
-    cForm.addEventListener("submit", async (e) => {
+    // Shared Admin Modal (used for Contact and About/Skills)
+    const modal = document.getElementById("adminModal");
+    const modalTitle = document.getElementById("adminModalTitle");
+    const modalForm = document.getElementById("adminModalForm");
+    const mTitle = document.getElementById("modal_title");
+    const mValue = document.getElementById("modal_value");
+    const modalCancel = document.getElementById("adminModalCancel");
+    const mEnTitle = document.getElementById("modal_en_title");
+    const mFrTitle = document.getElementById("modal_fr_title");
+    const modalDelete = document.getElementById("adminModalDelete");
+    // Open add contact item modal
+    contactAddBtn.addEventListener("click", () => openModal("contactItem", "add"));
+
+    function openModal(context, mode, data) {
+      modal.dataset.context = context;
+      modal.dataset.mode = mode;
+      modal.dataset.itemId = data?.id || "";
+      modal.dataset.category = data?.category || "";
+      modal.dataset.typeName = data?.name || "";
+      if (context === "contactItem") {
+        modalTitle.textContent = mode === "add" ? "Add Contact Item" : "Edit Contact Item";
+        mTitle.style.display = "block";
+        mValue.style.display = "block";
+        mEnTitle.style.display = "none";
+        mFrTitle.style.display = "none";
+        modalDelete.style.display = "none";
+        mTitle.value = data?.title || "";
+        mValue.value = data?.value || "";
+      } else if (context === "skillType") {
+        modalTitle.textContent = mode === "add" ? "Add Skill Type" : "Edit Skill Type";
+        mTitle.style.display = "none";
+        mValue.style.display = "none";
+        mEnTitle.style.display = "block";
+        mFrTitle.style.display = "block";
+        modalDelete.style.display = mode === "edit" ? "inline-block" : "none";
+        // Prefill titles if available (edit)
+        const baseName = data?.name;
+        const t = window.__skillsTitles?.[baseName] || { en: baseName || "", fr: baseName || "" };
+        mEnTitle.value = t.en || "";
+        mFrTitle.value = t.fr || "";
+      } else if (context === "skillItem") {
+        modalTitle.textContent = mode === "add" ? "Add Skill" : "Edit Skill";
+        mTitle.style.display = "none";
+        mValue.style.display = "block";
+        mEnTitle.style.display = "none";
+        mFrTitle.style.display = "none";
+        modalDelete.style.display = mode === "edit" ? "inline-block" : "none";
+        mTitle.value = "";
+        mValue.value = data?.value || "";
+      }
+      modal.hidden = false;
+    }
+
+    function closeModal() {
+      modal.hidden = true;
+      modal.dataset.context = "";
+      modal.dataset.mode = "";
+      modal.dataset.itemId = "";
+      // Clear messages
+      if (typeof cMsg !== "undefined") cMsg.textContent = "";
+      if (typeof aboutMsg !== "undefined") aboutMsg.textContent = "";
+    }
+
+    modalCancel.addEventListener("click", closeModal);
+
+    modalForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      cMsg.textContent = "Saving...";
-      const payload = {
-        location: cInputs.location.value.trim(),
-        email: cInputs.email.value.trim(),
-        github: cInputs.github.value.trim(),
-        linkedin: cInputs.linkedin.value.trim(),
-      };
+      const context = modal.dataset.context;
+      const mode = modal.dataset.mode;
       try {
-        const res = await fetch(`${API_BASE}/contact`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          cMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed";
-          return;
+        if (context === "contactItem") {
+          cMsg.textContent = "Saving...";
+          const payload = { title: mTitle.value.trim(), value: mValue.value.trim() };
+          const itemId = modal.dataset.itemId;
+          const url = mode === "edit" ? `${API_BASE}/contact/items/${itemId}` : `${API_BASE}/contact/items`;
+          const method = mode === "edit" ? "PUT" : "POST";
+          const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+          const data = await res.json();
+          if (!res.ok) { cMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
+          closeModal();
+          await loadContactItems();
+          cMsg.textContent = "Saved.";
+        } else if (context === "skillType") {
+          aboutMsg.textContent = "Saving...";
+          const selected = modal.dataset.typeName;
+          if (mode === "add") {
+            // Create type key from English title (simple slug)
+            const en = mEnTitle.value.trim();
+            const fr = mFrTitle.value.trim();
+            const name = en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || en;
+            const res = await fetch(`${API_BASE}/skills/types`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
+            const data = await res.json();
+            if (!res.ok) { aboutMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
+            const res2 = await fetch(`${API_BASE}/skills/types/${encodeURIComponent(name)}/titles`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ en, fr }) });
+            const data2 = await res2.json();
+            if (!res2.ok) { aboutMsg.textContent = (data2.errors?.[0]?.msg) || data2.error || "Save failed"; return; }
+          } else {
+            // Save bilingual titles for the selected type
+            const res = await fetch(`${API_BASE}/skills/types/${encodeURIComponent(selected)}/titles`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ en: mEnTitle.value.trim(), fr: mFrTitle.value.trim() }) });
+            const data = await res.json();
+            if (!res.ok) { aboutMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
+          }
+          closeModal();
+          await loadAboutSkills();
+          aboutMsg.textContent = "Saved.";
+        } else if (context === "skillItem") {
+          aboutMsg.textContent = "Saving...";
+          const category = modal.dataset.category;
+          const value = mValue.value.trim();
+          if (mode === "add") {
+            const res = await fetch(`${API_BASE}/skills/items`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category, value }) });
+            const data = await res.json();
+            if (!res.ok) { aboutMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
+          } else {
+            const oldValue = modal.dataset.itemId;
+            const res = await fetch(`${API_BASE}/skills/items`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category, oldValue, newValue: value }) });
+            const data = await res.json();
+            if (!res.ok) { aboutMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
+          }
+          closeModal();
+          await loadAboutSkills();
+          aboutMsg.textContent = "Saved.";
         }
-        cMsg.textContent = "Saved.";
       } catch (err) {
         console.error(err);
-        cMsg.textContent = "Network error";
+        if (context === "contactItem") cMsg.textContent = "Network error";
+        else aboutMsg.textContent = "Network error";
       }
     });
+
+    // Modal delete actions (skillType edit, skillItem edit)
+    modalDelete.addEventListener("click", async () => {
+      const context = modal.dataset.context;
+      try {
+        if (context === "skillType") {
+          const name = modal.dataset.typeName || (mEnTitle.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || mEnTitle.value.trim());
+          if (!confirm("Delete this type and all its skills?")) return;
+          const res = await fetch(`${API_BASE}/skills/types/${encodeURIComponent(name)}`, { method: "DELETE" });
+          if (res.ok) { closeModal(); loadAboutSkills(); }
+        } else if (context === "skillItem") {
+          const category = modal.dataset.category;
+          const oldValue = modal.dataset.itemId;
+          if (!confirm("Delete this skill?")) return;
+          const res = await fetch(`${API_BASE}/skills/items`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category, value: oldValue }) });
+          if (res.ok) { closeModal(); loadAboutSkills(); }
+        }
+      } catch (e) { console.error(e); }
+    });
+
+    async function deleteContactItem(id) {
+      if (!confirm("Delete this contact item?")) return;
+      try {
+        const res = await fetch(`${API_BASE}/contact/items/${id}`, { method: "DELETE" });
+        if (res.ok) {
+          await loadContactItems();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
     // Testimonials API
     const tList = document.getElementById("testimonialsList");
@@ -326,69 +506,84 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       }
     }
 
-    // Skills API
-    const skCategory = document.getElementById("sk_category");
-    const skValue = document.getElementById("sk_value");
-    const skMsg = document.getElementById("skillsMsg");
-    const skLists = document.getElementById("skillsLists");
+    // About/Skills management
+    const aboutTypeAddBtn = document.getElementById("about_type_add");
+    const aboutTypeRenameBtn = document.getElementById("about_type_rename");
+    const aboutTypeDeleteBtn = document.getElementById("about_type_delete");
+    const aboutSkillsList = document.getElementById("about_skills_list");
+    const aboutMsg = document.getElementById("aboutMsg");
 
-    async function loadSkills() {
-      skLists.innerHTML = "Loading...";
+    let skillsData = {};
+
+    async function loadAboutSkills() {
+      aboutSkillsList.innerHTML = "Loading...";
       try {
-        const res = await fetch(`${API_BASE}/skills`);
-        const data = await res.json();
-        skLists.innerHTML = "";
-        Object.entries(data).forEach(([cat, arr]) => {
-          const block = document.createElement("div");
-          block.className = "card";
-          block.innerHTML = `<h3 style="margin-top:0;text-transform:capitalize;">${cat}</h3>`;
-          const tags = document.createElement("div");
-          tags.className = "tags";
-          arr.forEach((val) => {
-            const tag = document.createElement("span");
-            tag.className = "tag";
-            tag.textContent = val;
-            tag.style.cursor = "pointer";
-            tag.addEventListener("click", () => {
-              skCategory.value = cat;
-              skValue.value = val;
-            });
-            tags.appendChild(tag);
-          });
-          block.appendChild(tags);
-          skLists.appendChild(block);
-        });
+        const [skillsRes, titlesRes] = await Promise.all([
+          fetch(`${API_BASE}/skills`),
+          fetch(`${API_BASE}/skills/titles`),
+        ]);
+        skillsData = await skillsRes.json();
+        window.__skillsTitles = await titlesRes.json();
+        renderAboutSkills();
+        aboutMsg.textContent = "";
       } catch (e) {
         console.error(e);
-        skLists.textContent = "Failed to load skills.";
+        aboutSkillsList.textContent = "Failed to load skills.";
       }
     }
 
-    async function skAction(method) {
-      skMsg.textContent = "Working...";
-      const payload = { category: skCategory.value, value: skValue.value.trim() };
-      try {
-        const res = await fetch(`${API_BASE}/skills/items`, {
-          method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+    function renderAboutSkills() {
+      aboutSkillsList.innerHTML = "";
+      Object.entries(skillsData).forEach(([cat, arr]) => {
+        const block = document.createElement("div");
+        block.className = "card";
+        const header = document.createElement("div");
+        header.style.display = "flex";
+        header.style.alignItems = "center";
+        header.style.justifyContent = "space-between";
+        const titleEl = document.createElement("h3");
+        titleEl.style.marginTop = "0";
+        titleEl.style.textTransform = "capitalize";
+        titleEl.textContent = (window.__skillsTitles?.[cat]?.en || cat);
+        const subtitleEl = document.createElement("p");
+        subtitleEl.className = "muted";
+        subtitleEl.style.margin = "0";
+        subtitleEl.textContent = window.__skillsTitles?.[cat]?.fr ? `FR: ${window.__skillsTitles[cat].fr}` : "";
+        const titleWrap = document.createElement("div");
+        titleWrap.appendChild(titleEl);
+        if (subtitleEl.textContent) titleWrap.appendChild(subtitleEl);
+        const actions = document.createElement("div");
+        actions.style.display = "inline-flex";
+        actions.style.gap = ".5rem";
+        const editTypeBtn = document.createElement("button");
+        editTypeBtn.className = "lang-btn";
+        editTypeBtn.textContent = "Edit Type";
+        editTypeBtn.addEventListener("click", () => openModal("skillType", "edit", { name: cat }));
+        const addSkillBtn = document.createElement("button");
+        addSkillBtn.className = "lang-btn";
+        addSkillBtn.textContent = "Add Skill";
+        addSkillBtn.addEventListener("click", () => openModal("skillItem", "add", { category: cat }));
+        actions.appendChild(editTypeBtn);
+        actions.appendChild(addSkillBtn);
+        header.appendChild(titleWrap);
+        header.appendChild(actions);
+        block.appendChild(header);
+        const tags = document.createElement("div");
+        tags.className = "tags";
+        arr.forEach((val) => {
+          const tag = document.createElement("span");
+          tag.className = "tag";
+          tag.textContent = val;
+          tag.style.cursor = "pointer";
+          tag.title = "Click to edit";
+          tag.addEventListener("click", () => openModal("skillItem", "edit", { id: val, value: val, category: cat }));
+          tags.appendChild(tag);
         });
-        const data = await res.json();
-        if (!res.ok) {
-          skMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Request failed";
-          return;
-        }
-        skMsg.textContent = "Done.";
-        loadSkills();
-      } catch (e) {
-        console.error(e);
-        skMsg.textContent = "Network error";
-      }
+        block.appendChild(tags);
+        aboutSkillsList.appendChild(block);
+      });
     }
-
-    document.getElementById("sk_add").addEventListener("click", () => skAction("POST"));
-    document.getElementById("sk_update").addEventListener("click", () => skAction("PUT"));
-    document.getElementById("sk_delete").addEventListener("click", () => skAction("DELETE"));
+    aboutTypeAddBtn.addEventListener("click", () => openModal("skillType", "add"));
 
     // Initial loads
     // Home
@@ -589,8 +784,35 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     await loadProjectsList();
     pId.value = pId.options[0]?.value || "__new__";
     if (pId.value !== "__new__") loadProject(pId.value);
-    loadContact();
+    loadContactItems();
     renderTestimonials();
-    loadSkills();
+    loadAboutSkills();
   </script>
+
+  <!-- Admin Modal (shared; currently used for Contact Items) -->
+  <div id="adminModal" class="modal-overlay" hidden>
+    <div class="modal">
+      <h3 id="adminModalTitle" style="margin-top:0;">Edit</h3>
+      <form id="adminModalForm" style="display:grid;gap:.5rem;">
+        <input id="modal_title" placeholder="Title" />
+        <input id="modal_value" placeholder="Value" />
+        <input id="modal_en_title" placeholder="English title" style="display:none;" />
+        <input id="modal_fr_title" placeholder="French title" style="display:none;" />
+        <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem;">
+          <button type="button" id="adminModalDelete" class="lang-btn" style="margin-right:auto;display:none;">Delete</button>
+          <button type="button" id="adminModalCancel" class="lang-btn">Cancel</button>
+          <button type="submit" class="lang-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: grid; place-items: center; z-index: 1000; }
+    .modal-overlay[hidden] { display: none !important; }
+    .modal { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 1rem; border-radius: 12px; width: min(520px, 92vw); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .modal input, .modal textarea, .modal select { width: 100%; padding: 0.6rem 0.75rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
+    .modal input::placeholder, .modal textarea::placeholder { color: var(--muted); opacity: 0.85; }
+    .modal input:focus, .modal textarea:focus, .modal select:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(50, 69, 255, 0.2); }
+  </style>
 </Layout>

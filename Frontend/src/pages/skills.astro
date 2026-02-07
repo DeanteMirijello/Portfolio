@@ -1,0 +1,88 @@
+---
+import Nav from "../components/nav.astro";
+const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/skills.css" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>Skills | Deante Mirijello</title>
+  </head>
+
+  <body>
+    <Nav />
+    <main data-api-base={API_BASE_VALUE}>
+      <header class="page-header">
+        <h1>Skills</h1>
+        <p class="muted">Technologies and tools I work with.</p>
+      </header>
+
+      <section>
+        <div id="skills_grid" class="skills-grid"></div>
+      </section>
+    </main>
+
+    <script type="module">
+      const API_BASE = document.querySelector("main").dataset.apiBase;
+      const grid = document.getElementById("skills_grid");
+
+      async function loadSkills() {
+        grid.innerHTML = "Loading...";
+        try {
+          const [skillsRes, titlesRes] = await Promise.all([
+            fetch(`${API_BASE}/skills`),
+            fetch(`${API_BASE}/skills/titles`),
+            fetch(`/assets/skill-meta.json`),
+          ]);
+          const skills = await skillsRes.json();
+          const titles = await titlesRes.json();
+          const meta = await (await fetch(`/assets/skill-meta.json`)).json();
+          grid.innerHTML = "";
+          const items = [];
+          Object.entries(skills).forEach(([cat, arr]) => {
+            arr.forEach((name) => {
+              items.push({
+                name,
+                category: cat,
+                image: meta[name]?.image || "/assets/placeholder-skill.svg",
+                rating: Math.max(1, Math.min(5, meta[name]?.rating ?? 3)),
+              });
+            });
+          });
+          items.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+          items.forEach((it) => {
+            const card = document.createElement("div");
+            card.className = "skill-card";
+            card.innerHTML = `
+              <div class="skill-img-wrap">
+                <img src="${it.image}" alt="${it.name} logo" class="skill-img" />
+              </div>
+              <div class="skill-info">
+                <div class="skill-header">
+                  <div class="skill-title">${it.name}</div>
+                </div>
+                <div class="skill-sub">${titles?.[it.category]?.en || it.category}</div>
+                <div class="skill-rating" aria-label="Rating ${it.rating} of 5">
+                  ${"★".repeat(it.rating)}${"☆".repeat(5 - it.rating)}
+                </div>
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+        } catch (e) {
+          console.error(e);
+          grid.textContent = "Failed to load skills.";
+        }
+      }
+
+      loadSkills();
+    </script>
+    <script type="module" src="/js/i18n.js"></script>
+  </body>
+</html>

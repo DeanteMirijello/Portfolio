@@ -1,5 +1,6 @@
 ---
 import Nav from "../components/nav.astro";
+const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
 ---
 
 <html lang="en">
@@ -7,6 +8,7 @@ import Nav from "../components/nav.astro";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/styles/global.css" />
+    <link rel="stylesheet" href="/styles/about.css" />
     <!-- Favicon: place files in Frontend/public/ -->
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -17,7 +19,7 @@ import Nav from "../components/nav.astro";
   <body>
     <Nav />
 
-    <main>
+    <main data-api-base={API_BASE_VALUE}>
       <header class="page-header">
         <h1 data-i18n="about.title">About Me</h1>
         <p data-i18n="about.intro">
@@ -28,90 +30,94 @@ import Nav from "../components/nav.astro";
 
       <section class="about-grid">
         <article class="about-card">
-          <h2 data-i18n="about.skills">Skills</h2>
-
-          <div class="about-block">
-            <h3>Languages</h3>
-            <div class="tags" id="skills-languages"></div>
+          <h2>Who I Am</h2>
+          <p>
+            I’m Deante Mirijello, a Computer Science student in Montreal. I enjoy
+            building practical software and learning across the stack.
+          </p>
+          <div class="about-actions">
+            <a href="/assets/resume.pdf" download class="lang-btn">Download Resume</a>
           </div>
-
-          <div class="about-block">
-            <h3>Frameworks & Tools</h3>
-            <div class="tags" id="skills-frameworks"></div>
-          </div>
-
-          <div class="about-block">
-            <h3>Databases</h3>
-            <div class="tags" id="skills-databases"></div>
-          </div>
-
-          <div class="about-block">
-            <h3>Design</h3>
-            <div class="tags" id="skills-design"></div>
-          </div>
-
         </article>
 
         <article class="about-card">
-          <h2 data-i18n="about.experience">Experience</h2>
-
+          <h2>Work Experience</h2>
           <div class="info-row">
             <div>
               <h3>Costco — Stocker</h3>
               <p class="muted">Jun 2023 – Present</p>
             </div>
           </div>
-
           <ul class="clean-list">
-            <li>Worked with a team to manage inventory and daily tasks.</li>
-            <li>Helped customers in both English and French.</li>
-            <li>Trained new employees and supported new staff.</li>
+            <li>Collaborated on inventory and aisle organization.</li>
+            <li>Helped customers in English and French.</li>
+            <li>Supported and guided new team members.</li>
           </ul>
 
           <div class="divider"></div>
 
-          <h2 data-i18n="about.education">Education</h2>
-          <ul class="clean-list">
-            <li><strong>Champlain College</strong> — 2022 – 2026</li>
-            <li><strong>LBP High School</strong> — 2021 – 2022</li>
-            <li><strong>VMC High School</strong> — 2017 – 2021</li>
-          </ul>
+          <h2>Contact Information</h2>
+          <section class="contact-card" id="contactCard" hidden>
+            <div id="contactItems"></div>
+          </section>
         </article>
       </section>
     </main>
     <script type="module">
-      const API = "http://localhost:3001/skills";
-      const ids = {
-        languages: document.getElementById("skills-languages"),
-        frameworks: document.getElementById("skills-frameworks"),
-        databases: document.getElementById("skills-databases"),
-        design: document.getElementById("skills-design"),
-      };
+      const API_BASE = document.querySelector("main").dataset.apiBase;
+      const CONTACT_API = `${API_BASE}/contact/items`;
+      const contactCard = document.getElementById("contactCard");
+      const itemsDiv = document.getElementById("contactItems");
 
-      function renderList(cat, list) {
-        const container = ids[cat];
-        container.innerHTML = "";
-        for (const v of list) {
-          const el = document.createElement("span");
-          el.className = "tag";
-          el.textContent = v;
-          el.dataset.cat = cat;
-          el.dataset.value = v;
-          container.appendChild(el);
+      function renderContact(items) {
+        itemsDiv.innerHTML = "";
+        if (!items.length) {
+          itemsDiv.innerHTML = '<p class="muted">No contact information yet.</p>';
+          return;
+        }
+        for (const item of items) {
+          const row = document.createElement("div");
+          row.className = "contact-row";
+          const label = document.createElement("span");
+          label.className = "contact-label";
+          label.textContent = item.title;
+          const valueCell = document.createElement("div");
+          const v = item.value || "";
+          const isEmail = v.includes("@") && !/^https?:\/\//i.test(v);
+          const isUrl = /^https?:\/\//i.test(v);
+          if (isEmail || isUrl) {
+            const a = document.createElement("a");
+            a.className = "contact-link";
+            a.href = isEmail ? `mailto:${v}` : v;
+            a.target = "_blank";
+            a.rel = "noreferrer";
+            a.textContent = isEmail ? v : v.replace(/^https?:\/\//i, "");
+            valueCell.appendChild(a);
+          } else {
+            const span = document.createElement("span");
+            span.className = "contact-value";
+            span.textContent = v;
+            valueCell.appendChild(span);
+          }
+          row.appendChild(label);
+          row.appendChild(valueCell);
+          itemsDiv.appendChild(row);
         }
       }
 
-      async function loadSkills() {
-        const res = await fetch(API);
-        const skills = await res.json();
-        renderList("languages", skills.languages || []);
-        renderList("frameworks", skills.frameworks || []);
-        renderList("databases", skills.databases || []);
-        renderList("design", skills.design || []);
-        // view-only
+      async function loadContact() {
+        try {
+          const res = await fetch(CONTACT_API);
+          const items = await res.json();
+          renderContact(items);
+          contactCard.hidden = false;
+        } catch (e) {
+          console.error(e);
+        }
       }
 
-      loadSkills();
+      loadContact();
     </script>
+    <script type="module" src="/js/i18n.js"></script>
   </body>
 </html>

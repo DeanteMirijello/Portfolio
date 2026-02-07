@@ -1,52 +1,73 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Nav from "../components/nav.astro";
+const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
 ---
 
 <Layout>
+  <link slot="head" rel="stylesheet" href="/styles/home.css" />
   <Nav />
 
-  <main>
+  <main data-api-base={API_BASE_VALUE}>
     <section class="home-hero">
       <div class="hero-text">
-        <h1 data-i18n="home.title">
-          Hello, I’m Deante
-        </h1>
-
-        <p data-i18n="home.subtitle">
-          I am a computer science student interested in software development and
-          building practical applications.
+        <h1>Hello, I’m Deante</h1>
+        <p>
+          Computer science student in Montreal, building practical software and learning across the stack.
         </p>
-
-        <ul class="hero-list">
-          <li data-i18n="home.li1">
-            Information about me and my background
-          </li>
-          <li data-i18n="home.li2">
-            Projects I have worked on during my studies
-          </li>
-          <li data-i18n="home.li3">
-            Ways to contact me
-          </li>
-        </ul>
+        <div class="cta-row">
+          <a href="/about" class="cta-btn primary">Explore About</a>
+          <a href="/projects" class="cta-btn">View Projects</a>
+          <a href="/skills" class="cta-btn">Browse Skills</a>
+        </div>
       </div>
 
       <div class="hero-photo">
-        <!-- Photo placeholder (replace later with real image) -->
         <img
-        src="/assets/image1.png"
-        alt="Photo of Deante Mirijello"
-        class="profile-photo"
-        id="homeProfilePhoto"
+          src="/assets/image1.png"
+          alt="Photo of Deante Mirijello"
+          class="profile-photo"
+          id="homeProfilePhoto"
         />
       </div>
     </section>
+
+    <section class="quick-links">
+      <div class="quick-links-grid">
+        <div class="link-card">
+          <h3>About Me</h3>
+          <p>Background, experience, and how to reach me.</p>
+          <a href="/about" class="lang-btn">Go to About</a>
+        </div>
+        <div class="link-card">
+          <h3>Skills</h3>
+          <p>Technologies and tools I use with ratings.</p>
+          <a href="/skills" class="lang-btn">See Skills</a>
+        </div>
+        <div class="link-card">
+          <h3>Projects</h3>
+          <p>Selected work from studies and side projects.</p>
+          <a href="/projects" class="lang-btn">View Projects</a>
+        </div>
+        <div class="link-card">
+          <h3>Testimonials</h3>
+          <p>Feedback and notes from people I’ve worked with.</p>
+          <a href="/testimonials" class="lang-btn">Read Testimonials</a>
+        </div>
+        <div class="link-card">
+          <h3>Resume</h3>
+          <p>Download a PDF copy of my resume.</p>
+          <a href="/assets/resume.pdf" download class="lang-btn">Download Resume</a>
+        </div>
+      </div>
+    </section>
   </main>
+
   <script type="module">
-    // Load dynamic image from backend Home settings
+    const API_BASE = document.querySelector("main").dataset.apiBase;
     async function loadHomeImage() {
       try {
-        const res = await fetch("http://localhost:3001/home");
+        const res = await fetch(`${API_BASE}/home`);
         const data = await res.json();
         const img = document.getElementById("homeProfilePhoto");
         if (img && data.image) img.src = data.image;

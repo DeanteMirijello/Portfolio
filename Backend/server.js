@@ -8,6 +8,7 @@ import testimonialsRoutes from "./routes/testimonials.js";
 import skillsRoutes from "./routes/skills.js";
 import homeRoutes from "./routes/home.js";
 import projectsRoutes from "./routes/projects.js";
+import contactItemsRoutes from "./routes/contactItems.js";
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.get(["/", "/health"], (req, res) => {
 
 // Routes
 app.use("/contact", contactRoutes);
+app.use("/contact/items", contactItemsRoutes);
 app.use("/testimonials", testimonialsRoutes);
 app.use("/skills", skillsRoutes);
 app.use("/home", homeRoutes);

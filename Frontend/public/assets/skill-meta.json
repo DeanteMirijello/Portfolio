@@ -1,0 +1,22 @@
+{
+  "Java": {"image": "/assets/placeholder-skill.svg", "rating": 4},
+  "Python": {"image": "/assets/placeholder-skill.svg", "rating": 4},
+  "C#": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "JavaScript": {"image": "/assets/placeholder-skill.svg", "rating": 4},
+  "HTML": {"image": "/assets/placeholder-skill.svg", "rating": 4},
+  "CSS": {"image": "/assets/placeholder-skill.svg", "rating": 4},
+  "Spring": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "React": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "GitHub": {"image": "/assets/placeholder-skill.svg", "rating": 4},
+  "Docker": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "Postman": {"image": "/assets/placeholder-skill.svg", "rating": 4},
+  "REST": {"image": "/assets/placeholder-skill.svg", "rating": 4},
+  "Jira": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "Agile/Scrum": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "PostgreSQL": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "MySQL": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "MongoDB": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "UML": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "Figma": {"image": "/assets/placeholder-skill.svg", "rating": 3},
+  "Photoshop": {"image": "/assets/placeholder-skill.svg", "rating": 3}
+}
