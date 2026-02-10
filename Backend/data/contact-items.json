@@ -7,7 +7,9 @@
   {
     "id": "1770415161481",
     "title": "Email",
-    "value": "derfewte.mirijello@gmail.com"
+    "value": "derfewte.mirijello@gmail.com",
+    "titleEn": "Email",
+    "titleFr": "Couriel"
   },
   {
     "id": "1770415161492",
@@ -18,10 +20,5 @@
     "id": "1770415161513",
     "title": "LinkedIn",
     "value": "https://linkedin.com/in/deante-mirijello"
-  },
-  {
-    "id": "1770415437780",
-    "title": "fvdvdvdf",
-    "value": "vvfvvdvdfvdv"
   }
 ]

@@ -1,0 +1,23 @@
+{
+  "work": {
+    "company": "Costco",
+    "en": {
+      "role": "Stocker",
+      "date": "Jun 2023 – Present",
+      "bullets": [
+        "Collaborated on inventory and aisle organization.",
+        "Helped customers in English and French.",
+        "Supported and guided new team members."
+      ]
+    },
+    "fr": {
+      "role": "Commis de stock",
+      "date": "juin 2023 – présent",
+      "bullets": [
+        "Collaboré à l’inventaire et à l’organisation des allées.",
+        "Aidé les clients en anglais et en français.",
+        "Soutenu et guidé les nouveaux membres."
+      ]
+    }
+  }
+}

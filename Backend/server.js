@@ -9,6 +9,7 @@ import skillsRoutes from "./routes/skills.js";
 import homeRoutes from "./routes/home.js";
 import projectsRoutes from "./routes/projects.js";
 import contactItemsRoutes from "./routes/contactItems.js";
+import aboutRoutes from "./routes/about.js";
 
 dotenv.config();
 
@@ -29,6 +30,14 @@ function isAllowedOrigin(origin) {
     const { hostname } = new URL(origin);
     // Allow all Vercel subdomains (preview + prod)
     if (hostname.endsWith(".vercel.app")) return true;
+    // Allow common local dev hosts and ports
+    if (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname === "0.0.0.0"
+    ) {
+      return true;
+    }
   } catch {}
   return false;
 }
@@ -59,6 +68,7 @@ app.use("/testimonials", testimonialsRoutes);
 app.use("/skills", skillsRoutes);
 app.use("/home", homeRoutes);
 app.use("/projects", projectsRoutes);
+app.use("/about", aboutRoutes);
 
 // 404 handler
 app.use((req, res) => {

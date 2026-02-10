@@ -5,8 +5,10 @@ import { listItems, addItem, updateItem, deleteItem } from "../controllers/conta
 const router = express.Router();
 
 const validators = [
-  body("title").isString().trim().notEmpty().withMessage("title is required"),
   body("value").isString().trim().notEmpty().withMessage("value is required"),
+  body("title").optional().isString().trim(),
+  body("titleEn").optional().isString().trim(),
+  body("titleFr").optional().isString().trim(),
 ];
 
 function validate(req, res, next) {

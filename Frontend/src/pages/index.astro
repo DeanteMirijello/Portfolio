@@ -11,14 +11,13 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
   <main data-api-base={API_BASE_VALUE}>
     <section class="home-hero">
       <div class="hero-text">
-        <h1>Hello, I’m Deante</h1>
-        <p>
-          Computer science student in Montreal, building practical software and learning across the stack.
+        <h1 id="homeTitle">Loading…</h1>
+        <p id="homeSubtitle">Loading…</p>
+        <p class="muted" id="homeCurrentWrap" style="margin-top:.25rem;">
+          <strong data-i18n="home.currentLabel">Currently working on:</strong> <span id="homeCurrent">Loading…</span>
         </p>
         <div class="cta-row">
-          <a href="/about" class="cta-btn primary">Explore About</a>
-          <a href="/projects" class="cta-btn">View Projects</a>
-          <a href="/skills" class="cta-btn">Browse Skills</a>
+          <a href="/about#contactCard" class="cta-btn primary" data-i18n="home.cta">Get in touch</a>
         </div>
       </div>
 
@@ -31,50 +30,53 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         />
       </div>
     </section>
-
-    <section class="quick-links">
-      <div class="quick-links-grid">
-        <div class="link-card">
-          <h3>About Me</h3>
-          <p>Background, experience, and how to reach me.</p>
-          <a href="/about" class="lang-btn">Go to About</a>
-        </div>
-        <div class="link-card">
-          <h3>Skills</h3>
-          <p>Technologies and tools I use with ratings.</p>
-          <a href="/skills" class="lang-btn">See Skills</a>
-        </div>
-        <div class="link-card">
-          <h3>Projects</h3>
-          <p>Selected work from studies and side projects.</p>
-          <a href="/projects" class="lang-btn">View Projects</a>
-        </div>
-        <div class="link-card">
-          <h3>Testimonials</h3>
-          <p>Feedback and notes from people I’ve worked with.</p>
-          <a href="/testimonials" class="lang-btn">Read Testimonials</a>
-        </div>
-        <div class="link-card">
-          <h3>Resume</h3>
-          <p>Download a PDF copy of my resume.</p>
-          <a href="/assets/resume.pdf" download class="lang-btn">Download Resume</a>
-        </div>
-      </div>
-    </section>
   </main>
 
   <script type="module">
-    const API_BASE = document.querySelector("main").dataset.apiBase;
-    async function loadHomeImage() {
+    const API_BASE = (() => {
+      const envBase = document.querySelector("main").dataset.apiBase;
+      const host = location.hostname;
+      if (host === "localhost" || host === "127.0.0.1") return "http://localhost:3001";
+      return envBase;
+    })();
+    function renderHome() {
+      try {
+        const data = window.__homeData;
+        if (!data) return;
+        const lang = window.__lang || "en";
+        const content = data[lang] || data.en || {};
+
+        const img = document.getElementById("homeProfilePhoto");
+        if (img && data.image) img.src = data.image;
+
+        const titleEl = document.getElementById("homeTitle");
+        if (titleEl && content.title) titleEl.textContent = content.title;
+
+        const subEl = document.getElementById("homeSubtitle");
+        if (subEl && content.subtitle) subEl.textContent = content.subtitle;
+
+        const currEl = document.getElementById("homeCurrent");
+        if (currEl && content.current) currEl.textContent = content.current;
+      } catch (e) {
+        console.error("Failed to render home content", e);
+      }
+    }
+
+    async function loadHomeData() {
       try {
         const res = await fetch(`${API_BASE}/home`);
         const data = await res.json();
-        const img = document.getElementById("homeProfilePhoto");
-        if (img && data.image) img.src = data.image;
+        window.__homeData = data;
+        renderHome();
       } catch (e) {
-        console.error("Failed to load home image", e);
+        console.error("Failed to load home data", e);
       }
     }
-    loadHomeImage();
+
+    // Initial load
+    loadHomeData();
+
+    // Re-render on language change
+    document.addEventListener("i18n:change", renderHome);
   </script>
 </Layout>

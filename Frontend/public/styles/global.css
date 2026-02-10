@@ -436,7 +436,6 @@ nav a.active {
   border-color: rgba(127, 127, 127, 0.35);
 }
 
-/* Home page hero */
 
 /* Admin page */
 .admin-layout {
@@ -542,13 +541,6 @@ nav a.active {
   .admin-content textarea::placeholder {
     color: #9ca3af;
   }
-}
-.home-hero {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  align-items: center;
-  margin-top: 2rem;
 }
 
 /* Two columns on desktop */

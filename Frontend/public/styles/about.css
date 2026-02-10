@@ -1,7 +1,6 @@
 /* About page specific styles */
-.about-grid { display:grid; gap:1rem; }
-.about-card { padding:1.25rem; border:1px solid var(--border); border-radius:12px; background:var(--card); }
-.about-actions { display:flex; gap:.5rem; }
+.about-grid { display:grid; gap:1rem; align-items:stretch; }
+.about-actions { display:flex; gap:.5rem; justify-content:flex-start; }
 
 /* Contact block styles */
 .contact-card { margin-top:.75rem; }

@@ -25,47 +25,49 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         <p data-i18n="about.intro">
           I’m Deante Mirijello, a Computer Science student in Montreal. I’m interested in
           full-stack development and building practical software.
+          I enjoy solving real problems with clean, reliable code and learning across the stack
+          from backend APIs to accessible UI.
+          Outside of school, I like exploring new frameworks, contributing to team projects,
+          and practicing habits that make code easier to maintain.
         </p>
       </header>
 
       <section class="about-grid">
-        <article class="about-card">
-          <h2>Who I Am</h2>
-          <p>
-            I’m Deante Mirijello, a Computer Science student in Montreal. I enjoy
-            building practical software and learning across the stack.
-          </p>
-          <div class="about-actions">
-            <a href="/assets/resume.pdf" download class="lang-btn">Download Resume</a>
-          </div>
-        </article>
-
+        <!-- Left: Work Experience -->
         <article class="about-card">
           <h2>Work Experience</h2>
           <div class="info-row">
             <div>
-              <h3>Costco — Stocker</h3>
-              <p class="muted">Jun 2023 – Present</p>
+              <h3 id="workTitle">Loading…</h3>
+              <p class="muted" id="workDate">Loading…</p>
             </div>
           </div>
-          <ul class="clean-list">
-            <li>Collaborated on inventory and aisle organization.</li>
-            <li>Helped customers in English and French.</li>
-            <li>Supported and guided new team members.</li>
-          </ul>
+          <ul class="clean-list" id="workBullets"></ul>
+        </article>
 
-          <div class="divider"></div>
-
+        <!-- Right: Contact Information -->
+        <article class="about-card">
           <h2>Contact Information</h2>
           <section class="contact-card" id="contactCard" hidden>
             <div id="contactItems"></div>
           </section>
         </article>
       </section>
+
+      <!-- Bottom: Resume download -->
+      <section style="text-align:center;">
+        <a href="/assets/DeanteResumeEn.pdf" download class="lang-btn">Download Resume</a>
+      </section>
     </main>
     <script type="module">
-      const API_BASE = document.querySelector("main").dataset.apiBase;
+      const API_BASE = (() => {
+        const envBase = document.querySelector("main").dataset.apiBase;
+        const host = location.hostname;
+        if (host === "localhost" || host === "127.0.0.1") return "http://localhost:3001";
+        return envBase;
+      })();
       const CONTACT_API = `${API_BASE}/contact/items`;
+      const WORK_API = `${API_BASE}/about/work`;
       const contactCard = document.getElementById("contactCard");
       const itemsDiv = document.getElementById("contactItems");
 
@@ -80,7 +82,8 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           row.className = "contact-row";
           const label = document.createElement("span");
           label.className = "contact-label";
-          label.textContent = item.title;
+          const lang = window.__lang || "en";
+          label.textContent = (lang === "fr" ? item.titleFr : item.titleEn) || item.title;
           const valueCell = document.createElement("div");
           const v = item.value || "";
           const isEmail = v.includes("@") && !/^https?:\/\//i.test(v);
@@ -116,7 +119,44 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         }
       }
 
+      // Work Experience rendering
+      const workTitleEl = document.getElementById("workTitle");
+      const workDateEl = document.getElementById("workDate");
+      const workBulletsEl = document.getElementById("workBullets");
+
+      function renderWork() {
+        const data = window.__workData;
+        if (!data) return;
+        const lang = window.__lang || "en";
+        const content = data[lang] || data.en || {};
+        // Title combines company — role
+        const company = data.company || "";
+        const role = content.role || "";
+        workTitleEl.textContent = company && role ? `${company} — ${role}` : (company || role || "");
+        workDateEl.textContent = content.date || "";
+        workBulletsEl.innerHTML = "";
+        (content.bullets || []).forEach((b) => {
+          const li = document.createElement("li");
+          li.textContent = b;
+          workBulletsEl.appendChild(li);
+        });
+      }
+
+      async function loadWork() {
+        try {
+          const res = await fetch(WORK_API);
+          window.__workData = await res.json();
+          renderWork();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // Initial loads
       loadContact();
+      loadWork();
+      // Re-render work on language change
+      document.addEventListener("i18n:change", renderWork);
     </script>
     <script type="module" src="/js/i18n.js"></script>
   </body>

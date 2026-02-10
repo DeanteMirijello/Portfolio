@@ -15,6 +15,7 @@ const DEFAULT_HOME = {
   en: {
     title: "Hello, I’m Deante",
     subtitle: "I am a computer science student interested in software development and building practical applications.",
+    current: "Building my portfolio and a full-stack project.",
     li1: "Information about me and my background",
     li2: "Projects I have worked on during my studies",
     li3: "Ways to contact me",
@@ -22,6 +23,7 @@ const DEFAULT_HOME = {
   fr: {
     title: "Salut, moi c’est Deante",
     subtitle: "Je suis étudiant en informatique et je m’intéresse au développement logiciel et aux applications concrètes.",
+    current: "Je construis mon portfolio et un projet full-stack.",
     li1: "Des infos sur moi et mon parcours",
     li2: "Des projets réalisés pendant mes études",
     li3: "Comment me contacter",
@@ -59,12 +61,14 @@ async function updateFrontendI18n(home) {
 
     enDict["home.title"] = home.en.title;
     enDict["home.subtitle"] = home.en.subtitle;
+    enDict["home.current"] = home.en.current;
     enDict["home.li1"] = home.en.li1;
     enDict["home.li2"] = home.en.li2;
     enDict["home.li3"] = home.en.li3;
 
     frDict["home.title"] = home.fr.title;
     frDict["home.subtitle"] = home.fr.subtitle;
+    frDict["home.current"] = home.fr.current;
     frDict["home.li1"] = home.fr.li1;
     frDict["home.li2"] = home.fr.li2;
     frDict["home.li3"] = home.fr.li3;
@@ -94,6 +98,7 @@ export async function updateHome(req, res, next) {
       en: {
         title: en?.title ?? DEFAULT_HOME.en.title,
         subtitle: en?.subtitle ?? DEFAULT_HOME.en.subtitle,
+        current: en?.current ?? DEFAULT_HOME.en.current,
         li1: en?.li1 ?? DEFAULT_HOME.en.li1,
         li2: en?.li2 ?? DEFAULT_HOME.en.li2,
         li3: en?.li3 ?? DEFAULT_HOME.en.li3,
@@ -101,6 +106,7 @@ export async function updateHome(req, res, next) {
       fr: {
         title: fr?.title ?? DEFAULT_HOME.fr.title,
         subtitle: fr?.subtitle ?? DEFAULT_HOME.fr.subtitle,
+        current: fr?.current ?? DEFAULT_HOME.fr.current,
         li1: fr?.li1 ?? DEFAULT_HOME.fr.li1,
         li2: fr?.li2 ?? DEFAULT_HOME.fr.li2,
         li3: fr?.li3 ?? DEFAULT_HOME.fr.li3,

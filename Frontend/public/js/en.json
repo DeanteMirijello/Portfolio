@@ -6,6 +6,8 @@
   "nav.lang": "FR",
   "home.title": "Hello, I’m Deante",
   "home.subtitle": "I am a computer science student interested in software development and building practical applications.",
+  "home.currentLabel": "Currently working on:",
+  "home.cta": "Get in touch",
   "home.section.find": "What you’ll find here",
   "home.li1": "Information about me and my background",
   "home.li2": "Projects I have worked on during my studies",
@@ -35,5 +37,6 @@
   "contact.email": "Email",
   "contact.phone": "Phone",
   "contact.github": "GitHub",
-  "contact.linkedin": "LinkedIn"
+  "contact.linkedin": "LinkedIn",
+  "home.current": "Building my portfolio and a full-stack project."
 }

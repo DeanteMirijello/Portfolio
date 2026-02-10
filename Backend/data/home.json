@@ -1,15 +1,17 @@
 {
-  "image": "/assets/image1.png",
+  "image": "/assets/placeholder-skill.svg",
   "en": {
     "title": "Hello, I’m Deante",
     "subtitle": "I am a computer science student interested in software development and building practical applications.",
+    "current": "Building my portfolio and a full-stack project.",
     "li1": "Information about me and my background",
     "li2": "Projects I have worked on during my studies",
     "li3": "Ways to contact me"
   },
   "fr": {
-    "title": "Salut, moi c’wkjnevnuvbnerest Deante",
+    "title": "Salut, Je suis Deante",
     "subtitle": "Je suis étudiant en informatique et je m’intéresse au développement logiciel et aux applications concrètes.",
+    "current": "Je construis mon portfolio et un projet full-stack.",
     "li1": "Des infos sur moi et mon parcours",
     "li2": "Des projets réalisés pendant mes études",
     "li3": "Comment me contacter"

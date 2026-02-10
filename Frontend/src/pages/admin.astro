@@ -8,17 +8,14 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
   <Nav />
 
   <main data-api-base={API_BASE_VALUE}>
-    <header class="page-header">
-      <h1>Admin</h1>
-    </header>
 
     <section class="admin-layout">
       <aside class="admin-sidebar">
         <button class="sidebar-btn" data-section="home">Home</button>
         <button class="sidebar-btn" data-section="about">About</button>
+        <button class="sidebar-btn" data-section="skills">Skills</button>
         <button class="sidebar-btn" data-section="projects">Projects</button>
         <button class="sidebar-btn" data-section="testimonials">Testimonials</button>
-        <button class="sidebar-btn" data-section="contact">Contact</button>
         
       </aside>
 
@@ -60,51 +57,80 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         <!-- Home management -->
         <div id="section-home" class="admin-section" hidden>
           <h2>Home</h2>
-          <div class="card" style="margin-top:.5rem;">
-            <form id="homeForm" style="display:grid;gap:.75rem;">
+          <div class="card" style="margin-top:.5rem; display:grid; gap:.75rem;">
+            <div style="display:flex; align-items:center; gap:1rem;">
+              <img id="homePreview" alt="Home image" src="" style="width:140px;height:140px;border-radius:8px;object-fit:cover;border:1px solid var(--border);" />
+              <div style="display:grid; gap:.25rem;">
+                <span class="muted" id="homeImageUrl">/assets/image1.png</span>
+                <div>
+                  <button type="button" class="lang-btn" id="homeEditImage">Edit Image</button>
+                </div>
+              </div>
+            </div>
+            <div style="display:grid; gap:.5rem; grid-template-columns:1fr 1fr;">
               <div>
-                <label class="contact-label" for="home_image">Image URL (e.g., /assets/image1.png)</label>
-                <input id="home_image" placeholder="/assets/image1.png" />
-              </div>
-              <div style="display:grid;gap:.5rem;grid-template-columns:1fr 1fr;">
-                <div>
-                  <h3 style="margin:.25rem 0;">English</h3>
-                  <label class="contact-label" for="en_title">Title</label>
-                  <input id="en_title" placeholder="Title" />
-                  <label class="contact-label" for="en_subtitle">Description</label>
-                  <textarea id="en_subtitle" placeholder="Description" rows="4"></textarea>
-                  <label class="contact-label" for="en_li1">List item 1</label>
-                  <input id="en_li1" placeholder="List item 1" />
-                  <label class="contact-label" for="en_li2">List item 2</label>
-                  <input id="en_li2" placeholder="List item 2" />
-                  <label class="contact-label" for="en_li3">List item 3</label>
-                  <input id="en_li3" placeholder="List item 3" />
-                </div>
-                <div>
-                  <h3 style="margin:.25rem 0;">Français</h3>
-                  <label class="contact-label" for="fr_title">Titre</label>
-                  <input id="fr_title" placeholder="Titre" />
-                  <label class="contact-label" for="fr_subtitle">Description</label>
-                  <textarea id="fr_subtitle" placeholder="Description" rows="4"></textarea>
-                  <label class="contact-label" for="fr_li1">Élément de liste 1</label>
-                  <input id="fr_li1" placeholder="Élément de liste 1" />
-                  <label class="contact-label" for="fr_li2">Élément de liste 2</label>
-                  <input id="fr_li2" placeholder="Élément de liste 2" />
-                  <label class="contact-label" for="fr_li3">Élément de liste 3</label>
-                  <input id="fr_li3" placeholder="Élément de liste 3" />
+                <h3 style="margin:.25rem 0;">English</h3>
+                <p style="margin:.25rem 0;"><strong>Title:</strong> <span id="homeTitleEn"></span></p>
+                <p style="margin:.25rem 0;"><strong>Description:</strong><br /><span id="homeSubtitleEn" class="muted"></span></p>
+                <p style="margin:.25rem 0;"><strong>Currently working on:</strong> <span id="homeCurrentEn" class="muted"></span></p>
+                <div style="display:flex; gap:.5rem;">
+                  <button type="button" class="lang-btn" id="homeEditTitle">Edit Title</button>
+                  <button type="button" class="lang-btn" id="homeEditSubtitle">Edit Description</button>
+                  <button type="button" class="lang-btn" id="homeEditCurrent">Edit Current</button>
                 </div>
               </div>
-              <div style="display:flex;gap:.5rem;justify-content:flex-end;">
-                <button type="submit" class="lang-btn">Save</button>
+              <div>
+                <h3 style="margin:.25rem 0;">Français</h3>
+                <p style="margin:.25rem 0;"><strong>Titre:</strong> <span id="homeTitleFr"></span></p>
+                <p style="margin:.25rem 0;"><strong>Description:</strong><br /><span id="homeSubtitleFr" class="muted"></span></p>
+                <p style="margin:.25rem 0;"><strong>En cours:</strong> <span id="homeCurrentFr" class="muted"></span></p>
               </div>
-              <p id="homeMsg" class="muted" style="margin-top:.25rem;"></p>
-            </form>
+            </div>
+            <p id="homeMsg" class="muted" style="margin-top:.25rem;"></p>
           </div>
         </div>
-        <!-- Contact management -->
-        <div id="section-contact" class="admin-section" hidden>
-          <h2>Contact</h2>
-          <div class="card" style="margin-top:.5rem;">
+        <!-- About management (now includes Contact editing) -->
+        <div id="section-about" class="admin-section" hidden>
+          <h2>About</h2>
+          <div style="display:flex; gap:.5rem; align-items:center; margin-top:.5rem;">
+            <label for="aboutEditSelect" class="contact-label">Edit section</label>
+            <select id="aboutEditSelect" style="width:220px;">
+              <option value="work" selected>Work Experience</option>
+              <option value="contact">Contact Info</option>
+            </select>
+          </div>
+          <!-- Work Experience editing -->
+          <div id="aboutWorkCard" class="card" style="margin-top:.5rem; display:grid; gap:.5rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <h3 style="margin:0;">Work Experience</h3>
+              <div style="display:inline-flex; gap:.5rem;">
+                <button type="button" id="workEditEnBtn" class="lang-btn">Edit EN</button>
+                <button type="button" id="workEditFrBtn" class="lang-btn">Edit FR</button>
+              </div>
+            </div>
+            <div style="display:grid; gap:.25rem; grid-template-columns:1fr 1fr;">
+              <div>
+                <p style="margin:.25rem 0;"><strong>Company:</strong> <span id="workCompany"></span></p>
+                <p style="margin:.25rem 0;"><strong>Role (EN):</strong> <span id="workRoleEn" class="muted"></span></p>
+                <p style="margin:.25rem 0;"><strong>Date (EN):</strong> <span id="workDateEn" class="muted"></span></p>
+                <div>
+                  <strong>Bullets (EN):</strong>
+                  <ul id="workBulletsEn" class="clean-list" style="margin:.25rem 0 0;"></ul>
+                </div>
+              </div>
+              <div>
+                <p style="margin:.25rem 0;"><strong>Rôle (FR):</strong> <span id="workRoleFr" class="muted"></span></p>
+                <p style="margin:.25rem 0;"><strong>Période (FR):</strong> <span id="workDateFr" class="muted"></span></p>
+                <div>
+                  <strong>Puces (FR):</strong>
+                  <ul id="workBulletsFr" class="clean-list" style="margin:.25rem 0 0;"></ul>
+                </div>
+              </div>
+            </div>
+            <p id="workMsg" class="muted" style="margin-top:.25rem;"></p>
+          </div>
+          <!-- Contact editing UI moved here -->
+          <div id="aboutContactCard" class="card" style="margin-top:.5rem;">
             <div style="display:flex;justify-content:flex-end;gap:.5rem;">
               <button type="button" id="contactAddBtn" class="lang-btn">Add</button>
             </div>
@@ -113,9 +139,9 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           </div>
         </div>
 
-        <!-- About management (consolidates Skills) -->
-        <div id="section-about" class="admin-section" hidden>
-          <h2>About</h2>
+        <!-- Skills management (moved out of About) -->
+        <div id="section-skills" class="admin-section" hidden>
+          <h2>Skills</h2>
           <div class="card" style="margin-top:.5rem; display:grid; gap:.75rem;">
             <div style="display:flex; gap:.5rem; align-items:center; justify-content:flex-end;">
               <button type="button" id="about_type_add" class="lang-btn">Add Skill Type</button>
@@ -147,15 +173,20 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
   </main>
 
   <script type="module">
-    const API_BASE = document.querySelector("main").dataset.apiBase;
+    const API_BASE = (() => {
+      const envBase = document.querySelector("main").dataset.apiBase;
+      const host = location.hostname;
+      if (host === "localhost" || host === "127.0.0.1") return "http://localhost:3001";
+      return envBase;
+    })();
 
     // Sidebar switching
     const sections = {
       home: document.getElementById("section-home"),
       about: document.getElementById("section-about"),
+      skills: document.getElementById("section-skills"),
       projects: document.getElementById("section-projects"),
       testimonials: document.getElementById("section-testimonials"),
-      contact: document.getElementById("section-contact"),
     };
     const sidebarBtns = document.querySelectorAll(".sidebar-btn");
     function showSection(key) {
@@ -174,6 +205,49 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     const contactAddBtn = document.getElementById("contactAddBtn");
 
     let contactItems = [];
+    // Expose home data globally for modal prefill
+    window.__homeData = null;
+    window.__workData = null;
+
+    // Work Experience
+    const workCompanyEl = document.getElementById("workCompany");
+    const workRoleEnEl = document.getElementById("workRoleEn");
+    const workDateEnEl = document.getElementById("workDateEn");
+    const workBulletsEnEl = document.getElementById("workBulletsEn");
+    const workRoleFrEl = document.getElementById("workRoleFr");
+    const workDateFrEl = document.getElementById("workDateFr");
+    const workBulletsFrEl = document.getElementById("workBulletsFr");
+    const workEditBtn = document.getElementById("workEditBtn");
+    const workMsg = document.getElementById("workMsg");
+
+    async function loadWork() {
+      workMsg.textContent = "Loading...";
+      try {
+        const res = await fetch(`${API_BASE}/about/work`);
+        window.__workData = await res.json();
+        workCompanyEl.textContent = window.__workData.company || "";
+        workRoleEnEl.textContent = window.__workData.en?.role || "";
+        workDateEnEl.textContent = window.__workData.en?.date || "";
+        workBulletsEnEl.innerHTML = "";
+        (window.__workData.en?.bullets || []).forEach((b) => {
+          const li = document.createElement("li");
+          li.textContent = b;
+          workBulletsEnEl.appendChild(li);
+        });
+        workRoleFrEl.textContent = window.__workData.fr?.role || "";
+        workDateFrEl.textContent = window.__workData.fr?.date || "";
+        workBulletsFrEl.innerHTML = "";
+        (window.__workData.fr?.bullets || []).forEach((b) => {
+          const li = document.createElement("li");
+          li.textContent = b;
+          workBulletsFrEl.appendChild(li);
+        });
+        workMsg.textContent = "";
+      } catch (e) {
+        console.error(e);
+        workMsg.textContent = "Failed to load work experience.";
+      }
+    }
 
     function renderContactItems() {
       contactItemsDiv.innerHTML = "";
@@ -184,9 +258,20 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       contactItems.forEach((item) => {
         const row = document.createElement("div");
         row.className = "contact-row";
+        row.style.display = "flex";
+        row.style.alignItems = "center";
+        row.style.justifyContent = "space-between";
+
+        const left = document.createElement("div");
+        left.style.display = "flex";
+        left.style.alignItems = "center";
+        left.style.gap = "1rem";
+
         const label = document.createElement("span");
         label.className = "contact-label";
-        label.textContent = item.title;
+        const lang = window.__lang || "en";
+        label.textContent = (lang === "fr" ? item.titleFr : item.titleEn) || item.title || "";
+
         const valueCell = document.createElement("div");
         const v = item.value || "";
         const isEmail = v.includes("@") && !/^https?:\/\//i.test(v);
@@ -205,23 +290,17 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           span.textContent = v;
           valueCell.appendChild(span);
         }
-        const controls = document.createElement("div");
-        controls.style.display = "inline-flex";
-        controls.style.gap = ".5rem";
-        controls.style.marginLeft = "1rem";
+
+        left.appendChild(label);
+        left.appendChild(valueCell);
+
         const editBtn = document.createElement("button");
         editBtn.className = "lang-btn";
         editBtn.textContent = "Edit";
         editBtn.addEventListener("click", () => openModal("contactItem", "edit", item));
-        const delBtn = document.createElement("button");
-        delBtn.className = "lang-btn";
-        delBtn.textContent = "Delete";
-        delBtn.addEventListener("click", () => deleteContactItem(item.id));
-        controls.appendChild(editBtn);
-        controls.appendChild(delBtn);
-        valueCell.appendChild(controls);
-        row.appendChild(label);
-        row.appendChild(valueCell);
+
+        row.appendChild(left);
+        row.appendChild(editBtn);
         contactItemsDiv.appendChild(row);
       });
     }
@@ -269,9 +348,35 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     const modalCancel = document.getElementById("adminModalCancel");
     const mEnTitle = document.getElementById("modal_en_title");
     const mFrTitle = document.getElementById("modal_fr_title");
+    const mEnDesc = document.getElementById("modal_en_desc");
+    const mFrDesc = document.getElementById("modal_fr_desc");
+    const mEnDate = document.getElementById("modal_en_date");
+    const mFrDate = document.getElementById("modal_fr_date");
     const modalDelete = document.getElementById("adminModalDelete");
+    const aboutEditSelect = document.getElementById("aboutEditSelect");
+    const aboutWorkCard = document.getElementById("aboutWorkCard");
+    const aboutContactCard = document.getElementById("aboutContactCard");
+    function updateAboutEditView() {
+      const v = aboutEditSelect?.value || "work";
+      if (aboutWorkCard) {
+        aboutWorkCard.hidden = v !== "work";
+        aboutWorkCard.style.display = v === "work" ? "grid" : "none";
+      }
+      if (aboutContactCard) {
+        aboutContactCard.hidden = v !== "contact";
+        aboutContactCard.style.display = v === "contact" ? "block" : "none";
+      }
+    }
+    if (aboutEditSelect) {
+      aboutEditSelect.addEventListener("change", updateAboutEditView);
+      updateAboutEditView();
+    }
     // Open add contact item modal
     contactAddBtn.addEventListener("click", () => openModal("contactItem", "add"));
+    const workEditEnBtn = document.getElementById("workEditEnBtn");
+    const workEditFrBtn = document.getElementById("workEditFrBtn");
+    if (workEditEnBtn) workEditEnBtn.addEventListener("click", () => openModal("workExpEn", "edit"));
+    if (workEditFrBtn) workEditFrBtn.addEventListener("click", () => openModal("workExpFr", "edit"));
 
     function openModal(context, mode, data) {
       modal.dataset.context = context;
@@ -281,12 +386,20 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       modal.dataset.typeName = data?.name || "";
       if (context === "contactItem") {
         modalTitle.textContent = mode === "add" ? "Add Contact Item" : "Edit Contact Item";
-        mTitle.style.display = "block";
+        // Show EN/FR titles and value; move delete into modal for edit mode
+        mTitle.style.display = "none";
+        label_title.style.display = "none";
         mValue.style.display = "block";
-        mEnTitle.style.display = "none";
-        mFrTitle.style.display = "none";
-        modalDelete.style.display = "none";
-        mTitle.value = data?.title || "";
+        label_value.style.display = "block"; label_value.textContent = "Value";
+        mEnTitle.style.display = "block"; label_en_title.style.display = "block"; label_en_title.textContent = "Title (EN)";
+        mFrTitle.style.display = "block"; label_fr_title.style.display = "block"; label_fr_title.textContent = "Title (FR)";
+        mEnDate.style.display = "none"; label_en_date.style.display = "none";
+        mFrDate.style.display = "none"; label_fr_date.style.display = "none";
+        mEnDesc.style.display = "none"; label_en_desc.style.display = "none";
+        mFrDesc.style.display = "none"; label_fr_desc.style.display = "none";
+        modalDelete.style.display = mode === "edit" ? "inline-block" : "none";
+        mEnTitle.value = data?.titleEn || data?.title || "";
+        mFrTitle.value = data?.titleFr || data?.title || "";
         mValue.value = data?.value || "";
       } else if (context === "skillType") {
         modalTitle.textContent = mode === "add" ? "Add Skill Type" : "Edit Skill Type";
@@ -306,9 +419,80 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         mValue.style.display = "block";
         mEnTitle.style.display = "none";
         mFrTitle.style.display = "none";
+        mEnDesc.style.display = "none";
+        mFrDesc.style.display = "none";
         modalDelete.style.display = mode === "edit" ? "inline-block" : "none";
         mTitle.value = "";
         mValue.value = data?.value || "";
+      } else if (context === "homeField") {
+        const field = data?.field;
+        modal.dataset.homeField = field || "";
+        modalTitle.textContent = `Edit Home ${field}`;
+        // Reset visibility
+        mTitle.style.display = "none";
+        mValue.style.display = "none";
+        mEnTitle.style.display = "none";
+        mFrTitle.style.display = "none";
+        mEnDesc.style.display = "none";
+        mFrDesc.style.display = "none";
+        modalDelete.style.display = "none";
+        // Prefill based on field
+        if (field === "image") {
+          mValue.style.display = "block";
+          mValue.value = window.__homeData?.image || "";
+        } else if (field === "title" || field === "current") {
+          mEnTitle.style.display = "block";
+          mFrTitle.style.display = "block";
+          mEnTitle.value = window.__homeData?.en?.[field] || "";
+          mFrTitle.value = window.__homeData?.fr?.[field] || "";
+        } else if (field === "subtitle") {
+          mEnDesc.style.display = "block";
+          mFrDesc.style.display = "block";
+          mEnDesc.value = window.__homeData?.en?.subtitle || "";
+          mFrDesc.value = window.__homeData?.fr?.subtitle || "";
+        }
+      } else if (context === "workExpEn") {
+        modalTitle.textContent = "Edit Work (English)";
+        // Only EN fields
+        mTitle.style.display = "none";
+        label_title.style.display = "none";
+        mValue.style.display = "none";
+        label_value.style.display = "none";
+
+        modal_en_heading.style.display = "block"; modal_en_heading.textContent = "English";
+        mEnTitle.style.display = "block"; label_en_title.style.display = "block"; label_en_title.textContent = "Role (EN)";
+        mEnDate.style.display = "block"; label_en_date.style.display = "block"; label_en_date.textContent = "Date (EN)";
+        mEnDesc.style.display = "block"; label_en_desc.style.display = "block"; label_en_desc.textContent = "Bullets (one per line)";
+
+        modal_fr_heading.style.display = "none";
+        mFrTitle.style.display = "none"; label_fr_title.style.display = "none";
+        mFrDate.style.display = "none"; label_fr_date.style.display = "none";
+        mFrDesc.style.display = "none"; label_fr_desc.style.display = "none";
+        modalDelete.style.display = "none";
+        mEnTitle.value = window.__workData?.en?.role || "";
+        mEnDate.value = window.__workData?.en?.date || "";
+        mEnDesc.value = (window.__workData?.en?.bullets || []).join("\n");
+      } else if (context === "workExpFr") {
+        modalTitle.textContent = "Modifier le travail (Français)";
+        // Only FR fields
+        mTitle.style.display = "none";
+        label_title.style.display = "none";
+        mValue.style.display = "none";
+        label_value.style.display = "none";
+
+        modal_en_heading.style.display = "none";
+        mEnTitle.style.display = "none"; label_en_title.style.display = "none";
+        mEnDate.style.display = "none"; label_en_date.style.display = "none";
+        mEnDesc.style.display = "none"; label_en_desc.style.display = "none";
+
+        modal_fr_heading.style.display = "block"; modal_fr_heading.textContent = "Français";
+        mFrTitle.style.display = "block"; label_fr_title.style.display = "block"; label_fr_title.textContent = "Rôle (FR)";
+        mFrDate.style.display = "block"; label_fr_date.style.display = "block"; label_fr_date.textContent = "Période (FR)";
+        mFrDesc.style.display = "block"; label_fr_desc.style.display = "block"; label_fr_desc.textContent = "Puces (une par ligne)";
+        modalDelete.style.display = "none";
+        mFrTitle.value = window.__workData?.fr?.role || "";
+        mFrDate.value = window.__workData?.fr?.date || "";
+        mFrDesc.value = (window.__workData?.fr?.bullets || []).join("\n");
       }
       modal.hidden = false;
     }
@@ -332,7 +516,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       try {
         if (context === "contactItem") {
           cMsg.textContent = "Saving...";
-          const payload = { title: mTitle.value.trim(), value: mValue.value.trim() };
+          const payload = { titleEn: mEnTitle.value.trim(), titleFr: mFrTitle.value.trim(), value: mValue.value.trim() };
           const itemId = modal.dataset.itemId;
           const url = mode === "edit" ? `${API_BASE}/contact/items/${itemId}` : `${API_BASE}/contact/items`;
           const method = mode === "edit" ? "PUT" : "POST";
@@ -382,15 +566,92 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           closeModal();
           await loadAboutSkills();
           aboutMsg.textContent = "Saved.";
+        } else if (context === "homeField") {
+          hMsg.textContent = "Saving...";
+          const field = modal.dataset.homeField;
+          // Build payload from current home data to avoid resetting other fields to defaults
+          const base = window.__homeData || {};
+          const payload = {
+            image: base.image,
+            en: { ...(base.en || {}) },
+            fr: { ...(base.fr || {}) },
+          };
+          if (field === "image") {
+            payload.image = mValue.value.trim() || base.image || "";
+          } else if (field === "title") {
+            payload.en.title = mEnTitle.value.trim();
+            payload.fr.title = mFrTitle.value.trim();
+          } else if (field === "subtitle") {
+            payload.en.subtitle = mEnDesc.value.trim();
+            payload.fr.subtitle = mFrDesc.value.trim();
+          } else if (field === "current") {
+            payload.en.current = mEnTitle.value.trim();
+            payload.fr.current = mFrTitle.value.trim();
+          }
+          const res = await fetch(`${API_BASE}/home`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok) { hMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
+          closeModal();
+          await loadHome();
+          hMsg.textContent = "Saved.";
+        } else if (context === "workExpEn") {
+          workMsg.textContent = "Saving...";
+          const base = window.__workData || {};
+          const payload = {
+            company: base.company,
+            en: {
+              role: mEnTitle.value.trim(),
+              date: mEnDate.value.trim(),
+              bullets: mEnDesc.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean),
+            },
+            fr: base.fr || {},
+          };
+          const res = await fetch(`${API_BASE}/about/work`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok) { workMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
+          closeModal();
+          await loadWork();
+          workMsg.textContent = "Saved.";
+        } else if (context === "workExpFr") {
+          workMsg.textContent = "Saving...";
+          const base = window.__workData || {};
+          const payload = {
+            company: base.company,
+            en: base.en || {},
+            fr: {
+              role: mFrTitle.value.trim(),
+              date: mFrDate.value.trim(),
+              bullets: mFrDesc.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean),
+            },
+          };
+          const res = await fetch(`${API_BASE}/about/work`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+          if (!res.ok) { workMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
+          closeModal();
+          await loadWork();
+          workMsg.textContent = "Saved.";
         }
       } catch (err) {
         console.error(err);
         if (context === "contactItem") cMsg.textContent = "Network error";
-        else aboutMsg.textContent = "Network error";
+        else if (context === "skillType" || context === "skillItem") aboutMsg.textContent = "Network error";
+        else hMsg.textContent = "Network error";
       }
     });
 
-    // Modal delete actions (skillType edit, skillItem edit)
+    // Modal delete actions (skillType edit, skillItem edit, contactItem edit)
     modalDelete.addEventListener("click", async () => {
       const context = modal.dataset.context;
       try {
@@ -405,6 +666,11 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           if (!confirm("Delete this skill?")) return;
           const res = await fetch(`${API_BASE}/skills/items`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category, value: oldValue }) });
           if (res.ok) { closeModal(); loadAboutSkills(); }
+        } else if (context === "contactItem") {
+          const itemId = modal.dataset.itemId;
+          if (!confirm("Delete this contact item?")) return;
+          const res = await fetch(`${API_BASE}/contact/items/${itemId}`, { method: "DELETE" });
+          if (res.ok) { closeModal(); loadContactItems(); }
         }
       } catch (e) { console.error(e); }
     });
@@ -587,84 +853,48 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 
     // Initial loads
     // Home
-    const hForm = document.getElementById("homeForm");
+    // Removed form inputs; using modal-based editing
     const hMsg = document.getElementById("homeMsg");
-    const hInputs = {
-      image: document.getElementById("home_image"),
-      en: {
-        title: document.getElementById("en_title"),
-        subtitle: document.getElementById("en_subtitle"),
-        li1: document.getElementById("en_li1"),
-        li2: document.getElementById("en_li2"),
-        li3: document.getElementById("en_li3"),
-      },
-      fr: {
-        title: document.getElementById("fr_title"),
-        subtitle: document.getElementById("fr_subtitle"),
-        li1: document.getElementById("fr_li1"),
-        li2: document.getElementById("fr_li2"),
-        li3: document.getElementById("fr_li3"),
-      },
-    };
 
     async function loadHome() {
       try {
         const res = await fetch(`${API_BASE}/home`);
-        const data = await res.json();
-        hInputs.image.value = data.image || "";
-        hInputs.en.title.value = data.en?.title || "";
-        hInputs.en.subtitle.value = data.en?.subtitle || "";
-        hInputs.en.li1.value = data.en?.li1 || "";
-        hInputs.en.li2.value = data.en?.li2 || "";
-        hInputs.en.li3.value = data.en?.li3 || "";
-        hInputs.fr.title.value = data.fr?.title || "";
-        hInputs.fr.subtitle.value = data.fr?.subtitle || "";
-        hInputs.fr.li1.value = data.fr?.li1 || "";
-        hInputs.fr.li2.value = data.fr?.li2 || "";
-        hInputs.fr.li3.value = data.fr?.li3 || "";
+        window.__homeData = await res.json();
+        // Populate display elements if present
+        if (homePreview) homePreview.src = window.__homeData.image || "";
+        if (homeImageUrl) homeImageUrl.textContent = window.__homeData.image || "";
+        if (homeTitleEnEl) homeTitleEnEl.textContent = window.__homeData.en?.title || "";
+        if (homeTitleFrEl) homeTitleFrEl.textContent = window.__homeData.fr?.title || "";
+        if (homeSubtitleEnEl) homeSubtitleEnEl.textContent = window.__homeData.en?.subtitle || "";
+        if (homeSubtitleFrEl) homeSubtitleFrEl.textContent = window.__homeData.fr?.subtitle || "";
+        if (homeCurrentEnEl) homeCurrentEnEl.textContent = window.__homeData.en?.current || "";
+        if (homeCurrentFrEl) homeCurrentFrEl.textContent = window.__homeData.fr?.current || "";
       } catch (e) {
         console.error(e);
         hMsg.textContent = "Failed to load home content.";
       }
     }
 
-    hForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      hMsg.textContent = "Saving...";
-      const payload = {
-        image: hInputs.image.value.trim(),
-        en: {
-          title: hInputs.en.title.value.trim(),
-          subtitle: hInputs.en.subtitle.value.trim(),
-          li1: hInputs.en.li1.value.trim(),
-          li2: hInputs.en.li2.value.trim(),
-          li3: hInputs.en.li3.value.trim(),
-        },
-        fr: {
-          title: hInputs.fr.title.value.trim(),
-          subtitle: hInputs.fr.subtitle.value.trim(),
-          li1: hInputs.fr.li1.value.trim(),
-          li2: hInputs.fr.li2.value.trim(),
-          li3: hInputs.fr.li3.value.trim(),
-        },
-      };
-      try {
-        const res = await fetch(`${API_BASE}/home`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          hMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed";
-          return;
-        }
-        hMsg.textContent = "Saved.";
-      } catch (e) {
-        console.error(e);
-        hMsg.textContent = "Network error";
-      }
-    });
+    // Home field edit handlers using modal
+    const homePreview = document.getElementById("homePreview");
+    const homeImageUrl = document.getElementById("homeImageUrl");
+    const homeEditImageBtn = document.getElementById("homeEditImage");
+    const homeTitleEnEl = document.getElementById("homeTitleEn");
+    const homeTitleFrEl = document.getElementById("homeTitleFr");
+    const homeSubtitleEnEl = document.getElementById("homeSubtitleEn");
+    const homeSubtitleFrEl = document.getElementById("homeSubtitleFr");
+    const homeCurrentEnEl = document.getElementById("homeCurrentEn");
+    const homeCurrentFrEl = document.getElementById("homeCurrentFr");
+    const homeEditTitleBtn = document.getElementById("homeEditTitle");
+    const homeEditSubtitleBtn = document.getElementById("homeEditSubtitle");
+    const homeEditCurrentBtn = document.getElementById("homeEditCurrent");
+
+    if (homeEditImageBtn) homeEditImageBtn.addEventListener("click", () => openModal("homeField", "edit", { field: "image" }));
+    if (homeEditTitleBtn) homeEditTitleBtn.addEventListener("click", () => openModal("homeField", "edit", { field: "title" }));
+    if (homeEditSubtitleBtn) homeEditSubtitleBtn.addEventListener("click", () => openModal("homeField", "edit", { field: "subtitle" }));
+    if (homeEditCurrentBtn) homeEditCurrentBtn.addEventListener("click", () => openModal("homeField", "edit", { field: "current" }));
+
+    // Removed old form submit; edits are handled via modal submit
 
     // Projects
     const pForm = document.getElementById("projectsForm");
@@ -781,6 +1011,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     }
 
     loadHome();
+    loadWork();
     await loadProjectsList();
     pId.value = pId.options[0]?.value || "__new__";
     if (pId.value !== "__new__") loadProject(pId.value);
@@ -794,10 +1025,26 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     <div class="modal">
       <h3 id="adminModalTitle" style="margin-top:0;">Edit</h3>
       <form id="adminModalForm" style="display:grid;gap:.5rem;">
+        <label id="label_title" for="modal_title" style="display:none;">Title</label>
         <input id="modal_title" placeholder="Title" />
+        <label id="label_value" for="modal_value" style="display:none;">Value</label>
         <input id="modal_value" placeholder="Value" />
+
+        <h4 id="modal_en_heading" style="margin:.25rem 0; display:none;">English</h4>
+        <label id="label_en_title" for="modal_en_title" style="display:none;">English title</label>
         <input id="modal_en_title" placeholder="English title" style="display:none;" />
+        <label id="label_en_date" for="modal_en_date" style="display:none;">English date range</label>
+        <input id="modal_en_date" placeholder="English date range" style="display:none;" />
+        <label id="label_en_desc" for="modal_en_desc" style="display:none;">English description</label>
+        <textarea id="modal_en_desc" placeholder="English description" rows="4" style="display:none;"></textarea>
+
+        <h4 id="modal_fr_heading" style="margin:.25rem 0; display:none;">Français</h4>
+        <label id="label_fr_title" for="modal_fr_title" style="display:none;">French title</label>
         <input id="modal_fr_title" placeholder="French title" style="display:none;" />
+        <label id="label_fr_date" for="modal_fr_date" style="display:none;">French date range</label>
+        <input id="modal_fr_date" placeholder="French date range" style="display:none;" />
+        <label id="label_fr_desc" for="modal_fr_desc" style="display:none;">French description</label>
+        <textarea id="modal_fr_desc" placeholder="French description" rows="4" style="display:none;"></textarea>
         <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem;">
           <button type="button" id="adminModalDelete" class="lang-btn" style="margin-right:auto;display:none;">Delete</button>
           <button type="button" id="adminModalCancel" class="lang-btn">Cancel</button>

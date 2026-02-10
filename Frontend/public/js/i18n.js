@@ -41,6 +41,12 @@ async function setLanguage(lang) {
 
   applyTranslations(dict);
   updateToggleButton(dict);
+
+  // Notify listeners that language has changed so dynamic pages can re-render
+  try {
+    const evt = new CustomEvent("i18n:change", { detail: { lang, dict } });
+    document.dispatchEvent(evt);
+  } catch {}
 }
 
 function setupToggle() {

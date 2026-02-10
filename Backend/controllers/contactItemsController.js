@@ -26,9 +26,16 @@ export function listItems(req, res) {
 
 export function addItem(req, res) {
   const items = readItems();
-  const { title, value } = req.body;
+  const { title, titleEn, titleFr, value } = req.body;
   const id = String(Date.now());
-  const newItem = { id, title, value };
+  const baseTitle = (title && title.trim()) || (titleEn && titleEn.trim()) || "";
+  const newItem = {
+    id,
+    title: baseTitle,
+    titleEn: (titleEn && titleEn.trim()) || baseTitle,
+    titleFr: (titleFr && titleFr.trim()) || baseTitle,
+    value,
+  };
   items.push(newItem);
   writeItems(items);
   res.status(201).json(newItem);
@@ -39,8 +46,16 @@ export function updateItem(req, res) {
   const { id } = req.params;
   const idx = items.findIndex((i) => i.id === id);
   if (idx === -1) return res.status(404).json({ error: "Item not found" });
-  const { title, value } = req.body;
-  items[idx] = { ...items[idx], title, value };
+  const { title, titleEn, titleFr, value } = req.body;
+  const current = items[idx];
+  const next = {
+    ...current,
+    title: (title && title.trim()) || current.title || current.titleEn || "",
+    titleEn: (titleEn && titleEn.trim()) || current.titleEn || current.title || "",
+    titleFr: (titleFr && titleFr.trim()) || current.titleFr || current.title || "",
+    value: value ?? current.value,
+  };
+  items[idx] = next;
   writeItems(items);
   res.json(items[idx]);
 }

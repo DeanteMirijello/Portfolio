@@ -29,7 +29,12 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     </main>
 
     <script type="module">
-      const API_BASE = document.querySelector("main").dataset.apiBase;
+      const API_BASE = (() => {
+        const envBase = document.querySelector("main").dataset.apiBase;
+        const host = location.hostname;
+        if (host === "localhost" || host === "127.0.0.1") return "http://localhost:3001";
+        return envBase;
+      })();
       const grid = document.getElementById("skills_grid");
 
       async function loadSkills() {
