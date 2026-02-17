@@ -2,9 +2,27 @@ import { auth } from "express-oauth2-jwt-bearer";
 
 let cachedAuthMiddleware = null;
 
+function normalizeDomain(value) {
+  if (!value) return "";
+  return String(value).replace(/^https?:\/\//i, "").replace(/\/$/, "").trim();
+}
+
+function resolveAuthSettings() {
+  const domain = normalizeDomain(process.env.AUTH0_DOMAIN || process.env.PUBLIC_AUTH0_DOMAIN);
+  const audience = (process.env.AUTH0_AUDIENCE || process.env.PUBLIC_AUTH0_AUDIENCE || "").trim();
+  return { domain, audience };
+}
+
+function getMissingKeys() {
+  const { domain, audience } = resolveAuthSettings();
+  const missing = [];
+  if (!domain) missing.push("AUTH0_DOMAIN (or PUBLIC_AUTH0_DOMAIN)");
+  if (!audience) missing.push("AUTH0_AUDIENCE (or PUBLIC_AUTH0_AUDIENCE)");
+  return missing;
+}
+
 function getAuthConfig() {
-  const domain = process.env.AUTH0_DOMAIN;
-  const audience = process.env.AUTH0_AUDIENCE;
+  const { domain, audience } = resolveAuthSettings();
   if (!domain || !audience) return null;
   return {
     audience,
@@ -17,9 +35,10 @@ function getAuthConfig() {
 export function authRequired(req, res, next) {
   const config = getAuthConfig();
   if (!config) {
+    const missing = getMissingKeys();
     return res.status(500).json({
       error: "Auth0 is not configured on the server",
-      missing: ["AUTH0_DOMAIN", "AUTH0_AUDIENCE"],
+      missing,
     });
   }
 
