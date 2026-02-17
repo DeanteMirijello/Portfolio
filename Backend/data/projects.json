@@ -1,6 +1,6 @@
 {
   "dm": {
-    "image": "/assets/image1.png",
+    "image": "/assets/dmcreations.png",
     "en": {
       "title": "DM Creations",
       "date": "Aug 2025 – Feb 2026",
@@ -13,7 +13,7 @@
     }
   },
   "pet": {
-    "image": "/assets/image1.png",
+    "image": "/assets/Screenshot 2026-02-17 150923.png",
     "en": {
       "title": "Champlain Pet Clinic",
       "date": "Sep 2025 – Oct 2025",
@@ -26,7 +26,7 @@
     }
   },
   "iot": {
-    "image": "/assets/image1.png",
+    "image": "/assets/IoT-Based-Home-Automation-System-Using-Arduino.jpg",
     "en": {
       "title": "IoT Home Automation & Security",
       "date": "Oct 2025 – Nov 2025",

@@ -19,6 +19,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       <aside class="admin-sidebar">
         <button class="sidebar-btn" data-section="home">Home</button>
         <button class="sidebar-btn" data-section="about">About</button>
+        <button class="sidebar-btn" data-section="contact">Contact</button>
         <button class="sidebar-btn" data-section="skills">Skills</button>
         <button class="sidebar-btn" data-section="projects">Projects</button>
         <button class="sidebar-btn" data-section="testimonials">Testimonials</button>
@@ -145,6 +146,19 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           </div>
         </div>
 
+        <!-- Contact messages management -->
+        <div id="section-contact" class="admin-section" hidden>
+          <h2>Contact</h2>
+          <div class="card" style="margin-top:.5rem; display:grid; gap:.75rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:.5rem;">
+              <p class="muted" style="margin:0;">Messages sent from the Contact page.</p>
+              <button type="button" id="contactMessagesRefresh" class="lang-btn">Refresh</button>
+            </div>
+            <div id="contactMessagesList" class="contact-card"></div>
+            <p id="contactMessagesMsg" class="muted" style="margin-top:.25rem;"></p>
+          </div>
+        </div>
+
         <!-- Skills management (moved out of About) -->
         <div id="section-skills" class="admin-section" hidden>
           <h2>Skills</h2>
@@ -161,13 +175,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         <div id="section-testimonials" class="admin-section" hidden>
           <h2>Testimonials</h2>
           <div class="card" style="margin-top:.5rem;">
-            <form id="newTestimonialForm" style="display:grid;gap:.5rem;">
-              <input id="t_author" placeholder="Author" />
-              <textarea id="t_message" placeholder="Message" rows="3"></textarea>
-              <div style="display:flex;gap:.5rem;justify-content:flex-end;">
-                <button type="submit" class="lang-btn">Add</button>
-              </div>
-            </form>
+            <p class="muted" style="margin:0;">Approve pending testimonials before they appear publicly.</p>
           </div>
 
           <div id="testimonialsList" style="margin-top:1rem;display:grid;gap:.75rem;"></div>
@@ -211,6 +219,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     const sections = {
       home: document.getElementById("section-home"),
       about: document.getElementById("section-about"),
+      contact: document.getElementById("section-contact"),
       skills: document.getElementById("section-skills"),
       projects: document.getElementById("section-projects"),
       testimonials: document.getElementById("section-testimonials"),
@@ -220,6 +229,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       Object.values(sections).forEach((el) => (el.hidden = true));
       sections[key].hidden = false;
       sidebarBtns.forEach((b) => b.classList.toggle("active", b.dataset.section === key));
+      if (key === "contact") loadContactMessages();
     }
     // default to Home
     showSection("home");
@@ -230,6 +240,9 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     const cMsg = document.getElementById("adminContactMsg");
     const contactItemsDiv = document.getElementById("contactItems");
     const contactAddBtn = document.getElementById("contactAddBtn");
+    const contactMessagesList = document.getElementById("contactMessagesList");
+    const contactMessagesMsg = document.getElementById("contactMessagesMsg");
+    const contactMessagesRefresh = document.getElementById("contactMessagesRefresh");
 
     let contactItems = [];
     // Expose home data globally for modal prefill
@@ -365,6 +378,57 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         cMsg.textContent = "Failed to load contact items.";
       }
     }
+
+    async function getAdminAuthHeaders() {
+      const token = await window.__auth?.getAccessToken?.();
+      if (!token) return null;
+      return { Authorization: `Bearer ${token}` };
+    }
+
+    async function loadContactMessages() {
+      if (!contactMessagesList) return;
+      contactMessagesList.innerHTML = "Loading...";
+      contactMessagesMsg.textContent = "";
+      try {
+        const authHeaders = await getAdminAuthHeaders();
+        if (!authHeaders) {
+          contactMessagesList.innerHTML = '<p class="muted">Please log in again as admin.</p>';
+          return;
+        }
+        const res = await fetch(`${API_BASE}/contact/messages`, { headers: authHeaders });
+        const items = await res.json().catch(() => []);
+        if (!res.ok) {
+          contactMessagesList.innerHTML = '<p class="muted">Failed to load messages.</p>';
+          contactMessagesMsg.textContent = items?.error || `Request failed (${res.status})`;
+          return;
+        }
+
+        contactMessagesList.innerHTML = "";
+        if (!items.length) {
+          contactMessagesList.innerHTML = '<p class="muted">No messages yet.</p>';
+          return;
+        }
+
+        items.forEach((item) => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.style.marginBottom = "0.75rem";
+          const sentAt = item.createdAt ? new Date(item.createdAt).toLocaleString() : "";
+          card.innerHTML = `
+            <p style="margin:0"><strong>${item.name || "Unknown"}</strong> <span class="muted">(${item.email || "no email"})</span></p>
+            <p style="margin:.35rem 0">${item.message || ""}</p>
+            <p class="muted" style="margin:0">${sentAt}</p>
+          `;
+          contactMessagesList.appendChild(card);
+        });
+      } catch (e) {
+        console.error(e);
+        contactMessagesList.innerHTML = '<p class="muted">Failed to load messages.</p>';
+        contactMessagesMsg.textContent = "Network error";
+      }
+    }
+
+    contactMessagesRefresh?.addEventListener("click", loadContactMessages);
 
     // Shared Admin Modal (used for Contact and About/Skills)
     const modal = document.getElementById("adminModal");
@@ -716,32 +780,43 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 
     // Testimonials API
     const tList = document.getElementById("testimonialsList");
-    const tForm = document.getElementById("newTestimonialForm");
-    const tAuthor = document.getElementById("t_author");
-    const tMessage = document.getElementById("t_message");
 
     async function renderTestimonials() {
       tList.innerHTML = "Loading...";
       try {
-        const res = await fetch(`${API_BASE}/testimonials`);
+        const authHeaders = await getAdminAuthHeaders();
+        if (!authHeaders) {
+          tList.innerHTML = '<p class="muted">Please log in again as admin.</p>';
+          return;
+        }
+
+        const res = await fetch(`${API_BASE}/testimonials/admin`, { headers: authHeaders });
         const items = await res.json();
         tList.innerHTML = "";
         items.forEach((t) => {
           const card = document.createElement("div");
           card.className = "card";
           card.style.padding = "0.75rem";
+          const status = t.approved ? "Approved" : "Pending";
+          const approveBtnHtml = t.approved ? "" : `<button class=\"lang-btn\" data-approve=\"${t.id}\">Approve</button>`;
           card.innerHTML = `
             <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;">
-              <strong>${t.author}</strong>
+              <div>
+                <strong>${t.author}</strong>
+                <p class="muted" style="margin:.15rem 0 0;">${status}</p>
+              </div>
               <div style="display:flex;gap:.5rem;">
+                ${approveBtnHtml}
                 <button class="lang-btn" data-edit="${t.id}">Edit</button>
                 <button class="lang-btn" data-del="${t.id}">Delete</button>
               </div>
             </div>
-            <p style="margin:.5rem 0 0">${t.message}</p>
+            <p style="margin:.5rem 0 0">${t.quote || ""}</p>
           `;
+          const approveBtn = card.querySelector(`[data-approve="${t.id}"]`);
           const editBtn = card.querySelector(`[data-edit="${t.id}"]`);
           const delBtn = card.querySelector(`[data-del="${t.id}"]`);
+          approveBtn?.addEventListener("click", () => approveTestimonial(t.id));
           editBtn.addEventListener("click", () => editTestimonial(t));
           delBtn.addEventListener("click", () => deleteTestimonial(t.id));
           tList.appendChild(card);
@@ -752,36 +827,32 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       }
     }
 
-    tForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const payload = { author: tAuthor.value.trim(), message: tMessage.value.trim() };
-      if (!payload.author || !payload.message) return;
+    async function approveTestimonial(id) {
       try {
-        const res = await fetch(`${API_BASE}/testimonials`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+        const authHeaders = await getAdminAuthHeaders();
+        if (!authHeaders) return;
+        await fetch(`${API_BASE}/testimonials/${id}/approve`, {
+          method: "PUT",
+          headers: authHeaders,
         });
-        if (res.ok) {
-          tAuthor.value = "";
-          tMessage.value = "";
-          renderTestimonials();
-        }
+        renderTestimonials();
       } catch (e) {
         console.error(e);
       }
-    });
+    }
 
     async function editTestimonial(item) {
       const newAuthor = prompt("Edit author", item.author);
       if (newAuthor === null) return;
-      const newMessage = prompt("Edit message", item.message);
-      if (newMessage === null) return;
+      const newQuote = prompt("Edit message", item.quote || "");
+      if (newQuote === null) return;
       try {
+        const authHeaders = await getAdminAuthHeaders();
+        if (!authHeaders) return;
         await fetch(`${API_BASE}/testimonials/${item.id}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ author: newAuthor, message: newMessage }),
+          headers: { "Content-Type": "application/json", ...authHeaders },
+          body: JSON.stringify({ author: newAuthor, role: item.role || "", quote: newQuote }),
         });
         renderTestimonials();
       } catch (e) {
@@ -792,7 +863,9 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     async function deleteTestimonial(id) {
       if (!confirm("Delete this testimonial?")) return;
       try {
-        await fetch(`${API_BASE}/testimonials/${id}`, { method: "DELETE" });
+        const authHeaders = await getAdminAuthHeaders();
+        if (!authHeaders) return;
+        await fetch(`${API_BASE}/testimonials/${id}`, { method: "DELETE", headers: authHeaders });
         renderTestimonials();
       } catch (e) {
         console.error(e);

@@ -1,0 +1,198 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/nav.astro";
+const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001";
+---
+
+<Layout>
+  <Nav />
+  <main data-api-base={API_BASE_VALUE}>
+    <header class="page-header">
+      <h1 data-i18n="contact.title">Contact</h1>
+      <p class="muted" data-i18n="contact.subtitle">Best ways to reach me.</p>
+    </header>
+
+    <section class="contact-card" id="guestCard">
+      <h2 style="margin-top:0" data-i18n="contact.sendTitle">Send a message</h2>
+      <p class="muted" data-i18n="contact.loginPrompt">Log in or create a quick account to send a message.</p>
+      <div style="display:flex; gap:.5rem; flex-wrap:wrap">
+        <button type="button" id="guestLoginBtn" class="lang-btn" data-i18n="auth.login">Log in</button>
+        <button type="button" id="guestSignupBtn" class="lang-btn" data-i18n="auth.create">Create account</button>
+      </div>
+    </section>
+
+    <section class="contact-card" id="messageCard" hidden>
+      <h2 style="margin-top:0" data-i18n="contact.sendTitle">Send a message</h2>
+      <form id="messageForm">
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap">
+          <input id="mName" class="contact-form-input" name="name" placeholder="Your name" required minlength="2" />
+          <input id="mEmail" class="contact-form-input" name="email" placeholder="Your email" required type="email" readonly />
+        </div>
+        <textarea id="mText" class="contact-form-input contact-form-textarea" name="message" placeholder="Your message (min 10 chars)" minlength="10" required></textarea>
+        <div style="margin-top:.5rem; display:flex; gap:.5rem; align-items:center">
+          <button type="submit" class="lang-btn" data-i18n="contact.sendBtn">Send</button>
+          <span id="mMsg" class="muted"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="contact-card" id="contactCard" hidden>
+      <h2 style="margin-top:0" data-i18n="contact.infoTitle">Contact Information</h2>
+      <div id="contactItems"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    const API_BASE = (() => {
+      const envBase = document.querySelector("main").dataset.apiBase;
+      const host = location.hostname;
+      if (host === "localhost" || host === "127.0.0.1") return "http://localhost:3001";
+      return envBase;
+    })();
+
+    const CONTACT_ITEMS_API = `${API_BASE}/contact/items`;
+    const CONTACT_MESSAGE_API = `${API_BASE}/contact/message`;
+
+    const guestCard = document.getElementById("guestCard");
+    const messageCard = document.getElementById("messageCard");
+    const guestLoginBtn = document.getElementById("guestLoginBtn");
+    const guestSignupBtn = document.getElementById("guestSignupBtn");
+
+    const contactCard = document.getElementById("contactCard");
+    const contactItemsDiv = document.getElementById("contactItems");
+
+    const msgForm = document.getElementById("messageForm");
+    const mName = document.getElementById("mName");
+    const mEmail = document.getElementById("mEmail");
+    const mText = document.getElementById("mText");
+    const mMsg = document.getElementById("mMsg");
+
+    function t(key, fallback) {
+      return window.__dict?.[key] ?? fallback;
+    }
+
+    function applyLocalizedPlaceholders() {
+      mName.placeholder = t("contact.form.name", "Your name");
+      mEmail.placeholder = t("contact.form.email", "Your email");
+      mText.placeholder = t("contact.form.message", "Your message (min 10 chars)");
+    }
+
+    function renderContact(items) {
+      contactItemsDiv.innerHTML = "";
+      if (!items.length) {
+        contactItemsDiv.innerHTML = `<p class="muted">${t("contact.empty", "No contact information yet.")}</p>`;
+        return;
+      }
+      for (const item of items) {
+        const row = document.createElement("div");
+        row.className = "contact-row";
+
+        const label = document.createElement("span");
+        label.className = "contact-label";
+        const lang = window.__lang || "en";
+        label.textContent = (lang === "fr" ? item.titleFr : item.titleEn) || item.title || "";
+
+        const valueCell = document.createElement("div");
+        const value = item.value || "";
+        const isEmail = value.includes("@") && !/^https?:\/\//i.test(value);
+        const isUrl = /^https?:\/\//i.test(value);
+        if (isEmail || isUrl) {
+          const link = document.createElement("a");
+          link.className = "contact-link";
+          link.href = isEmail ? `mailto:${value}` : value;
+          link.target = "_blank";
+          link.rel = "noreferrer";
+          link.textContent = isEmail ? value : value.replace(/^https?:\/\//i, "");
+          valueCell.appendChild(link);
+        } else {
+          const span = document.createElement("span");
+          span.className = "contact-value";
+          span.textContent = value;
+          valueCell.appendChild(span);
+        }
+
+        row.appendChild(label);
+        row.appendChild(valueCell);
+        contactItemsDiv.appendChild(row);
+      }
+    }
+
+    async function loadContactInfo() {
+      try {
+        const res = await fetch(CONTACT_ITEMS_API);
+        const items = await res.json();
+        renderContact(items);
+        contactCard.hidden = false;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function updateAuthUI(detail) {
+      const authed = !!detail?.isAuthenticated;
+      guestCard.hidden = authed;
+      messageCard.hidden = !authed;
+      if (authed && detail.user) {
+        if (detail.user.name && !mName.value) mName.value = detail.user.name;
+        if (detail.user.email) mEmail.value = detail.user.email;
+      }
+    }
+
+    guestLoginBtn?.addEventListener("click", () => window.__auth?.login());
+    guestSignupBtn?.addEventListener("click", () => window.__auth?.signup());
+
+    msgForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      mMsg.textContent = "";
+      try {
+        const token = await window.__auth?.getAccessToken();
+        if (!token) {
+          mMsg.textContent = t("contact.msg.loginFirst", "Please log in first.");
+          return;
+        }
+
+        const payload = {
+          name: mName.value.trim(),
+          message: mText.value.trim(),
+        };
+
+        const res = await fetch(CONTACT_MESSAGE_API, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || (err.errors && err.errors[0]?.msg) || `Failed (${res.status})`);
+        }
+
+        mText.value = "";
+        mMsg.textContent = t("contact.msg.sent", "Message sent!");
+      } catch (e) {
+        console.error(e);
+        mMsg.textContent = e.message || t("contact.msg.failed", "Send failed");
+      }
+    });
+
+    window.addEventListener("auth:change", (e) => updateAuthUI(e.detail));
+    setTimeout(() => {
+      if (window.__auth) {
+        updateAuthUI({
+          isAuthenticated: window.__auth.isAuthenticated,
+          user: window.__auth.user,
+        });
+      }
+      applyLocalizedPlaceholders();
+    }, 100);
+
+    loadContactInfo();
+    document.addEventListener("i18n:change", () => {
+      applyLocalizedPlaceholders();
+      loadContactInfo();
+    });
+  </script>
+</Layout>

@@ -1,13 +1,12 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
-import { handleContact, getContact, updateContact } from "../controllers/contactController.js";
+import { handleContact, getContact, updateContact, listContactMessages } from "../controllers/contactController.js";
 import { authRequired, adminOnly } from "../middleware/auth.js";
 
 const router = express.Router();
 
 const validateContactMessage = [
   body("name").trim().isLength({ min: 2 }).withMessage("Name is required"),
-  body("email").isEmail().withMessage("Valid email is required"),
   body("message")
     .trim()
     .isLength({ min: 10 })
@@ -48,6 +47,11 @@ router.post("/message", authRequired, validateContactMessage, (req, res, next) =
     return res.status(400).json({ errors: errors.array() });
   }
   return handleContact(req, res, next);
+});
+
+// List incoming contact messages (requires authenticated user)
+router.get("/messages", authRequired, (req, res, next) => {
+  return listContactMessages(req, res, next);
 });
 
 export default router;

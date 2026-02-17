@@ -23,12 +23,14 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       <header class="page-header">
         <h1 data-i18n="about.title">About Me</h1>
         <p data-i18n="about.intro">
-          I’m Deante Mirijello, a Computer Science student in Montreal. I’m interested in
-          full-stack development and building practical software.
-          I enjoy solving real problems with clean, reliable code and learning across the stack
-          from backend APIs to accessible UI.
-          Outside of school, I like exploring new frameworks, contributing to team projects,
-          and practicing habits that make code easier to maintain.
+          I’m Deante Mirijello, a Computer Science student in Montreal who enjoys building
+          full-stack software that solves real, practical problems. I like working across the
+          stack—from backend APIs and data modeling to clean, accessible frontend interfaces—and
+          I’m always trying to improve both code quality and user experience. I value teamwork,
+          clear communication, and writing maintainable software that can grow over time. In the
+          future, I’m looking for opportunities where I can keep learning from experienced
+          developers, contribute to real production projects, and evolve into a strong software
+          engineer focused on building reliable applications that people actually use.
         </p>
       </header>
 
@@ -45,12 +47,19 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           <ul class="clean-list" id="workBullets"></ul>
         </article>
 
-        <!-- Right: Contact Information -->
         <article class="about-card">
-          <h2>Contact Information</h2>
-          <section class="contact-card" id="contactCard" hidden>
-            <div id="contactItems"></div>
-          </section>
+          <h2 data-i18n="about.schoolTitle">School Experience</h2>
+          <div class="info-row">
+            <div>
+              <h3 data-i18n="about.school.program">Computer Science Program</h3>
+              <p class="muted" data-i18n="about.school.date">Current studies</p>
+            </div>
+          </div>
+          <ul class="clean-list">
+            <li data-i18n="about.school.li1">Developing strong foundations in software design, OOP, and data structures.</li>
+            <li data-i18n="about.school.li2">Building team projects using Agile/Scrum, Git workflows, and API-first development.</li>
+            <li data-i18n="about.school.li3">Applying classroom concepts to full-stack projects and practical problem solving.</li>
+          </ul>
         </article>
       </section>
 
@@ -66,58 +75,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         if (host === "localhost" || host === "127.0.0.1") return "http://localhost:3001";
         return envBase;
       })();
-      const CONTACT_API = `${API_BASE}/contact/items`;
       const WORK_API = `${API_BASE}/about/work`;
-      const contactCard = document.getElementById("contactCard");
-      const itemsDiv = document.getElementById("contactItems");
-
-      function renderContact(items) {
-        itemsDiv.innerHTML = "";
-        if (!items.length) {
-          itemsDiv.innerHTML = '<p class="muted">No contact information yet.</p>';
-          return;
-        }
-        for (const item of items) {
-          const row = document.createElement("div");
-          row.className = "contact-row";
-          const label = document.createElement("span");
-          label.className = "contact-label";
-          const lang = window.__lang || "en";
-          label.textContent = (lang === "fr" ? item.titleFr : item.titleEn) || item.title;
-          const valueCell = document.createElement("div");
-          const v = item.value || "";
-          const isEmail = v.includes("@") && !/^https?:\/\//i.test(v);
-          const isUrl = /^https?:\/\//i.test(v);
-          if (isEmail || isUrl) {
-            const a = document.createElement("a");
-            a.className = "contact-link";
-            a.href = isEmail ? `mailto:${v}` : v;
-            a.target = "_blank";
-            a.rel = "noreferrer";
-            a.textContent = isEmail ? v : v.replace(/^https?:\/\//i, "");
-            valueCell.appendChild(a);
-          } else {
-            const span = document.createElement("span");
-            span.className = "contact-value";
-            span.textContent = v;
-            valueCell.appendChild(span);
-          }
-          row.appendChild(label);
-          row.appendChild(valueCell);
-          itemsDiv.appendChild(row);
-        }
-      }
-
-      async function loadContact() {
-        try {
-          const res = await fetch(CONTACT_API);
-          const items = await res.json();
-          renderContact(items);
-          contactCard.hidden = false;
-        } catch (e) {
-          console.error(e);
-        }
-      }
 
       // Work Experience rendering
       const workTitleEl = document.getElementById("workTitle");
@@ -153,7 +111,6 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       }
 
       // Initial loads
-      loadContact();
       loadWork();
       // Re-render work on language change
       document.addEventListener("i18n:change", renderWork);

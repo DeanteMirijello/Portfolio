@@ -1,18 +1,72 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { randomUUID } from "crypto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_PATH = path.resolve(__dirname, "../data/contact.json");
+const MESSAGES_PATH = path.resolve(__dirname, "../data/contact-messages.json");
+
+async function readMessages() {
+  try {
+    const raw = await fs.readFile(MESSAGES_PATH, "utf-8");
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    if (err.code === "ENOENT") return [];
+    throw err;
+  }
+}
+
+async function writeMessages(items) {
+  await fs.mkdir(path.dirname(MESSAGES_PATH), { recursive: true });
+  await fs.writeFile(MESSAGES_PATH, JSON.stringify(items, null, 2), "utf-8");
+}
 
 export async function handleContact(req, res, next) {
   try {
-    const { name, email, message } = req.body;
+    const { name, message } = req.body;
+    const accountSub = req.auth?.payload?.sub;
+    const payload = req.auth?.payload || {};
+    const emailClaim = process.env.AUTH0_EMAIL_CLAIM || "email";
+    const email = payload[emailClaim] || payload.email || payload["https://your.app/email"];
+    if (!accountSub) return res.status(401).json({ error: "Unauthorized" });
+    if (!email) return res.status(400).json({ error: "Account email is required." });
+
+    const items = await readMessages();
+    const today = new Date().toISOString().slice(0, 10);
+    const alreadySentToday = items.some(
+      (m) => m.accountSub === accountSub && String(m.createdAt || "").slice(0, 10) === today
+    );
+    if (alreadySentToday) {
+      return res.status(429).json({ error: "You can only send one message per day." });
+    }
+
+    const entry = {
+      id: randomUUID(),
+      accountSub,
+      name,
+      email,
+      message,
+      createdAt: new Date().toISOString(),
+    };
+    items.push(entry);
+    await writeMessages(items);
 
     console.log("Contact request:", { name, email, message });
 
-    return res.status(200).json({ success: true });
+    return res.status(201).json({ success: true, id: entry.id });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function listContactMessages(req, res, next) {
+  try {
+    const items = await readMessages();
+    items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return res.status(200).json(items);
   } catch (err) {
     next(err);
   }

@@ -14,7 +14,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 
     <section class="contact-card" id="guestCard">
       <h2 style="margin-top:0">Share feedback</h2>
-      <p class="muted">Log in or create a quick account to post a testimonial or send a message.</p>
+      <p class="muted">Log in or create a quick account to post a testimonial.</p>
       <div style="display:flex; gap:.5rem; flex-wrap:wrap">
         <button type="button" id="guestLoginBtn">Log in</button>
         <button type="button" id="guestSignupBtn">Create account</button>
@@ -24,40 +24,40 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     <section class="contact-card" id="submitCard" hidden>
       <h2 style="margin-top:0">Add your testimonial</h2>
       <p class="muted" id="submitHint">Log in to submit a testimonial.</p>
-      <form id="testimonialForm">
-        <div style="display:flex; gap:.5rem; flex-wrap:wrap">
-          <input id="tAuthor" name="author" placeholder="Your name" required minlength="2" />
-          <input id="tRole" name="role" placeholder="Your role (optional)" />
-        </div>
-        <textarea id="tQuote" name="quote" placeholder="Your testimonial (min 10 chars)" minlength="10" required style="width:100%; margin-top:.5rem"></textarea>
-        <div style="margin-top:.5rem; display:flex; gap:.5rem; align-items:center">
-          <button type="submit">Submit</button>
-          <button type="button" id="loginFromForm" style="display:none">Log in</button>
-          <span id="tMsg" class="muted"></span>
-        </div>
-      </form>
-    </section>
-
-    <section class="contact-card" id="messageCard" hidden style="margin-top:1rem">
-      <h2 style="margin-top:0">Send a message</h2>
-      <p class="muted" id="msgHint">Log in to send a message to the admin.</p>
-      <form id="messageForm">
-        <div style="display:flex; gap:.5rem; flex-wrap:wrap">
-          <input id="mName" name="name" placeholder="Your name" required minlength="2" />
-          <input id="mEmail" name="email" placeholder="Your email" required type="email" />
-        </div>
-        <textarea id="mText" name="message" placeholder="Your message (min 10 chars)" minlength="10" required style="width:100%; margin-top:.5rem"></textarea>
-        <div style="margin-top:.5rem; display:flex; gap:.5rem; align-items:center">
-          <button type="submit">Send</button>
-          <button type="button" id="loginFromMsg" style="display:none">Log in</button>
-          <span id="mMsg" class="muted"></span>
-        </div>
-      </form>
+      <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+        <button type="button" id="openTestimonialModal" class="lang-btn">Add testimonial</button>
+        <button type="button" id="loginFromForm" class="lang-btn" style="display:none">Log in</button>
+        <span id="tMsg" class="muted"></span>
+      </div>
     </section>
 
     <section class="contact-card" id="listCard" hidden>
       <div id="items"></div>
     </section>
+
+    <div id="testimonialModal" class="modal-overlay" hidden>
+      <div class="modal-card contact-card" role="dialog" aria-modal="true" aria-labelledby="testimonialModalTitle">
+        <h3 id="testimonialModalTitle" style="margin-top:0">Add your testimonial</h3>
+        <form id="testimonialForm">
+          <label for="tAuthor" class="contact-label">Name</label>
+          <input id="tAuthor" class="contact-form-input" name="author" placeholder="Your name" required minlength="2" />
+
+          <label for="tEmail" class="contact-label" style="margin-top:.5rem; display:block;">Email</label>
+          <input id="tEmail" class="contact-form-input" name="email" type="email" readonly />
+
+          <label for="tRole" class="contact-label" style="margin-top:.5rem; display:block;">Role (optional)</label>
+          <input id="tRole" class="contact-form-input" name="role" placeholder="Your role" />
+
+          <label for="tQuote" class="contact-label" style="margin-top:.5rem; display:block;">Testimonial</label>
+          <textarea id="tQuote" class="contact-form-input contact-form-textarea" name="quote" placeholder="Your testimonial (min 10 chars)" minlength="10" required></textarea>
+
+          <div style="margin-top:.75rem; display:flex; gap:.5rem; justify-content:flex-end; align-items:center;">
+            <button type="button" id="closeTestimonialModal" class="lang-btn">Cancel</button>
+            <button type="submit" class="lang-btn">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </main>
 
   <script type="module">
@@ -68,26 +68,21 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       return envBase;
     })();
     const API = `${API_BASE}/testimonials`;
-    const CONTACT_API = `${API_BASE}/contact/message`;
     const listCard = document.getElementById("listCard");
     const itemsDiv = document.getElementById("items");
     const submitCard = document.getElementById("submitCard");
-    const messageCard = document.getElementById("messageCard");
     const guestCard = document.getElementById("guestCard");
+    const openTestimonialModalBtn = document.getElementById("openTestimonialModal");
+    const testimonialModal = document.getElementById("testimonialModal");
+    const closeTestimonialModalBtn = document.getElementById("closeTestimonialModal");
     const form = document.getElementById("testimonialForm");
     const tAuthor = document.getElementById("tAuthor");
+    const tEmail = document.getElementById("tEmail");
     const tRole = document.getElementById("tRole");
     const tQuote = document.getElementById("tQuote");
     const tMsg = document.getElementById("tMsg");
     const loginFromForm = document.getElementById("loginFromForm");
     const submitHint = document.getElementById("submitHint");
-    const msgForm = document.getElementById("messageForm");
-    const mName = document.getElementById("mName");
-    const mEmail = document.getElementById("mEmail");
-    const mText = document.getElementById("mText");
-    const mMsg = document.getElementById("mMsg");
-    const loginFromMsg = document.getElementById("loginFromMsg");
-    const msgHint = document.getElementById("msgHint");
     const guestLoginBtn = document.getElementById("guestLoginBtn");
     const guestSignupBtn = document.getElementById("guestSignupBtn");
 
@@ -109,6 +104,46 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       }
     }
 
+    function openTestimonialModal() {
+      testimonialModal.hidden = false;
+      setTimeout(() => tAuthor?.focus(), 0);
+    }
+
+    function closeTestimonialModal() {
+      testimonialModal.hidden = true;
+    }
+
+    async function tryOpenTestimonialModal() {
+      tMsg.textContent = "";
+      try {
+        const token = await window.__auth?.getAccessToken();
+        if (!token) {
+          tMsg.textContent = "Please log in first.";
+          return;
+        }
+
+        const checkRes = await fetch(`${API}/can-submit`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!checkRes.ok) {
+          const err = await checkRes.json().catch(() => ({}));
+          throw new Error(err.error || err.message || `Failed (${checkRes.status})`);
+        }
+
+        const checkData = await checkRes.json();
+        if (!checkData.allowed) {
+          tMsg.textContent = checkData.reason || "You can only submit one testimonial per account.";
+          return;
+        }
+
+        openTestimonialModal();
+      } catch (err) {
+        console.error(err);
+        tMsg.textContent = err.message || "Could not verify testimonial limit";
+      }
+    }
+
     async function load() {
       const res = await fetch(API);
       const items = await res.json();
@@ -123,16 +158,12 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       const authed = detail?.isAuthenticated;
       guestCard.hidden = !!authed;
       submitCard.hidden = !authed;
-      messageCard.hidden = !authed;
       loginFromForm.style.display = authed ? "none" : "inline-block";
-      loginFromMsg.style.display = authed ? "none" : "inline-block";
       submitHint.textContent = authed ? "" : "Log in to submit a testimonial.";
-      msgHint.textContent = authed ? "" : "Log in to send a message to the admin.";
       // Prefill from user profile if present
       if (authed && detail.user) {
         if (detail.user.name && !tAuthor.value) tAuthor.value = detail.user.name;
-        if (detail.user.name && !mName.value) mName.value = detail.user.name;
-        if (detail.user.email && !mEmail.value) mEmail.value = detail.user.email;
+        if (detail.user.email) tEmail.value = detail.user.email;
       }
     }
 
@@ -145,9 +176,13 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     }, 100);
 
     loginFromForm.addEventListener("click", () => window.__auth?.login());
-    loginFromMsg.addEventListener("click", () => window.__auth?.login());
     guestLoginBtn?.addEventListener("click", () => window.__auth?.login());
     guestSignupBtn?.addEventListener("click", () => window.__auth?.signup());
+    openTestimonialModalBtn?.addEventListener("click", tryOpenTestimonialModal);
+    closeTestimonialModalBtn?.addEventListener("click", closeTestimonialModal);
+    testimonialModal?.addEventListener("click", (e) => {
+      if (e.target === testimonialModal) closeTestimonialModal();
+    });
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -171,38 +206,31 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         // Reload list and reset form
         await load();
         form.reset();
-        tMsg.textContent = "Thanks for your submission!";
+        closeTestimonialModal();
+        tMsg.textContent = "Thanks! Your testimonial was submitted and is pending admin approval.";
       } catch (e) {
         console.error(e);
         tMsg.textContent = e.message || "Submit failed";
       }
     });
-
-    msgForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      mMsg.textContent = "";
-      try {
-        const token = await window.__auth?.getAccessToken();
-        if (!token) {
-          mMsg.textContent = "Please log in first.";
-          return;
-        }
-        const payload = { name: mName.value.trim(), email: mEmail.value.trim(), message: mText.value.trim() };
-        const res = await fetch(CONTACT_API, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err.error || (err.errors && err.errors[0]?.msg) || `Failed (${res.status})`);
-        }
-        msgForm.reset();
-        mMsg.textContent = "Message sent!";
-      } catch (e) {
-        console.error(e);
-        mMsg.textContent = e.message || "Send failed";
-      }
-    });
   </script>
+
+  <style>
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: grid;
+      place-items: center;
+      z-index: 1000;
+    }
+    .modal-overlay[hidden] {
+      display: none !important;
+    }
+    .modal-card {
+      width: min(92vw, 560px);
+      margin: 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+  </style>
 </Layout>
