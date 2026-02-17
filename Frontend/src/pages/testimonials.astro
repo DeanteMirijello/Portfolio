@@ -8,25 +8,25 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
   <Nav />
   <main data-api-base={API_BASE_VALUE}>
     <header class="page-header">
-      <h1>Testimonials</h1>
-      <p class="muted">Feedback from teachers and supervisors.</p>
+      <h1 data-i18n="testimonials.title">Testimonials</h1>
+      <p class="muted" data-i18n="testimonials.subtitle">Feedback from teachers and supervisors.</p>
     </header>
 
     <section class="contact-card" id="guestCard">
-      <h2 style="margin-top:0">Share feedback</h2>
-      <p class="muted">Log in or create a quick account to post a testimonial.</p>
+      <h2 style="margin-top:0" data-i18n="testimonials.shareTitle">Share feedback</h2>
+      <p class="muted" data-i18n="testimonials.loginPrompt">Log in or create a quick account to post a testimonial.</p>
       <div style="display:flex; gap:.5rem; flex-wrap:wrap">
-        <button type="button" id="guestLoginBtn">Log in</button>
-        <button type="button" id="guestSignupBtn">Create account</button>
+        <button type="button" id="guestLoginBtn" data-i18n="auth.login">Log in</button>
+        <button type="button" id="guestSignupBtn" data-i18n="auth.create">Create account</button>
       </div>
     </section>
 
     <section class="contact-card" id="submitCard" hidden>
-      <h2 style="margin-top:0">Add your testimonial</h2>
-      <p class="muted" id="submitHint">Log in to submit a testimonial.</p>
+      <h2 style="margin-top:0" data-i18n="testimonials.addTitle">Add your testimonial</h2>
+      <p class="muted" id="submitHint" data-i18n="testimonials.submitHint">Log in to submit a testimonial.</p>
       <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
-        <button type="button" id="openTestimonialModal" class="lang-btn">Add testimonial</button>
-        <button type="button" id="loginFromForm" class="lang-btn" style="display:none">Log in</button>
+        <button type="button" id="openTestimonialModal" class="lang-btn" data-i18n="testimonials.addBtn">Add testimonial</button>
+        <button type="button" id="loginFromForm" class="lang-btn" style="display:none" data-i18n="auth.login">Log in</button>
         <span id="tMsg" class="muted"></span>
       </div>
     </section>
@@ -37,23 +37,23 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 
     <div id="testimonialModal" class="modal-overlay" hidden>
       <div class="modal-card contact-card" role="dialog" aria-modal="true" aria-labelledby="testimonialModalTitle">
-        <h3 id="testimonialModalTitle" style="margin-top:0">Add your testimonial</h3>
+        <h3 id="testimonialModalTitle" style="margin-top:0" data-i18n="testimonials.modalTitle">Add your testimonial</h3>
         <form id="testimonialForm">
-          <label for="tAuthor" class="contact-label">Name</label>
+          <label for="tAuthor" class="contact-label" data-i18n="testimonials.form.name">Name</label>
           <input id="tAuthor" class="contact-form-input" name="author" placeholder="Your name" required minlength="2" />
 
-          <label for="tEmail" class="contact-label" style="margin-top:.5rem; display:block;">Email</label>
+          <label for="tEmail" class="contact-label" style="margin-top:.5rem; display:block;" data-i18n="testimonials.form.email">Email</label>
           <input id="tEmail" class="contact-form-input" name="email" type="email" readonly />
 
-          <label for="tRole" class="contact-label" style="margin-top:.5rem; display:block;">Role (optional)</label>
+          <label for="tRole" class="contact-label" style="margin-top:.5rem; display:block;" data-i18n="testimonials.form.role">Role (optional)</label>
           <input id="tRole" class="contact-form-input" name="role" placeholder="Your role" />
 
-          <label for="tQuote" class="contact-label" style="margin-top:.5rem; display:block;">Testimonial</label>
+          <label for="tQuote" class="contact-label" style="margin-top:.5rem; display:block;" data-i18n="testimonials.form.quote">Testimonial</label>
           <textarea id="tQuote" class="contact-form-input contact-form-textarea" name="quote" placeholder="Your testimonial (min 10 chars)" minlength="10" required></textarea>
 
           <div style="margin-top:.75rem; display:flex; gap:.5rem; justify-content:flex-end; align-items:center;">
-            <button type="button" id="closeTestimonialModal" class="lang-btn">Cancel</button>
-            <button type="submit" class="lang-btn">Send</button>
+            <button type="button" id="closeTestimonialModal" class="lang-btn" data-i18n="testimonials.cancel">Cancel</button>
+            <button type="submit" class="lang-btn" data-i18n="testimonials.send">Send</button>
           </div>
         </form>
       </div>
@@ -86,10 +86,32 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     const guestLoginBtn = document.getElementById("guestLoginBtn");
     const guestSignupBtn = document.getElementById("guestSignupBtn");
 
+    function t(key, fallback) {
+      return window.__dict?.[key] ?? fallback;
+    }
+
+    function localizeApiError(message) {
+      if (!message) return "";
+      const normalized = String(message).toLowerCase();
+      if (normalized.includes("one testimonial") || normalized.includes("already submitted")) {
+        return t("testimonials.msg.limitReached", "You can only submit one testimonial per account.");
+      }
+      if (normalized.includes("unauthorized") || normalized.includes("log in")) {
+        return t("testimonials.msg.loginFirst", "Please log in first.");
+      }
+      return message;
+    }
+
+    function applyLocalizedPlaceholders() {
+      tAuthor.placeholder = t("testimonials.form.namePlaceholder", "Your name");
+      tRole.placeholder = t("testimonials.form.rolePlaceholder", "Your role");
+      tQuote.placeholder = t("testimonials.form.quotePlaceholder", "Your testimonial (min 10 chars)");
+    }
+
     function render(items) {
       itemsDiv.innerHTML = "";
       if (!items.length) {
-        itemsDiv.innerHTML = '<p class="muted">No testimonials yet.</p>';
+        itemsDiv.innerHTML = `<p class="muted">${t("testimonials.empty", "No testimonials yet.")}</p>`;
         return;
       }
       for (const t of items) {
@@ -118,7 +140,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       try {
         const token = await window.__auth?.getAccessToken();
         if (!token) {
-          tMsg.textContent = "Please log in first.";
+          tMsg.textContent = t("testimonials.msg.loginFirst", "Please log in first.");
           return;
         }
 
@@ -133,14 +155,14 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 
         const checkData = await checkRes.json();
         if (!checkData.allowed) {
-          tMsg.textContent = checkData.reason || "You can only submit one testimonial per account.";
+          tMsg.textContent = localizeApiError(checkData.reason) || t("testimonials.msg.limitReached", "You can only submit one testimonial per account.");
           return;
         }
 
         openTestimonialModal();
       } catch (err) {
         console.error(err);
-        tMsg.textContent = err.message || "Could not verify testimonial limit";
+        tMsg.textContent = localizeApiError(err.message) || t("testimonials.msg.checkFailed", "Could not verify testimonial limit");
       }
     }
 
@@ -159,7 +181,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       guestCard.hidden = !!authed;
       submitCard.hidden = !authed;
       loginFromForm.style.display = authed ? "none" : "inline-block";
-      submitHint.textContent = authed ? "" : "Log in to submit a testimonial.";
+      submitHint.textContent = authed ? "" : t("testimonials.submitHint", "Log in to submit a testimonial.");
       // Prefill from user profile if present
       if (authed && detail.user) {
         if (detail.user.name && !tAuthor.value) tAuthor.value = detail.user.name;
@@ -190,7 +212,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       try {
         const token = await window.__auth?.getAccessToken();
         if (!token) {
-          tMsg.textContent = "Please log in first.";
+          tMsg.textContent = t("testimonials.msg.loginFirst", "Please log in first.");
           return;
         }
         const payload = { author: tAuthor.value.trim(), role: tRole.value.trim(), quote: tQuote.value.trim() };
@@ -207,12 +229,26 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         await load();
         form.reset();
         closeTestimonialModal();
-        tMsg.textContent = "Thanks! Your testimonial was submitted and is pending admin approval.";
+        if (window.__auth?.user?.email) tEmail.value = window.__auth.user.email;
+        tMsg.textContent = t("testimonials.msg.pending", "Thanks! Your testimonial was submitted and is pending admin approval.");
       } catch (e) {
         console.error(e);
-        tMsg.textContent = e.message || "Submit failed";
+        tMsg.textContent = localizeApiError(e.message) || t("testimonials.msg.submitFailed", "Submit failed");
       }
     });
+
+    document.addEventListener("i18n:change", async () => {
+      applyLocalizedPlaceholders();
+      updateSubmitVisibility({
+        isAuthenticated: !!window.__auth?.isAuthenticated,
+        user: window.__auth?.user,
+      });
+      await load();
+    });
+
+    setTimeout(() => {
+      applyLocalizedPlaceholders();
+    }, 110);
   </script>
 
   <style>

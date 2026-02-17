@@ -19,5 +19,25 @@
         "Soutenu et guidé les nouveaux membres."
       ]
     }
+  },
+  "school": {
+    "en": {
+      "program": "Computer Science Program",
+      "date": "Current studies",
+      "bullets": [
+        "Developing strong foundations in software design, object-oriented programming, and data structures.",
+        "Building team projects using Agile/Scrum, Git workflows, and API-first development.",
+        "Applying classroom concepts to full-stack projects and practical problem solving."
+      ]
+    },
+    "fr": {
+      "program": "Programme d’informatique",
+      "date": "Études en cours",
+      "bullets": [
+        "Développer de solides bases en conception logicielle, programmation orientée objet et structures de données.",
+        "Réaliser des projets d’équipe avec Agile/Scrum, des workflows Git et une approche API-first.",
+        "Appliquer les concepts appris en classe à des projets full-stack et à la résolution de problèmes concrets."
+      ]
+    }
   }
 }

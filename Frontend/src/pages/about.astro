@@ -51,15 +51,11 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           <h2 data-i18n="about.schoolTitle">School Experience</h2>
           <div class="info-row">
             <div>
-              <h3 data-i18n="about.school.program">Computer Science Program</h3>
-              <p class="muted" data-i18n="about.school.date">Current studies</p>
+              <h3 id="schoolProgram">Loading…</h3>
+              <p class="muted" id="schoolDate">Loading…</p>
             </div>
           </div>
-          <ul class="clean-list">
-            <li data-i18n="about.school.li1">Developing strong foundations in software design, OOP, and data structures.</li>
-            <li data-i18n="about.school.li2">Building team projects using Agile/Scrum, Git workflows, and API-first development.</li>
-            <li data-i18n="about.school.li3">Applying classroom concepts to full-stack projects and practical problem solving.</li>
-          </ul>
+          <ul class="clean-list" id="schoolBullets"></ul>
         </article>
       </section>
 
@@ -76,11 +72,15 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         return envBase;
       })();
       const WORK_API = `${API_BASE}/about/work`;
+      const SCHOOL_API = `${API_BASE}/about/school`;
 
       // Work Experience rendering
       const workTitleEl = document.getElementById("workTitle");
       const workDateEl = document.getElementById("workDate");
       const workBulletsEl = document.getElementById("workBullets");
+      const schoolProgramEl = document.getElementById("schoolProgram");
+      const schoolDateEl = document.getElementById("schoolDate");
+      const schoolBulletsEl = document.getElementById("schoolBullets");
 
       function renderWork() {
         const data = window.__workData;
@@ -110,10 +110,37 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         }
       }
 
+      function renderSchool() {
+        const data = window.__schoolData;
+        if (!data) return;
+        const lang = window.__lang || "en";
+        const content = data[lang] || data.en || {};
+        schoolProgramEl.textContent = content.program || "";
+        schoolDateEl.textContent = content.date || "";
+        schoolBulletsEl.innerHTML = "";
+        (content.bullets || []).forEach((b) => {
+          const li = document.createElement("li");
+          li.textContent = b;
+          schoolBulletsEl.appendChild(li);
+        });
+      }
+
+      async function loadSchool() {
+        try {
+          const res = await fetch(SCHOOL_API);
+          window.__schoolData = await res.json();
+          renderSchool();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
       // Initial loads
       loadWork();
+      loadSchool();
       // Re-render work on language change
       document.addEventListener("i18n:change", renderWork);
+      document.addEventListener("i18n:change", renderSchool);
     </script>
     <script type="module" src="/js/i18n.js"></script>
   </body>

@@ -1,24 +1,21 @@
 [
   {
-    "id": "c5c945f0-e46e-4939-83b5-25fdbaec00ef",
-    "author": "Deante",
-    "role": "Student",
-    "quote": "I think i am really cool and smart. I am the also the best at everything. Anyone who sees this should hire me. I am good looking and athletic. I one day aspire to be me.",
-    "createdAt": "2026-02-03T19:42:18.308Z"
-  },
-  {
     "id": "abf6dbc6-b642-44d1-a3e6-948458712554",
     "author": "ewtklgnjiwejgwejig[i",
     "role": "rkgjeiwnglewrngilewr",
     "quote": "reiqfpewgpiesnvinakvbsanvewhgosnlsblfinivnsovdlhvusoguigkbpvidvbspjlrbguoangkhefjpaspinvbdvkuduvn ouv dnvip;wenopnoisjvipbpsiuphepns vuinvpunpifviohnvknvounusupvr",
-    "createdAt": "2026-02-03T19:47:53.264Z"
+    "createdAt": "2026-02-03T19:47:53.264Z",
+    "approved": true,
+    "approvedAt": "2026-02-17T20:25:42.269Z"
   },
   {
     "id": "4c9eaea1-ce1c-41f7-a125-ba6be287ea62",
     "author": "d@d.com",
     "role": "frend",
     "quote": "doeiwhfuoehwvuievohvuyvhouvjkwjv",
-    "createdAt": "2026-02-17T19:53:42.494Z"
+    "createdAt": "2026-02-17T19:53:42.494Z",
+    "approved": true,
+    "approvedAt": "2026-02-17T20:25:41.220Z"
   },
   {
     "id": "208f18dc-6609-4c0b-a7a3-8752ec5321ef",
@@ -26,6 +23,8 @@
     "author": "Deante Mirijello",
     "role": "",
     "quote": "rf,nqevnl suilkbvwpeu ivmewl",
-    "createdAt": "2026-02-17T20:03:11.859Z"
+    "createdAt": "2026-02-17T20:03:11.859Z",
+    "approved": true,
+    "approvedAt": "2026-02-17T20:25:39.755Z"
   }
 ]

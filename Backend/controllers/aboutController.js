@@ -28,6 +28,26 @@ const DEFAULT_ABOUT = {
       ],
     },
   },
+  school: {
+    en: {
+      program: "Computer Science Program",
+      date: "Current studies",
+      bullets: [
+        "Developing strong foundations in software design, object-oriented programming, and data structures.",
+        "Building team projects using Agile/Scrum, Git workflows, and API-first development.",
+        "Applying classroom concepts to full-stack projects and practical problem solving.",
+      ],
+    },
+    fr: {
+      program: "Programme d’informatique",
+      date: "Études en cours",
+      bullets: [
+        "Développer de solides bases en conception logicielle, programmation orientée objet et structures de données.",
+        "Réaliser des projets d’équipe avec Agile/Scrum, des workflows Git et une approche API-first.",
+        "Appliquer les concepts appris en classe à des projets full-stack et à la résolution de problèmes concrets.",
+      ],
+    },
+  },
 };
 
 async function readAbout() {
@@ -46,6 +66,22 @@ async function readAbout() {
           role: data.work?.fr?.role || DEFAULT_ABOUT.work.fr.role,
           date: data.work?.fr?.date || DEFAULT_ABOUT.work.fr.date,
           bullets: Array.isArray(data.work?.fr?.bullets) ? data.work.fr.bullets : DEFAULT_ABOUT.work.fr.bullets,
+        },
+      },
+      school: {
+        en: {
+          program: data.school?.en?.program || DEFAULT_ABOUT.school.en.program,
+          date: data.school?.en?.date || DEFAULT_ABOUT.school.en.date,
+          bullets: Array.isArray(data.school?.en?.bullets)
+            ? data.school.en.bullets
+            : DEFAULT_ABOUT.school.en.bullets,
+        },
+        fr: {
+          program: data.school?.fr?.program || DEFAULT_ABOUT.school.fr.program,
+          date: data.school?.fr?.date || DEFAULT_ABOUT.school.fr.date,
+          bullets: Array.isArray(data.school?.fr?.bullets)
+            ? data.school.fr.bullets
+            : DEFAULT_ABOUT.school.fr.bullets,
         },
       },
     };
@@ -86,9 +122,43 @@ export async function updateWork(req, res, next) {
         bullets: Array.isArray(body.fr?.bullets) ? body.fr.bullets : current.work.fr.bullets,
       },
     };
-    const nextAbout = { work: nextWork };
+    const nextAbout = { work: nextWork, school: current.school };
     await writeAbout(nextAbout);
     res.status(200).json(nextWork);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSchool(req, res, next) {
+  try {
+    const about = await readAbout();
+    res.status(200).json(about.school);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateSchool(req, res, next) {
+  try {
+    const current = await readAbout();
+    const body = req.body || {};
+    const nextSchool = {
+      en: {
+        program: body.en?.program ?? current.school.en.program,
+        date: body.en?.date ?? current.school.en.date,
+        bullets: Array.isArray(body.en?.bullets) ? body.en.bullets : current.school.en.bullets,
+      },
+      fr: {
+        program: body.fr?.program ?? current.school.fr.program,
+        date: body.fr?.date ?? current.school.fr.date,
+        bullets: Array.isArray(body.fr?.bullets) ? body.fr.bullets : current.school.fr.bullets,
+      },
+    };
+
+    const nextAbout = { work: current.work, school: nextSchool };
+    await writeAbout(nextAbout);
+    res.status(200).json(nextSchool);
   } catch (err) {
     next(err);
   }
