@@ -15,6 +15,7 @@ async function readMessages() {
     return Array.isArray(data) ? data : [];
   } catch (err) {
     if (err.code === "ENOENT") return [];
+    if (err.name === "SyntaxError") return [];
     throw err;
   }
 }
@@ -30,9 +31,10 @@ export async function handleContact(req, res, next) {
     const accountSub = req.auth?.payload?.sub;
     const payload = req.auth?.payload || {};
     const emailClaim = process.env.AUTH0_EMAIL_CLAIM || "email";
-    const email = payload[emailClaim] || payload.email || payload["https://your.app/email"];
+    const tokenEmail = payload[emailClaim] || payload.email || payload["https://your.app/email"];
+    const bodyEmail = typeof req.body?.email === "string" ? req.body.email.trim() : "";
+    const email = tokenEmail || bodyEmail;
     if (!accountSub) return res.status(401).json({ error: "Unauthorized" });
-    if (!email) return res.status(400).json({ error: "Account email is required." });
 
     const items = await readMessages();
     const today = new Date().toISOString().slice(0, 10);

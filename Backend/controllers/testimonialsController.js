@@ -10,9 +10,11 @@ const DATA_PATH = path.resolve(__dirname, "../data/testimonials.json");
 async function readAll() {
   try {
     const raw = await fs.readFile(DATA_PATH, "utf-8");
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (err) {
     if (err.code === "ENOENT") return [];
+    if (err.name === "SyntaxError") return [];
     throw err;
   }
 }
@@ -50,7 +52,7 @@ export async function createTestimonial(req, res, next) {
     const emailClaim = process.env.AUTH0_EMAIL_CLAIM || "email";
     const email = payload[emailClaim] || payload.email || payload["https://your.app/email"];
     if (!accountSub) return res.status(401).json({ error: "Unauthorized" });
-    if (!email) return res.status(400).json({ error: "Account email is required." });
+    const fallbackEmail = typeof req.body?.email === "string" ? req.body.email.trim() : "";
 
     const items = await readAll();
     const alreadySubmitted = items.some((t) => t.accountSub === accountSub);
@@ -61,7 +63,7 @@ export async function createTestimonial(req, res, next) {
     const item = {
       id: randomUUID(),
       accountSub,
-      email,
+      email: email || fallbackEmail || "",
       author,
       role: role || "",
       quote,

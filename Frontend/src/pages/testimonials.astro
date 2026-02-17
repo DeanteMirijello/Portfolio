@@ -215,7 +215,12 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           tMsg.textContent = t("testimonials.msg.loginFirst", "Please log in first.");
           return;
         }
-        const payload = { author: tAuthor.value.trim(), role: tRole.value.trim(), quote: tQuote.value.trim() };
+        const payload = {
+          author: tAuthor.value.trim(),
+          email: tEmail.value.trim(),
+          role: tRole.value.trim(),
+          quote: tQuote.value.trim(),
+        };
         const res = await fetch(API, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
