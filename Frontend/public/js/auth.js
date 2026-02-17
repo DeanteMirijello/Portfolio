@@ -73,30 +73,6 @@ async function init() {
     return;
   }
 
-  // Handle redirect callback (after login)
-  if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
-    try {
-      const clientTmp = await createAuth0Client({
-        domain: cfg.domain,
-        clientId: cfg.clientId,
-        authorizationParams: {
-          audience: cfg.audience,
-          redirect_uri: redirectUri,
-        },
-      });
-      const callback = await clientTmp.handleRedirectCallback();
-      const returnTo = callback?.appState?.returnTo;
-      const newUrl = window.location.origin + window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-      if (returnTo && returnTo !== window.location.pathname) {
-        window.location.replace(returnTo);
-        return;
-      }
-    } catch (e) {
-      console.error("Auth0 redirect error", e);
-    }
-  }
-
   const client = await createAuth0Client({
     domain: cfg.domain,
     clientId: cfg.clientId,
@@ -108,6 +84,22 @@ async function init() {
       scope: "openid profile email",
     },
   });
+
+  // Handle redirect callback (after login/signup) using the SAME client instance
+  if (window.location.search.includes("code=") && window.location.search.includes("state=")) {
+    try {
+      const callback = await client.handleRedirectCallback();
+      const returnTo = callback?.appState?.returnTo;
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+      if (returnTo && returnTo !== window.location.pathname) {
+        window.location.replace(returnTo);
+        return;
+      }
+    } catch (e) {
+      console.error("Auth0 redirect error", e);
+    }
+  }
 
   async function refresh() {
     try {
@@ -128,13 +120,12 @@ async function init() {
     dispatch();
   }
 
-  async function login(options = {}) {
-    const loginHint = options.loginHint || undefined;
+  async function login() {
     const authParams = {
       audience: cfg.audience,
       redirect_uri: redirectUri,
       scope: "openid profile email",
-      ...(loginHint ? { login_hint: loginHint } : {}),
+      prompt: "login",
     };
 
     await client.loginWithRedirect({
@@ -142,6 +133,21 @@ async function init() {
         returnTo: window.location.pathname,
       },
       authorizationParams: authParams,
+    });
+  }
+
+  async function signup() {
+    await client.loginWithRedirect({
+      appState: {
+        returnTo: window.location.pathname,
+      },
+      authorizationParams: {
+        audience: cfg.audience,
+        redirect_uri: redirectUri,
+        scope: "openid profile email",
+        prompt: "login",
+        screen_hint: "signup",
+      },
     });
   }
 
@@ -174,6 +180,7 @@ async function init() {
       }
     },
     login,
+    signup,
     logout,
     refresh,
   };

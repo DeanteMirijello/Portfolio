@@ -12,6 +12,15 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       <p class="muted">Feedback from teachers and supervisors.</p>
     </header>
 
+    <section class="contact-card" id="guestCard">
+      <h2 style="margin-top:0">Share feedback</h2>
+      <p class="muted">Log in or create a quick account to post a testimonial or send a message.</p>
+      <div style="display:flex; gap:.5rem; flex-wrap:wrap">
+        <button type="button" id="guestLoginBtn">Log in</button>
+        <button type="button" id="guestSignupBtn">Create account</button>
+      </div>
+    </section>
+
     <section class="contact-card" id="submitCard" hidden>
       <h2 style="margin-top:0">Add your testimonial</h2>
       <p class="muted" id="submitHint">Log in to submit a testimonial.</p>
@@ -64,6 +73,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     const itemsDiv = document.getElementById("items");
     const submitCard = document.getElementById("submitCard");
     const messageCard = document.getElementById("messageCard");
+    const guestCard = document.getElementById("guestCard");
     const form = document.getElementById("testimonialForm");
     const tAuthor = document.getElementById("tAuthor");
     const tRole = document.getElementById("tRole");
@@ -78,6 +88,8 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     const mMsg = document.getElementById("mMsg");
     const loginFromMsg = document.getElementById("loginFromMsg");
     const msgHint = document.getElementById("msgHint");
+    const guestLoginBtn = document.getElementById("guestLoginBtn");
+    const guestSignupBtn = document.getElementById("guestSignupBtn");
 
     function render(items) {
       itemsDiv.innerHTML = "";
@@ -109,6 +121,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     // Auth gating for submission
     function updateSubmitVisibility(detail) {
       const authed = detail?.isAuthenticated;
+      guestCard.hidden = !!authed;
       submitCard.hidden = !authed;
       messageCard.hidden = !authed;
       loginFromForm.style.display = authed ? "none" : "inline-block";
@@ -133,6 +146,8 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 
     loginFromForm.addEventListener("click", () => window.__auth?.login());
     loginFromMsg.addEventListener("click", () => window.__auth?.login());
+    guestLoginBtn?.addEventListener("click", () => window.__auth?.login());
+    guestSignupBtn?.addEventListener("click", () => window.__auth?.signup());
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
