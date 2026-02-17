@@ -25,6 +25,7 @@ function getConfig() {
   const domain = el.dataset.authDomain;
   const clientId = el.dataset.authClient;
   const audience = el.dataset.authAud;
+  const dbConnection = el.dataset.authDbConnection || "";
   const adminEmails = (el.dataset.adminEmails || "")
     .split(",")
     .map((s) => s.trim().toLowerCase())
@@ -34,7 +35,7 @@ function getConfig() {
   if (!domain) missing.push("PUBLIC_AUTH0_DOMAIN");
   if (!clientId) missing.push("PUBLIC_AUTH0_CLIENT_ID");
   if (!audience) missing.push("PUBLIC_AUTH0_AUDIENCE");
-  return { domain, clientId, audience, adminEmails, rolesClaim, missing };
+  return { domain, clientId, audience, dbConnection, adminEmails, rolesClaim, missing };
 }
 
 function computeIsAdmin(user, rolesClaim, adminEmails) {
@@ -137,17 +138,21 @@ async function init() {
   }
 
   async function signup() {
+    const signupParams = {
+      audience: cfg.audience,
+      redirect_uri: redirectUri,
+      scope: "openid profile email",
+      screen_hint: "signup",
+    };
+    if (cfg.dbConnection) {
+      signupParams.connection = cfg.dbConnection;
+    }
+
     await client.loginWithRedirect({
       appState: {
         returnTo: window.location.pathname,
       },
-      authorizationParams: {
-        audience: cfg.audience,
-        redirect_uri: redirectUri,
-        scope: "openid profile email",
-        prompt: "login",
-        screen_hint: "signup",
-      },
+      authorizationParams: signupParams,
     });
   }
 
