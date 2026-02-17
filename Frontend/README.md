@@ -15,7 +15,7 @@ PUBLIC_AUTH0_AUDIENCE=your-api-identifier
 PUBLIC_AUTH0_DB_CONNECTION=Username-Password-Authentication
 PUBLIC_AUTH0_ROLES_CLAIM=https://your.app/roles
 # Optional shortcut: comma-separated emails that count as admin on the client
-PUBLIC_ADMIN_EMAILS=you@example.com
+PUBLIC_ADMIN_EMAILS=you@example.com,teacher@example.com
 ```
 
 ## Commands
@@ -33,3 +33,8 @@ PUBLIC_ADMIN_EMAILS=you@example.com
 - Testimonials page shows:
 	- Auth-only testimonial form (POST `/testimonials`).
 	- Auth-only “Send a message” form (POST `/contact/message`).
+
+## Teacher admin account (email + password)
+- Create the teacher user in Auth0 database connection (`Username-Password-Authentication`) with their own email and password.
+- Add that email to backend `AUTH0_ALLOWED_ADMIN_EMAILS` and frontend `PUBLIC_ADMIN_EMAILS`.
+- Redeploy backend and frontend so both allowlists are updated.

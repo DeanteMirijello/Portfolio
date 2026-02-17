@@ -26,7 +26,7 @@ Express API for the Astro portfolio with JSON-backed content and Auth0-protected
    AUTH0_DOMAIN=your-tenant.us.auth0.com
    AUTH0_AUDIENCE=your-api-identifier
    # Optional admin checks
-   AUTH0_ALLOWED_ADMIN_EMAILS=you@example.com,other@example.com
+  AUTH0_ALLOWED_ADMIN_EMAILS=you@example.com,teacher@example.com
    # If you expose roles in a custom claim, set it (default shown):
    AUTH0_ROLES_CLAIM=https://your.app/roles
    ```
@@ -53,6 +53,7 @@ The server listens on `http://localhost:3001` by default.
 - Admin is detected if either:
   - The access token (or user) has `"admin"` in the roles claim (`AUTH0_ROLES_CLAIM`), or
   - The user email matches `AUTH0_ALLOWED_ADMIN_EMAILS` (comma-separated).
+- For a teacher submission login, create that teacher user (email/password) in your Auth0 database connection, then add their email to `AUTH0_ALLOWED_ADMIN_EMAILS`.
 
 ## Next steps
 - Integrate a real mailer (e.g., Resend/SendGrid) in `POST /contact/message`
