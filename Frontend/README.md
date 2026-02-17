@@ -1,46 +1,34 @@
-# Astro Starter Kit: Basics
+# Frontend (Astro)
 
-```sh
-npm create astro@latest -- --template basics
+Astro frontend for the portfolio. Includes client-side Auth0 login, admin link visibility, and authenticated forms.
+
+## Env
+Create an `.env` file (or use `.env.local`) with:
+
+```env
+PUBLIC_API_BASE=http://localhost:3001
+
+# Auth0 SPA
+PUBLIC_AUTH0_DOMAIN=your-tenant.us.auth0.com
+PUBLIC_AUTH0_CLIENT_ID=your-spa-client-id
+PUBLIC_AUTH0_AUDIENCE=your-api-identifier
+PUBLIC_AUTH0_ROLES_CLAIM=https://your.app/roles
+# Optional shortcut: comma-separated emails that count as admin on the client
+PUBLIC_ADMIN_EMAILS=you@example.com
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Commands
 
-## 🚀 Project Structure
+| Command           | Action                                      |
+|-------------------|---------------------------------------------|
+| `npm install`     | Install deps                                 |
+| `npm run dev`     | Start dev server at `http://localhost:4321` |
+| `npm run build`   | Build to `./dist/`                           |
+| `npm run preview` | Preview the build                            |
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
-
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## Auth0 UX
+- Login/Logout buttons appear in the top nav.
+- The Admin link only appears when the user is an admin (role or allowed email).
+- Testimonials page shows:
+	- Auth-only testimonial form (POST `/testimonials`).
+	- Auth-only “Send a message” form (POST `/contact/message`).

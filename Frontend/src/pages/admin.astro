@@ -7,7 +7,13 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 <Layout>
   <Nav />
 
-  <main data-api-base={API_BASE_VALUE}>
+  <section id="adminGuard" class="contact-card" style="max-width:720px; margin:1rem auto;" hidden>
+    <h2 style="margin-top:0">Admin Area</h2>
+    <p class="muted">Please log in with an admin account to manage content.</p>
+    <button type="button" id="adminLoginBtn">Log in</button>
+  </section>
+
+  <main id="adminApp" data-api-base={API_BASE_VALUE} hidden>
 
     <section class="admin-layout">
       <aside class="admin-sidebar">
@@ -179,6 +185,27 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       if (host === "localhost" || host === "127.0.0.1") return "http://localhost:3001";
       return envBase;
     })();
+
+    // Auth guard: only allow admins to view main content
+    const appEl = document.getElementById("adminApp");
+    const guardEl = document.getElementById("adminGuard");
+    const adminLoginBtn = document.getElementById("adminLoginBtn");
+    adminLoginBtn?.addEventListener("click", () => window.__auth?.login());
+
+    function updateAdminGuard(detail) {
+      const isAdmin = !!detail?.isAdmin;
+      if (isAdmin) {
+        appEl.hidden = false;
+        guardEl.hidden = true;
+      } else {
+        appEl.hidden = true;
+        guardEl.hidden = false;
+      }
+    }
+    window.addEventListener("auth:change", (e) => updateAdminGuard(e.detail));
+    setTimeout(() => {
+      if (window.__auth) updateAdminGuard({ isAdmin: window.__auth.isAdmin });
+    }, 100);
 
     // Sidebar switching
     const sections = {

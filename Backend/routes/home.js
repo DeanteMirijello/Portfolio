@@ -1,6 +1,7 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 import { getHome, updateHome } from "../controllers/homeController.js";
+import { adminOnly } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ const validateHome = [
 
 router.get("/", (req, res, next) => getHome(req, res, next));
 
-router.put("/", validateHome, (req, res, next) => {
+router.put("/", adminOnly, validateHome, (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
   return updateHome(req, res, next);

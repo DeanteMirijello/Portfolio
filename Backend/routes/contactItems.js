@@ -1,6 +1,7 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 import { listItems, addItem, updateItem, deleteItem } from "../controllers/contactItemsController.js";
+import { adminOnly } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -18,8 +19,8 @@ function validate(req, res, next) {
 }
 
 router.get("/", listItems);
-router.post("/", validators, validate, addItem);
-router.put("/:id", validators, validate, updateItem);
-router.delete("/:id", deleteItem);
+router.post("/", adminOnly, validators, validate, addItem);
+router.put("/:id", adminOnly, validators, validate, updateItem);
+router.delete("/:id", adminOnly, deleteItem);
 
 export default router;

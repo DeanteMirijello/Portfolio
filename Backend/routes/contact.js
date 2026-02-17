@@ -1,6 +1,7 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 import { handleContact, getContact, updateContact } from "../controllers/contactController.js";
+import { authRequired, adminOnly } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -32,7 +33,7 @@ router.get("/", (req, res, next) => {
 });
 
 // Update contact info (admin-like edit, no auth yet)
-router.put("/", validateContactInfo, (req, res, next) => {
+router.put("/", adminOnly, validateContactInfo, (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -41,7 +42,7 @@ router.put("/", validateContactInfo, (req, res, next) => {
 });
 
 // Submit a contact message
-router.post("/message", validateContactMessage, (req, res, next) => {
+router.post("/message", authRequired, validateContactMessage, (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });

@@ -1,10 +1,19 @@
-<nav class="site-nav">
+---
+const AUTH0_DOMAIN = import.meta.env.PUBLIC_AUTH0_DOMAIN || "";
+const AUTH0_CLIENT_ID = import.meta.env.PUBLIC_AUTH0_CLIENT_ID || "";
+const AUTH0_AUDIENCE = import.meta.env.PUBLIC_AUTH0_AUDIENCE || "";
+const ADMIN_EMAILS = import.meta.env.PUBLIC_ADMIN_EMAILS || "";
+const ROLES_CLAIM = import.meta.env.PUBLIC_AUTH0_ROLES_CLAIM || "https://your.app/roles";
+---
+
+<nav class="site-nav" data-auth-config data-auth-domain={AUTH0_DOMAIN} data-auth-client={AUTH0_CLIENT_ID} data-auth-aud={AUTH0_AUDIENCE} data-admin-emails={ADMIN_EMAILS} data-roles-claim={ROLES_CLAIM}>
   <div class="nav-links">
     <a href="/" data-i18n="nav.home">Home</a>
     <a href="/about" data-i18n="nav.about">About</a>
     <a href="/skills" data-i18n="nav.skills">Skills</a>
     <a href="/projects" data-i18n="nav.projects">Projects</a>
     <a href="/testimonials" data-i18n="nav.testimonials">Testimonials</a>
+    <a id="adminLink" href="/admin" class="admin-link" style="display:none">Admin</a>
   </div>
 
   <div class="nav-right">
@@ -16,9 +25,24 @@
     >
       FR
     </button>
-    <a href="/admin" class="admin-link">Admin</a>
+    <button id="loginBtn" type="button" class="auth-btn">Log in</button>
+    <button id="logoutBtn" type="button" class="auth-btn" style="display:none">Log out</button>
   </div>
 </nav>
+
+<div id="loginModal" class="modal-overlay" hidden>
+  <div class="modal-card contact-card" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <h3 id="loginTitle" style="margin-top:0">Log in</h3>
+    <p class="muted" style="margin-top:.25rem">Enter your email to continue to secure Auth0 sign-in.</p>
+    <form id="loginForm">
+      <input id="loginEmail" class="modal-input" type="email" placeholder="Email" required />
+      <div class="modal-actions">
+        <button id="loginCancel" class="lang-btn" type="button" data-login-close>Cancel</button>
+        <button type="submit" class="lang-btn">Continue</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script>
   // Highlight active nav link
@@ -35,4 +59,111 @@
     }
   });
 </script>
+<script type="module" src="/js/auth.js"></script>
 <script type="module" src="/js/i18n.js"></script>
+<script type="module">
+  // Auth UI wiring
+  function updateAuthUI(detail) {
+    const loginBtn = document.getElementById("loginBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const adminLink = document.getElementById("adminLink");
+    const isAuthed = detail?.isAuthenticated;
+    const isAdmin = detail?.isAdmin;
+    if (loginBtn) loginBtn.style.display = isAuthed ? "none" : "inline-block";
+    if (logoutBtn) logoutBtn.style.display = isAuthed ? "inline-block" : "none";
+    if (adminLink) adminLink.style.display = isAdmin ? "inline-block" : "none";
+  }
+
+  window.addEventListener("auth:change", (e) => updateAuthUI(e.detail));
+
+  const loginBtn = document.getElementById("loginBtn");
+  const loginModal = document.getElementById("loginModal");
+  const loginForm = document.getElementById("loginForm");
+  const loginEmail = document.getElementById("loginEmail");
+  const loginCancel = document.getElementById("loginCancel");
+
+  function openLoginModal() {
+    loginModal.hidden = false;
+    setTimeout(() => loginEmail?.focus(), 0);
+  }
+  function closeLoginModal() {
+    loginModal.hidden = true;
+  }
+
+  loginBtn?.addEventListener("click", () => {
+    openLoginModal();
+  });
+
+  loginCancel?.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeLoginModal();
+  });
+  loginModal?.addEventListener("click", (e) => {
+    if (e.target === loginModal) closeLoginModal();
+    if (e.target.closest("[data-login-close]")) closeLoginModal();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !loginModal?.hidden) closeLoginModal();
+  });
+
+  loginForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = loginEmail?.value?.trim();
+    closeLoginModal();
+    await window.__auth?.login({ loginHint: email || undefined });
+  });
+
+  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+    window.__auth?.logout();
+  });
+
+  // If auth initialized before this script loaded, force one UI sync soon
+  setTimeout(() => {
+    if (window.__auth) {
+      updateAuthUI({
+        isAuthenticated: window.__auth.isAuthenticated,
+        isAdmin: window.__auth.isAdmin,
+      });
+    }
+  }, 100);
+</script>
+
+<style>
+  #loginModal[hidden] {
+    display: none !important;
+  }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+  }
+  .modal-card {
+    width: min(92vw, 420px);
+    margin: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+  .modal-input {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.6rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+  }
+  .modal-input:focus {
+    outline: 2px solid color-mix(in srgb, var(--brand) 35%, transparent);
+    border-color: var(--brand);
+  }
+  .modal-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 0.75rem;
+  }
+</style>

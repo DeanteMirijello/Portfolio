@@ -12,6 +12,40 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       <p class="muted">Feedback from teachers and supervisors.</p>
     </header>
 
+    <section class="contact-card" id="submitCard" hidden>
+      <h2 style="margin-top:0">Add your testimonial</h2>
+      <p class="muted" id="submitHint">Log in to submit a testimonial.</p>
+      <form id="testimonialForm">
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap">
+          <input id="tAuthor" name="author" placeholder="Your name" required minlength="2" />
+          <input id="tRole" name="role" placeholder="Your role (optional)" />
+        </div>
+        <textarea id="tQuote" name="quote" placeholder="Your testimonial (min 10 chars)" minlength="10" required style="width:100%; margin-top:.5rem"></textarea>
+        <div style="margin-top:.5rem; display:flex; gap:.5rem; align-items:center">
+          <button type="submit">Submit</button>
+          <button type="button" id="loginFromForm" style="display:none">Log in</button>
+          <span id="tMsg" class="muted"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="contact-card" id="messageCard" hidden style="margin-top:1rem">
+      <h2 style="margin-top:0">Send a message</h2>
+      <p class="muted" id="msgHint">Log in to send a message to the admin.</p>
+      <form id="messageForm">
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap">
+          <input id="mName" name="name" placeholder="Your name" required minlength="2" />
+          <input id="mEmail" name="email" placeholder="Your email" required type="email" />
+        </div>
+        <textarea id="mText" name="message" placeholder="Your message (min 10 chars)" minlength="10" required style="width:100%; margin-top:.5rem"></textarea>
+        <div style="margin-top:.5rem; display:flex; gap:.5rem; align-items:center">
+          <button type="submit">Send</button>
+          <button type="button" id="loginFromMsg" style="display:none">Log in</button>
+          <span id="mMsg" class="muted"></span>
+        </div>
+      </form>
+    </section>
+
     <section class="contact-card" id="listCard" hidden>
       <div id="items"></div>
     </section>
@@ -25,8 +59,25 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       return envBase;
     })();
     const API = `${API_BASE}/testimonials`;
+    const CONTACT_API = `${API_BASE}/contact/message`;
     const listCard = document.getElementById("listCard");
     const itemsDiv = document.getElementById("items");
+    const submitCard = document.getElementById("submitCard");
+    const messageCard = document.getElementById("messageCard");
+    const form = document.getElementById("testimonialForm");
+    const tAuthor = document.getElementById("tAuthor");
+    const tRole = document.getElementById("tRole");
+    const tQuote = document.getElementById("tQuote");
+    const tMsg = document.getElementById("tMsg");
+    const loginFromForm = document.getElementById("loginFromForm");
+    const submitHint = document.getElementById("submitHint");
+    const msgForm = document.getElementById("messageForm");
+    const mName = document.getElementById("mName");
+    const mEmail = document.getElementById("mEmail");
+    const mText = document.getElementById("mText");
+    const mMsg = document.getElementById("mMsg");
+    const loginFromMsg = document.getElementById("loginFromMsg");
+    const msgHint = document.getElementById("msgHint");
 
     function render(items) {
       itemsDiv.innerHTML = "";
@@ -54,5 +105,89 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     }
 
     load();
+
+    // Auth gating for submission
+    function updateSubmitVisibility(detail) {
+      const authed = detail?.isAuthenticated;
+      submitCard.hidden = !authed;
+      messageCard.hidden = !authed;
+      loginFromForm.style.display = authed ? "none" : "inline-block";
+      loginFromMsg.style.display = authed ? "none" : "inline-block";
+      submitHint.textContent = authed ? "" : "Log in to submit a testimonial.";
+      msgHint.textContent = authed ? "" : "Log in to send a message to the admin.";
+      // Prefill from user profile if present
+      if (authed && detail.user) {
+        if (detail.user.name && !tAuthor.value) tAuthor.value = detail.user.name;
+        if (detail.user.name && !mName.value) mName.value = detail.user.name;
+        if (detail.user.email && !mEmail.value) mEmail.value = detail.user.email;
+      }
+    }
+
+    window.addEventListener("auth:change", (e) => updateSubmitVisibility(e.detail));
+    setTimeout(() => {
+      if (window.__auth) updateSubmitVisibility({
+        isAuthenticated: window.__auth.isAuthenticated,
+        user: window.__auth.user,
+      });
+    }, 100);
+
+    loginFromForm.addEventListener("click", () => window.__auth?.login());
+    loginFromMsg.addEventListener("click", () => window.__auth?.login());
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      tMsg.textContent = "";
+      try {
+        const token = await window.__auth?.getAccessToken();
+        if (!token) {
+          tMsg.textContent = "Please log in first.";
+          return;
+        }
+        const payload = { author: tAuthor.value.trim(), role: tRole.value.trim(), quote: tQuote.value.trim() };
+        const res = await fetch(API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || err.message || `Failed (${res.status})`);
+        }
+        // Reload list and reset form
+        await load();
+        form.reset();
+        tMsg.textContent = "Thanks for your submission!";
+      } catch (e) {
+        console.error(e);
+        tMsg.textContent = e.message || "Submit failed";
+      }
+    });
+
+    msgForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      mMsg.textContent = "";
+      try {
+        const token = await window.__auth?.getAccessToken();
+        if (!token) {
+          mMsg.textContent = "Please log in first.";
+          return;
+        }
+        const payload = { name: mName.value.trim(), email: mEmail.value.trim(), message: mText.value.trim() };
+        const res = await fetch(CONTACT_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || (err.errors && err.errors[0]?.msg) || `Failed (${res.status})`);
+        }
+        msgForm.reset();
+        mMsg.textContent = "Message sent!";
+      } catch (e) {
+        console.error(e);
+        mMsg.textContent = e.message || "Send failed";
+      }
+    });
   </script>
 </Layout>
