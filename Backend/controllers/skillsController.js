@@ -6,6 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_PATH = path.resolve(__dirname, "../data/skills.json");
 const TITLES_PATH = path.resolve(__dirname, "../data/skills-titles.json");
+const META_PATH = path.resolve(__dirname, "../data/skill-meta.json");
 
 const DEFAULT_SKILLS = {
   languages: ["Java", "Python", "C#", "JavaScript", "HTML", "CSS"],
@@ -45,6 +46,22 @@ async function writeTitles(titles) {
   await fs.writeFile(TITLES_PATH, JSON.stringify(titles, null, 2), "utf-8");
 }
 
+async function readMeta() {
+  try {
+    const raw = await fs.readFile(META_PATH, "utf-8");
+    const data = JSON.parse(raw);
+    return data && typeof data === "object" ? data : {};
+  } catch (err) {
+    if (err.code === "ENOENT") return {};
+    throw err;
+  }
+}
+
+async function writeMeta(meta) {
+  await fs.mkdir(path.dirname(META_PATH), { recursive: true });
+  await fs.writeFile(META_PATH, JSON.stringify(meta, null, 2), "utf-8");
+}
+
 export async function getSkills(req, res, next) {
   try {
     const skills = await readSkills();
@@ -58,6 +75,15 @@ export async function getSkillTitles(req, res, next) {
   try {
     const titles = await readTitles();
     res.status(200).json(titles);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getSkillMeta(req, res, next) {
+  try {
+    const meta = await readMeta();
+    res.status(200).json(meta);
   } catch (err) {
     next(err);
   }
@@ -87,6 +113,16 @@ export async function updateSkillItem(req, res, next) {
     list[idx] = newValue;
     skills[category] = list;
     await writeSkills(skills);
+
+    if (oldValue !== newValue) {
+      const meta = await readMeta();
+      if (meta[oldValue] && !meta[newValue]) {
+        meta[newValue] = meta[oldValue];
+      }
+      if (meta[oldValue]) delete meta[oldValue];
+      await writeMeta(meta);
+    }
+
     res.status(200).json({ category, value: newValue });
   } catch (err) {
     next(err);
@@ -156,6 +192,16 @@ export async function deleteSkillItem(req, res, next) {
     if (nextList.length === list.length) return res.status(404).json({ error: "Item not found" });
     skills[category] = nextList;
     await writeSkills(skills);
+
+    const stillExists = Object.values(skills).some((arr) => Array.isArray(arr) && arr.includes(value));
+    if (!stillExists) {
+      const meta = await readMeta();
+      if (meta[value]) {
+        delete meta[value];
+        await writeMeta(meta);
+      }
+    }
+
     res.status(204).end();
   } catch (err) {
     next(err);
@@ -172,6 +218,42 @@ export async function updateSkillTypeTitles(req, res, next) {
     titles[name] = { en: en || name, fr: fr || name };
     await writeTitles(titles);
     res.status(200).json({ name, titles: titles[name] });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateSkillMeta(req, res, next) {
+  try {
+    const { name } = req.params;
+    const { image, rating } = req.body;
+    const key = String(name || "").trim();
+    if (!key) return res.status(400).json({ error: "Invalid skill name" });
+
+    const meta = await readMeta();
+    const existing = meta[key] || {};
+    const next = {
+      ...existing,
+      image: typeof image === "string" ? image.trim() : existing.image,
+      rating: Number.isFinite(Number(rating)) ? Math.max(1, Math.min(5, Number(rating))) : (existing.rating ?? 3),
+    };
+    meta[key] = next;
+    await writeMeta(meta);
+    res.status(200).json({ name: key, meta: next });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteSkillMeta(req, res, next) {
+  try {
+    const { name } = req.params;
+    const key = String(name || "").trim();
+    const meta = await readMeta();
+    if (!meta[key]) return res.status(404).json({ error: "Meta not found" });
+    delete meta[key];
+    await writeMeta(meta);
+    res.status(204).end();
   } catch (err) {
     next(err);
   }

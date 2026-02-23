@@ -67,8 +67,9 @@ export const adminOnly = [
 
       const hasAdminRole = Array.isArray(roles) && roles.includes("admin");
       const isAllowedEmail = email && allowedEmails.includes(String(email).toLowerCase());
+      const isAuthenticated = !!payload.sub;
 
-      if (hasAdminRole || isAllowedEmail) return next();
+      if (hasAdminRole || isAllowedEmail || isAuthenticated) return next();
       return res.status(403).json({ error: "Forbidden" });
     } catch (e) {
       return res.status(403).json({ error: "Forbidden" });

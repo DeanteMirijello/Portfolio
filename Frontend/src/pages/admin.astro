@@ -19,9 +19,9 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       <aside class="admin-sidebar">
         <button class="sidebar-btn" data-section="home" data-i18n="nav.home">Home</button>
         <button class="sidebar-btn" data-section="about" data-i18n="nav.about">About</button>
-        <button class="sidebar-btn" data-section="contact" data-i18n="nav.contact">Contact</button>
         <button class="sidebar-btn" data-section="skills" data-i18n="nav.skills">Skills</button>
         <button class="sidebar-btn" data-section="projects" data-i18n="nav.projects">Projects</button>
+        <button class="sidebar-btn" data-section="contact" data-i18n="nav.contact">Contact</button>
         <button class="sidebar-btn" data-section="testimonials" data-i18n="nav.testimonials">Testimonials</button>
         
       </aside>
@@ -184,8 +184,11 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         <div id="section-skills" class="admin-section" hidden>
           <h2 data-i18n="skills.title">Skills</h2>
           <div class="card" style="margin-top:.5rem; display:grid; gap:.75rem;">
-            <div style="display:flex; gap:.5rem; align-items:center; justify-content:flex-end;">
-              <button type="button" id="about_type_add" class="lang-btn" data-i18n="admin.skills.addType">Add Skill Type</button>
+            <div class="skills-admin-head" style="display:grid;grid-template-columns:2fr 1.5fr .8fr auto;gap:.5rem;font-weight:600;">
+              <span>Title</span>
+              <span>Type</span>
+              <span>Rating</span>
+              <span>Action</span>
             </div>
             <div id="about_skills_list" style="display:grid; gap:.75rem;"></div>
             <p id="aboutMsg" class="muted" style="margin-top:.25rem;"></p>
@@ -424,7 +427,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           ];
           for (const [title, value] of seedPairs) {
             if (value) {
-              await fetch(`${API_BASE}/contact/items`, {
+              await adminFetch(`${API_BASE}/contact/items`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ title, value }),
@@ -446,6 +449,20 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       const token = await window.__auth?.getAccessToken?.();
       if (!token) return null;
       return { Authorization: `Bearer ${token}` };
+    }
+
+    async function adminFetch(url, init = {}) {
+      const authHeaders = await getAdminAuthHeaders();
+      if (!authHeaders) {
+        throw new Error(t("admin.guard.relogin", "Please log in again as admin."));
+      }
+      return fetch(url, {
+        ...init,
+        headers: {
+          ...(init.headers || {}),
+          ...authHeaders,
+        },
+      });
     }
 
     async function loadContactMessages() {
@@ -586,24 +603,58 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         modalTitle.textContent = `Edit Home ${field}`;
         // Reset visibility
         mTitle.style.display = "none";
+        label_title.style.display = "none";
         mValue.style.display = "none";
+        label_value.style.display = "none";
+        modal_en_heading.style.display = "none";
+        modal_fr_heading.style.display = "none";
         mEnTitle.style.display = "none";
+        label_en_title.style.display = "none";
         mFrTitle.style.display = "none";
+        label_fr_title.style.display = "none";
+        mEnDate.style.display = "none";
+        label_en_date.style.display = "none";
+        mFrDate.style.display = "none";
+        label_fr_date.style.display = "none";
         mEnDesc.style.display = "none";
+        label_en_desc.style.display = "none";
         mFrDesc.style.display = "none";
+        label_fr_desc.style.display = "none";
         modalDelete.style.display = "none";
         // Prefill based on field
         if (field === "image") {
           mValue.style.display = "block";
+          label_value.style.display = "block";
+          label_value.textContent = "Image URL";
           mValue.value = window.__homeData?.image || "";
         } else if (field === "title" || field === "current") {
+          modal_en_heading.style.display = "block";
+          modal_en_heading.textContent = "English";
+          modal_fr_heading.style.display = "block";
+          modal_fr_heading.textContent = "Français";
+
           mEnTitle.style.display = "block";
+          label_en_title.style.display = "block";
+          label_en_title.textContent = "English";
           mFrTitle.style.display = "block";
+          label_fr_title.style.display = "block";
+          label_fr_title.textContent = "French";
+
           mEnTitle.value = window.__homeData?.en?.[field] || "";
           mFrTitle.value = window.__homeData?.fr?.[field] || "";
         } else if (field === "subtitle") {
+          modal_en_heading.style.display = "block";
+          modal_en_heading.textContent = "English";
+          modal_fr_heading.style.display = "block";
+          modal_fr_heading.textContent = "Français";
+
           mEnDesc.style.display = "block";
+          label_en_desc.style.display = "block";
+          label_en_desc.textContent = "English";
           mFrDesc.style.display = "block";
+          label_fr_desc.style.display = "block";
+          label_fr_desc.textContent = "French";
+
           mEnDesc.value = window.__homeData?.en?.subtitle || "";
           mFrDesc.value = window.__homeData?.fr?.subtitle || "";
         }
@@ -716,7 +767,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           const itemId = modal.dataset.itemId;
           const url = mode === "edit" ? `${API_BASE}/contact/items/${itemId}` : `${API_BASE}/contact/items`;
           const method = mode === "edit" ? "PUT" : "POST";
-          const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+          const res = await adminFetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
           const data = await res.json();
           if (!res.ok) { cMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
           closeModal();
@@ -730,15 +781,15 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
             const en = mEnTitle.value.trim();
             const fr = mFrTitle.value.trim();
             const name = en.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || en;
-            const res = await fetch(`${API_BASE}/skills/types`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
+            const res = await adminFetch(`${API_BASE}/skills/types`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
             const data = await res.json();
             if (!res.ok) { aboutMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
-            const res2 = await fetch(`${API_BASE}/skills/types/${encodeURIComponent(name)}/titles`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ en, fr }) });
+            const res2 = await adminFetch(`${API_BASE}/skills/types/${encodeURIComponent(name)}/titles`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ en, fr }) });
             const data2 = await res2.json();
             if (!res2.ok) { aboutMsg.textContent = (data2.errors?.[0]?.msg) || data2.error || "Save failed"; return; }
           } else {
             // Save bilingual titles for the selected type
-            const res = await fetch(`${API_BASE}/skills/types/${encodeURIComponent(selected)}/titles`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ en: mEnTitle.value.trim(), fr: mFrTitle.value.trim() }) });
+            const res = await adminFetch(`${API_BASE}/skills/types/${encodeURIComponent(selected)}/titles`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ en: mEnTitle.value.trim(), fr: mFrTitle.value.trim() }) });
             const data = await res.json();
             if (!res.ok) { aboutMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
           }
@@ -750,12 +801,12 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           const category = modal.dataset.category;
           const value = mValue.value.trim();
           if (mode === "add") {
-            const res = await fetch(`${API_BASE}/skills/items`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category, value }) });
+            const res = await adminFetch(`${API_BASE}/skills/items`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category, value }) });
             const data = await res.json();
             if (!res.ok) { aboutMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
           } else {
             const oldValue = modal.dataset.itemId;
-            const res = await fetch(`${API_BASE}/skills/items`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category, oldValue, newValue: value }) });
+            const res = await adminFetch(`${API_BASE}/skills/items`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category, oldValue, newValue: value }) });
             const data = await res.json();
             if (!res.ok) { aboutMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed"; return; }
           }
@@ -784,7 +835,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
             payload.en.current = mEnTitle.value.trim();
             payload.fr.current = mFrTitle.value.trim();
           }
-          const res = await fetch(`${API_BASE}/home`, {
+          const res = await adminFetch(`${API_BASE}/home`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -806,7 +857,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
             },
             fr: base.fr || {},
           };
-          const res = await fetch(`${API_BASE}/about/work`, {
+          const res = await adminFetch(`${API_BASE}/about/work`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -828,7 +879,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
               bullets: mFrDesc.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean),
             },
           };
-          const res = await fetch(`${API_BASE}/about/work`, {
+          const res = await adminFetch(`${API_BASE}/about/work`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -849,7 +900,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
             },
             fr: base.fr || {},
           };
-          const res = await fetch(`${API_BASE}/about/school`, {
+          const res = await adminFetch(`${API_BASE}/about/school`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -870,7 +921,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
               bullets: mFrDesc.value.split(/\r?\n/).map(s => s.trim()).filter(Boolean),
             },
           };
-          const res = await fetch(`${API_BASE}/about/school`, {
+          const res = await adminFetch(`${API_BASE}/about/school`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -897,18 +948,18 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         if (context === "skillType") {
           const name = modal.dataset.typeName || (mEnTitle.value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || mEnTitle.value.trim());
           if (!confirm("Delete this type and all its skills?")) return;
-          const res = await fetch(`${API_BASE}/skills/types/${encodeURIComponent(name)}`, { method: "DELETE" });
+          const res = await adminFetch(`${API_BASE}/skills/types/${encodeURIComponent(name)}`, { method: "DELETE" });
           if (res.ok) { closeModal(); loadAboutSkills(); }
         } else if (context === "skillItem") {
           const category = modal.dataset.category;
           const oldValue = modal.dataset.itemId;
           if (!confirm("Delete this skill?")) return;
-          const res = await fetch(`${API_BASE}/skills/items`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category, value: oldValue }) });
+          const res = await adminFetch(`${API_BASE}/skills/items`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category, value: oldValue }) });
           if (res.ok) { closeModal(); loadAboutSkills(); }
         } else if (context === "contactItem") {
           const itemId = modal.dataset.itemId;
           if (!confirm("Delete this contact item?")) return;
-          const res = await fetch(`${API_BASE}/contact/items/${itemId}`, { method: "DELETE" });
+          const res = await adminFetch(`${API_BASE}/contact/items/${itemId}`, { method: "DELETE" });
           if (res.ok) { closeModal(); loadContactItems(); }
         }
       } catch (e) { console.error(e); }
@@ -917,7 +968,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     async function deleteContactItem(id) {
       if (!confirm("Delete this contact item?")) return;
       try {
-        const res = await fetch(`${API_BASE}/contact/items/${id}`, { method: "DELETE" });
+        const res = await adminFetch(`${API_BASE}/contact/items/${id}`, { method: "DELETE" });
         if (res.ok) {
           await loadContactItems();
         }
@@ -985,11 +1036,8 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 
     async function approveTestimonial(id) {
       try {
-        const authHeaders = await getAdminAuthHeaders();
-        if (!authHeaders) return;
-        const res = await fetch(`${API_BASE}/testimonials/${id}/approve`, {
+        const res = await adminFetch(`${API_BASE}/testimonials/${id}/approve`, {
           method: "PUT",
-          headers: authHeaders,
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
@@ -1005,9 +1053,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     async function deleteTestimonial(id) {
       if (!confirm("Delete this testimonial?")) return;
       try {
-        const authHeaders = await getAdminAuthHeaders();
-        if (!authHeaders) return;
-        const res = await fetch(`${API_BASE}/testimonials/${id}`, { method: "DELETE", headers: authHeaders });
+        const res = await adminFetch(`${API_BASE}/testimonials/${id}`, { method: "DELETE" });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           throw new Error(err.error || err.message || `Delete failed (${res.status})`);
@@ -1019,84 +1065,208 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       }
     }
 
-    // About/Skills management
-    const aboutTypeAddBtn = document.getElementById("about_type_add");
-    const aboutTypeRenameBtn = document.getElementById("about_type_rename");
-    const aboutTypeDeleteBtn = document.getElementById("about_type_delete");
+    // Skills management (flat list + edit modal)
     const aboutSkillsList = document.getElementById("about_skills_list");
     const aboutMsg = document.getElementById("aboutMsg");
+    const skillEditModal = document.getElementById("skillEditModal");
+    const skillEditForm = document.getElementById("skillEditForm");
+    const skillEditCancel = document.getElementById("skillEditCancel");
+    const skillEditDelete = document.getElementById("skillEditDelete");
+    const skillNameInput = document.getElementById("skillNameInput");
+    const skillTypeSelect = document.getElementById("skillTypeSelect");
+    const skillRatingInput = document.getElementById("skillRatingInput");
+    const skillImageInput = document.getElementById("skillImageInput");
 
     let skillsData = {};
+    let skillsTitles = {};
+    let skillsMeta = {};
+    let editingSkill = null;
+
+    function flattenSkills(skills) {
+      const rows = [];
+      Object.entries(skills || {}).forEach(([type, values]) => {
+        (values || []).forEach((name) => {
+          rows.push({
+            name,
+            type,
+            rating: Math.max(1, Math.min(5, Number(skillsMeta?.[name]?.rating ?? 3))),
+            image: skillsMeta?.[name]?.image || "/assets/placeholder-skill.svg",
+          });
+        });
+      });
+      return rows.sort((a, b) => a.name.localeCompare(b.name) || a.type.localeCompare(b.type));
+    }
+
+    function renderSkillsList() {
+      aboutSkillsList.innerHTML = "";
+      const rows = flattenSkills(skillsData);
+      if (!rows.length) {
+        aboutSkillsList.innerHTML = `<p class="muted">${t("skills.empty", "No skills yet.")}</p>`;
+        return;
+      }
+
+      rows.forEach((row) => {
+        const item = document.createElement("div");
+        item.className = "card";
+        item.style.display = "grid";
+        item.style.gridTemplateColumns = "2fr 1.5fr .8fr auto";
+        item.style.alignItems = "center";
+        item.style.gap = ".5rem";
+        const typeLabel = skillsTitles?.[row.type]?.en || row.type;
+        item.innerHTML = `
+          <span><strong>${row.name}</strong></span>
+          <span class="muted">${typeLabel}</span>
+          <span>${row.rating}/5</span>
+          <button class="lang-btn" data-edit-skill="${encodeURIComponent(row.name)}|${encodeURIComponent(row.type)}">Edit</button>
+        `;
+        item.querySelector("[data-edit-skill]")?.addEventListener("click", () => openSkillEditModal(row));
+        aboutSkillsList.appendChild(item);
+      });
+    }
+
+    function openSkillEditModal(skill) {
+      editingSkill = { ...skill, originalName: skill.name, originalType: skill.type };
+      skillNameInput.value = skill.name;
+      skillRatingInput.value = String(skill.rating || 3);
+      skillImageInput.value = skill.image || "";
+
+      skillTypeSelect.innerHTML = "";
+      Object.keys(skillsData).forEach((type) => {
+        const option = document.createElement("option");
+        option.value = type;
+        option.textContent = skillsTitles?.[type]?.en || type;
+        if (type === skill.type) option.selected = true;
+        skillTypeSelect.appendChild(option);
+      });
+
+      skillEditModal.hidden = false;
+    }
+
+    function closeSkillEditModal() {
+      skillEditModal.hidden = true;
+      editingSkill = null;
+    }
 
     async function loadAboutSkills() {
-      aboutSkillsList.innerHTML = "Loading...";
+      aboutSkillsList.innerHTML = t("admin.common.loading", "Loading...");
       try {
-        const [skillsRes, titlesRes] = await Promise.all([
+        const [skillsRes, titlesRes, metaRes] = await Promise.all([
           fetch(`${API_BASE}/skills`),
           fetch(`${API_BASE}/skills/titles`),
+          fetch(`${API_BASE}/skills/meta`),
         ]);
         skillsData = await skillsRes.json();
-        window.__skillsTitles = await titlesRes.json();
-        renderAboutSkills();
+        skillsTitles = await titlesRes.json();
+        skillsMeta = await metaRes.json();
+        renderSkillsList();
         aboutMsg.textContent = "";
       } catch (e) {
         console.error(e);
-        aboutSkillsList.textContent = "Failed to load skills.";
+        aboutSkillsList.textContent = t("skills.failed", "Failed to load skills.");
       }
     }
 
-    function renderAboutSkills() {
-      aboutSkillsList.innerHTML = "";
-      Object.entries(skillsData).forEach(([cat, arr]) => {
-        const block = document.createElement("div");
-        block.className = "card";
-        const header = document.createElement("div");
-        header.style.display = "flex";
-        header.style.alignItems = "center";
-        header.style.justifyContent = "space-between";
-        const titleEl = document.createElement("h3");
-        titleEl.style.marginTop = "0";
-        titleEl.style.textTransform = "capitalize";
-        titleEl.textContent = (window.__skillsTitles?.[cat]?.en || cat);
-        const subtitleEl = document.createElement("p");
-        subtitleEl.className = "muted";
-        subtitleEl.style.margin = "0";
-        subtitleEl.textContent = window.__skillsTitles?.[cat]?.fr ? `FR: ${window.__skillsTitles[cat].fr}` : "";
-        const titleWrap = document.createElement("div");
-        titleWrap.appendChild(titleEl);
-        if (subtitleEl.textContent) titleWrap.appendChild(subtitleEl);
-        const actions = document.createElement("div");
-        actions.style.display = "inline-flex";
-        actions.style.gap = ".5rem";
-        const editTypeBtn = document.createElement("button");
-        editTypeBtn.className = "lang-btn";
-        editTypeBtn.textContent = "Edit Type";
-        editTypeBtn.addEventListener("click", () => openModal("skillType", "edit", { name: cat }));
-        const addSkillBtn = document.createElement("button");
-        addSkillBtn.className = "lang-btn";
-        addSkillBtn.textContent = "Add Skill";
-        addSkillBtn.addEventListener("click", () => openModal("skillItem", "add", { category: cat }));
-        actions.appendChild(editTypeBtn);
-        actions.appendChild(addSkillBtn);
-        header.appendChild(titleWrap);
-        header.appendChild(actions);
-        block.appendChild(header);
-        const tags = document.createElement("div");
-        tags.className = "tags";
-        arr.forEach((val) => {
-          const tag = document.createElement("span");
-          tag.className = "tag";
-          tag.textContent = val;
-          tag.style.cursor = "pointer";
-          tag.title = "Click to edit";
-          tag.addEventListener("click", () => openModal("skillItem", "edit", { id: val, value: val, category: cat }));
-          tags.appendChild(tag);
+    skillEditCancel?.addEventListener("click", closeSkillEditModal);
+    skillEditModal?.addEventListener("click", (e) => {
+      if (e.target === skillEditModal) closeSkillEditModal();
+    });
+
+    skillEditForm?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!editingSkill) return;
+      aboutMsg.textContent = "Saving...";
+      try {
+        const newName = skillNameInput.value.trim();
+        const newType = skillTypeSelect.value;
+        const newRating = Number(skillRatingInput.value || 3);
+        const newImage = skillImageInput.value.trim();
+
+        if (!newName || !newType) {
+          aboutMsg.textContent = "Name and type are required.";
+          return;
+        }
+
+        if (editingSkill.originalType === newType) {
+          if (editingSkill.originalName !== newName) {
+            const renameRes = await adminFetch(`${API_BASE}/skills/items`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ category: newType, oldValue: editingSkill.originalName, newValue: newName }),
+            });
+            if (!renameRes.ok) {
+              const err = await renameRes.json().catch(() => ({}));
+              throw new Error(err.error || err.errors?.[0]?.msg || `Rename failed (${renameRes.status})`);
+            }
+          }
+        } else {
+          const delRes = await adminFetch(`${API_BASE}/skills/items`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ category: editingSkill.originalType, value: editingSkill.originalName }),
+          });
+          if (!delRes.ok) {
+            const err = await delRes.json().catch(() => ({}));
+            throw new Error(err.error || err.errors?.[0]?.msg || `Move failed (${delRes.status})`);
+          }
+
+          const addRes = await adminFetch(`${API_BASE}/skills/items`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ category: newType, value: newName }),
+          });
+          if (!addRes.ok) {
+            const err = await addRes.json().catch(() => ({}));
+            throw new Error(err.error || err.errors?.[0]?.msg || `Move failed (${addRes.status})`);
+          }
+        }
+
+        const metaRes = await adminFetch(`${API_BASE}/skills/meta/${encodeURIComponent(newName)}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: newImage, rating: newRating }),
         });
-        block.appendChild(tags);
-        aboutSkillsList.appendChild(block);
-      });
-    }
-    aboutTypeAddBtn.addEventListener("click", () => openModal("skillType", "add"));
+        if (!metaRes.ok) {
+          const err = await metaRes.json().catch(() => ({}));
+          throw new Error(err.error || err.errors?.[0]?.msg || `Meta save failed (${metaRes.status})`);
+        }
+
+        if (editingSkill.originalName !== newName) {
+          await adminFetch(`${API_BASE}/skills/meta/${encodeURIComponent(editingSkill.originalName)}`, { method: "DELETE" }).catch(() => null);
+        }
+
+        closeSkillEditModal();
+        await loadAboutSkills();
+        aboutMsg.textContent = "Saved.";
+      } catch (err) {
+        console.error(err);
+        aboutMsg.textContent = err.message || "Save failed";
+      }
+    });
+
+    skillEditDelete?.addEventListener("click", async () => {
+      if (!editingSkill) return;
+      if (!confirm("Delete this skill?")) return;
+      aboutMsg.textContent = "Deleting...";
+      try {
+        const delRes = await adminFetch(`${API_BASE}/skills/items`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ category: editingSkill.originalType, value: editingSkill.originalName }),
+        });
+        if (!delRes.ok) {
+          const err = await delRes.json().catch(() => ({}));
+          throw new Error(err.error || err.errors?.[0]?.msg || `Delete failed (${delRes.status})`);
+        }
+
+        await adminFetch(`${API_BASE}/skills/meta/${encodeURIComponent(editingSkill.originalName)}`, { method: "DELETE" }).catch(() => null);
+        closeSkillEditModal();
+        await loadAboutSkills();
+        aboutMsg.textContent = "Deleted.";
+      } catch (err) {
+        console.error(err);
+        aboutMsg.textContent = err.message || "Delete failed";
+      }
+    });
 
     // Initial loads
     // Home
@@ -1214,7 +1384,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       try {
         const isNew = pId.value === "__new__";
         const idForNew = document.getElementById("proj_new_id").value.trim();
-        const res = await fetch(isNew ? `${API_BASE}/projects` : `${API_BASE}/projects/${pId.value}`, {
+        const res = await adminFetch(isNew ? `${API_BASE}/projects` : `${API_BASE}/projects/${pId.value}`, {
           method: isNew ? "POST" : "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(isNew ? { id: idForNew, ...payload } : payload),
@@ -1296,6 +1466,31 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           <button type="button" id="adminModalDelete" class="lang-btn" style="margin-right:auto;display:none;" data-i18n="admin.common.delete">Delete</button>
           <button type="button" id="adminModalCancel" class="lang-btn" data-i18n="testimonials.cancel">Cancel</button>
           <button type="submit" class="lang-btn" data-i18n="admin.common.save">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="skillEditModal" class="modal-overlay" hidden>
+    <div class="modal">
+      <h3 style="margin-top:0;">Edit Skill</h3>
+      <form id="skillEditForm" style="display:grid;gap:.5rem;">
+        <label for="skillNameInput">Title</label>
+        <input id="skillNameInput" required />
+
+        <label for="skillTypeSelect">Type</label>
+        <select id="skillTypeSelect" required></select>
+
+        <label for="skillRatingInput">Rating (1-5)</label>
+        <input id="skillRatingInput" type="number" min="1" max="5" step="1" required />
+
+        <label for="skillImageInput">Image URL</label>
+        <input id="skillImageInput" placeholder="/assets/placeholder-skill.svg" />
+
+        <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem;">
+          <button type="button" id="skillEditDelete" class="lang-btn" style="margin-right:auto;">Delete</button>
+          <button type="button" id="skillEditCancel" class="lang-btn">Cancel</button>
+          <button type="submit" class="lang-btn">Save</button>
         </div>
       </form>
     </div>

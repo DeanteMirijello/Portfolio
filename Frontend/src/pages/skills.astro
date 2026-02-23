@@ -90,12 +90,11 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       async function loadSkills() {
         grid.innerHTML = t("skills.loading", "Loading...");
         try {
-          const [skillsRes, titlesRes] = await Promise.all([
+          const [skillsRes, titlesRes, metaRes] = await Promise.all([
             fetch(`${API_BASE}/skills`),
             fetch(`${API_BASE}/skills/titles`),
+            fetch(`${API_BASE}/skills/meta`),
           ]);
-          const metaRes = await fetch(`/assets/skill-meta.json`);
-
           if (!skillsRes.ok || !titlesRes.ok || !metaRes.ok) {
             throw new Error(`Failed (${skillsRes.status}/${titlesRes.status}/${metaRes.status})`);
           }
