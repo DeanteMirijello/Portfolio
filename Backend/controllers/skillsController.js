@@ -226,7 +226,7 @@ export async function updateSkillTypeTitles(req, res, next) {
 export async function updateSkillMeta(req, res, next) {
   try {
     const { name } = req.params;
-    const { image, rating } = req.body;
+    const { image, rating, titleEn, titleFr } = req.body;
     const key = String(name || "").trim();
     if (!key) return res.status(400).json({ error: "Invalid skill name" });
 
@@ -236,6 +236,8 @@ export async function updateSkillMeta(req, res, next) {
       ...existing,
       image: typeof image === "string" ? image.trim() : existing.image,
       rating: Number.isFinite(Number(rating)) ? Math.max(1, Math.min(5, Number(rating))) : (existing.rating ?? 3),
+      titleEn: typeof titleEn === "string" ? titleEn.trim() : (existing.titleEn ?? ""),
+      titleFr: typeof titleFr === "string" ? titleFr.trim() : (existing.titleFr ?? ""),
     };
     meta[key] = next;
     await writeMeta(meta);

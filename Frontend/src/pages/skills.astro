@@ -50,8 +50,10 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         const items = [];
         Object.entries(skills).forEach(([cat, arr]) => {
           arr.forEach((name) => {
+            const localizedTitle = (lang === "fr" ? meta[name]?.titleFr : meta[name]?.titleEn) || meta[name]?.titleEn || name;
             items.push({
               name,
+              title: localizedTitle,
               category: cat,
               image: meta[name]?.image || "/assets/placeholder-skill.svg",
               rating: Math.max(1, Math.min(5, meta[name]?.rating ?? 3)),
@@ -67,11 +69,11 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           const ratingLabel = t("skills.ratingLabel", "Rating {rating} of 5").replace("{rating}", String(it.rating));
           card.innerHTML = `
             <div class="skill-img-wrap">
-              <img src="${it.image}" alt="${it.name} logo" class="skill-img" />
+              <img src="${it.image}" alt="${it.title} logo" class="skill-img" />
             </div>
             <div class="skill-info">
               <div class="skill-header">
-                <div class="skill-title">${it.name}</div>
+                <div class="skill-title">${it.title}</div>
               </div>
               <div class="skill-sub">${categoryTitle}</div>
               <div class="skill-rating" aria-label="${ratingLabel}">

@@ -57,6 +57,8 @@ router.put("/meta/:name", adminOnly, [
   param("name").isString().trim().notEmpty().withMessage("name is required"),
   body("image").optional().isString(),
   body("rating").optional().isInt({ min: 1, max: 5 }),
+  body("titleEn").optional().isString(),
+  body("titleFr").optional().isString(),
 ], (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });

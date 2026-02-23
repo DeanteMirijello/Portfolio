@@ -31,34 +31,17 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
                 <div id="section-projects" class="admin-section" hidden>
                   <h2 data-i18n="projects.title">Projects</h2>
                   <div class="card" style="margin-top:.5rem;">
-                    <form id="projectsForm" style="display:grid;gap:.75rem;">
-                      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
-                        <select id="proj_id"></select>
-                        <input id="proj_new_id" placeholder="new-project-id" style="display:none;" />
+                    <div style="display:grid;gap:.5rem;">
+                      <button type="button" id="projectAddBtn" class="lang-btn" style="justify-self:start;">Add Project</button>
+                      <div class="skills-admin-head" style="display:grid;grid-template-columns:1fr 2fr 1.2fr auto;gap:.5rem;font-weight:600;">
+                        <span>ID</span>
+                        <span>Title</span>
+                        <span>Date</span>
+                        <span>Action</span>
                       </div>
-                      <div>
-                        <label class="contact-label" for="proj_image" data-i18n="admin.projects.imageUrl">Image URL</label>
-                        <input id="proj_image" placeholder="/assets/image1.png" />
-                      </div>
-                      <div style="display:grid;gap:.5rem;grid-template-columns:1fr 1fr;">
-                        <div>
-                          <h3 style="margin:.25rem 0;">English</h3>
-                          <input id="proj_en_title" placeholder="Title" />
-                          <input id="proj_en_date" placeholder="Date range" />
-                          <textarea id="proj_en_desc" placeholder="Description" rows="3"></textarea>
-                        </div>
-                        <div>
-                          <h3 style="margin:.25rem 0;">Français</h3>
-                          <input id="proj_fr_title" placeholder="Titre" />
-                          <input id="proj_fr_date" placeholder="Période" />
-                          <textarea id="proj_fr_desc" placeholder="Description" rows="3"></textarea>
-                        </div>
-                      </div>
-                      <div style="display:flex;gap:.5rem;justify-content:flex-end;">
-                        <button type="submit" class="lang-btn" data-i18n="admin.common.save">Save</button>
-                      </div>
-                      <p id="projectsMsg" class="muted" style="margin-top:.25rem;"></p>
-                    </form>
+                    </div>
+                    <div id="projectsList" style="display:grid;gap:.75rem;margin-top:.75rem;"></div>
+                    <p id="projectsMsg" class="muted" style="margin-top:.25rem;"></p>
                   </div>
                 </div>
         <!-- Home management -->
@@ -71,6 +54,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
                 <span class="muted" id="homeImageUrl">/assets/image1.png</span>
                 <div>
                   <button type="button" class="lang-btn" id="homeEditImage" data-i18n="admin.home.editImage">Edit Image</button>
+                  <input id="homeImageFile" type="file" accept="image/*" style="display:none;" />
                 </div>
               </div>
             </div>
@@ -184,11 +168,14 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         <div id="section-skills" class="admin-section" hidden>
           <h2 data-i18n="skills.title">Skills</h2>
           <div class="card" style="margin-top:.5rem; display:grid; gap:.75rem;">
-            <div class="skills-admin-head" style="display:grid;grid-template-columns:2fr 1.5fr .8fr auto;gap:.5rem;font-weight:600;">
-              <span>Title</span>
-              <span>Type</span>
-              <span>Rating</span>
-              <span>Action</span>
+            <div style="display:grid;gap:.5rem;">
+              <button type="button" id="skillAddBtn" class="lang-btn" style="justify-self:start;">Add Skill</button>
+              <div class="skills-admin-head" style="display:grid;grid-template-columns:2fr 1.5fr .8fr auto;gap:.5rem;font-weight:600;">
+                <span>Title</span>
+                <span>Type</span>
+                <span>Rating</span>
+                <span>Action</span>
+              </div>
             </div>
             <div id="about_skills_list" style="display:grid; gap:.75rem;"></div>
             <p id="aboutMsg" class="muted" style="margin-top:.25rem;"></p>
@@ -1068,12 +1055,16 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     // Skills management (flat list + edit modal)
     const aboutSkillsList = document.getElementById("about_skills_list");
     const aboutMsg = document.getElementById("aboutMsg");
+    const skillAddBtn = document.getElementById("skillAddBtn");
     const skillEditModal = document.getElementById("skillEditModal");
     const skillEditForm = document.getElementById("skillEditForm");
     const skillEditCancel = document.getElementById("skillEditCancel");
     const skillEditDelete = document.getElementById("skillEditDelete");
+    const skillEditTitle = document.getElementById("skillEditTitle");
     const skillNameInput = document.getElementById("skillNameInput");
-    const skillTypeSelect = document.getElementById("skillTypeSelect");
+    const skillNameEnInput = document.getElementById("skillNameEnInput");
+    const skillNameFrInput = document.getElementById("skillNameFrInput");
+    const skillTypeInput = document.getElementById("skillTypeInput");
     const skillRatingInput = document.getElementById("skillRatingInput");
     const skillImageInput = document.getElementById("skillImageInput");
 
@@ -1081,14 +1072,19 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     let skillsTitles = {};
     let skillsMeta = {};
     let editingSkill = null;
+    let skillKeyTouched = false;
 
     function flattenSkills(skills) {
       const rows = [];
       Object.entries(skills || {}).forEach(([type, values]) => {
         (values || []).forEach((name) => {
+          const titleEn = skillsMeta?.[name]?.titleEn || name;
+          const titleFr = skillsMeta?.[name]?.titleFr || titleEn;
           rows.push({
             name,
             type,
+            titleEn,
+            titleFr,
             rating: Math.max(1, Math.min(5, Number(skillsMeta?.[name]?.rating ?? 3))),
             image: skillsMeta?.[name]?.image || "/assets/placeholder-skill.svg",
           });
@@ -1114,7 +1110,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         item.style.gap = ".5rem";
         const typeLabel = skillsTitles?.[row.type]?.en || row.type;
         item.innerHTML = `
-          <span><strong>${row.name}</strong></span>
+          <span><strong>${row.titleEn || row.name}</strong></span>
           <span class="muted">${typeLabel}</span>
           <span>${row.rating}/5</span>
           <button class="lang-btn" data-edit-skill="${encodeURIComponent(row.name)}|${encodeURIComponent(row.type)}">Edit</button>
@@ -1125,19 +1121,16 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     }
 
     function openSkillEditModal(skill) {
-      editingSkill = { ...skill, originalName: skill.name, originalType: skill.type };
-      skillNameInput.value = skill.name;
-      skillRatingInput.value = String(skill.rating || 3);
-      skillImageInput.value = skill.image || "";
-
-      skillTypeSelect.innerHTML = "";
-      Object.keys(skillsData).forEach((type) => {
-        const option = document.createElement("option");
-        option.value = type;
-        option.textContent = skillsTitles?.[type]?.en || type;
-        if (type === skill.type) option.selected = true;
-        skillTypeSelect.appendChild(option);
-      });
+      editingSkill = skill ? { ...skill, originalName: skill.name, originalType: skill.type } : null;
+      skillEditTitle.textContent = editingSkill ? "Edit Skill" : "Add Skill";
+      skillEditDelete.style.display = editingSkill ? "inline-block" : "none";
+      skillKeyTouched = !!skill?.name;
+      skillNameInput.value = skill?.name || "";
+      skillNameEnInput.value = skill?.titleEn || skill?.name || "";
+      skillNameFrInput.value = skill?.titleFr || skill?.titleEn || skill?.name || "";
+      skillTypeInput.value = skill?.type || "";
+      skillRatingInput.value = String(skill?.rating || 3);
+      skillImageInput.value = skill?.image || "";
 
       skillEditModal.hidden = false;
     }
@@ -1166,6 +1159,15 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       }
     }
 
+    skillAddBtn?.addEventListener("click", () => openSkillEditModal(null));
+    skillNameInput?.addEventListener("input", () => {
+      skillKeyTouched = skillNameInput.value.trim().length > 0;
+    });
+    skillNameEnInput?.addEventListener("input", () => {
+      if (!skillKeyTouched || !skillNameInput.value.trim()) {
+        skillNameInput.value = skillNameEnInput.value.trim();
+      }
+    });
     skillEditCancel?.addEventListener("click", closeSkillEditModal);
     skillEditModal?.addEventListener("click", (e) => {
       if (e.target === skillEditModal) closeSkillEditModal();
@@ -1173,42 +1175,21 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 
     skillEditForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
-      if (!editingSkill) return;
       aboutMsg.textContent = "Saving...";
       try {
-        const newName = skillNameInput.value.trim();
-        const newType = skillTypeSelect.value;
+        const newTitleEn = skillNameEnInput.value.trim();
+        const newTitleFr = skillNameFrInput.value.trim();
+        const newName = (skillNameInput.value.trim() || newTitleEn).trim();
+        const newType = skillTypeInput.value.trim();
         const newRating = Number(skillRatingInput.value || 3);
         const newImage = skillImageInput.value.trim();
 
-        if (!newName || !newType) {
-          aboutMsg.textContent = "Name and type are required.";
+        if (!newName || !newTitleEn || !newType) {
+          aboutMsg.textContent = "English title and type are required.";
           return;
         }
 
-        if (editingSkill.originalType === newType) {
-          if (editingSkill.originalName !== newName) {
-            const renameRes = await adminFetch(`${API_BASE}/skills/items`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ category: newType, oldValue: editingSkill.originalName, newValue: newName }),
-            });
-            if (!renameRes.ok) {
-              const err = await renameRes.json().catch(() => ({}));
-              throw new Error(err.error || err.errors?.[0]?.msg || `Rename failed (${renameRes.status})`);
-            }
-          }
-        } else {
-          const delRes = await adminFetch(`${API_BASE}/skills/items`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ category: editingSkill.originalType, value: editingSkill.originalName }),
-          });
-          if (!delRes.ok) {
-            const err = await delRes.json().catch(() => ({}));
-            throw new Error(err.error || err.errors?.[0]?.msg || `Move failed (${delRes.status})`);
-          }
-
+        if (!editingSkill) {
           const addRes = await adminFetch(`${API_BASE}/skills/items`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1216,21 +1197,55 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           });
           if (!addRes.ok) {
             const err = await addRes.json().catch(() => ({}));
-            throw new Error(err.error || err.errors?.[0]?.msg || `Move failed (${addRes.status})`);
+            throw new Error(err.error || err.errors?.[0]?.msg || `Add failed (${addRes.status})`);
+          }
+        } else {
+          if (editingSkill.originalType === newType) {
+            if (editingSkill.originalName !== newName) {
+              const renameRes = await adminFetch(`${API_BASE}/skills/items`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ category: newType, oldValue: editingSkill.originalName, newValue: newName }),
+              });
+              if (!renameRes.ok) {
+                const err = await renameRes.json().catch(() => ({}));
+                throw new Error(err.error || err.errors?.[0]?.msg || `Rename failed (${renameRes.status})`);
+              }
+            }
+          } else {
+            const delRes = await adminFetch(`${API_BASE}/skills/items`, {
+              method: "DELETE",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ category: editingSkill.originalType, value: editingSkill.originalName }),
+            });
+            if (!delRes.ok) {
+              const err = await delRes.json().catch(() => ({}));
+              throw new Error(err.error || err.errors?.[0]?.msg || `Move failed (${delRes.status})`);
+            }
+
+            const addRes = await adminFetch(`${API_BASE}/skills/items`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ category: newType, value: newName }),
+            });
+            if (!addRes.ok) {
+              const err = await addRes.json().catch(() => ({}));
+              throw new Error(err.error || err.errors?.[0]?.msg || `Move failed (${addRes.status})`);
+            }
           }
         }
 
         const metaRes = await adminFetch(`${API_BASE}/skills/meta/${encodeURIComponent(newName)}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: newImage, rating: newRating }),
+          body: JSON.stringify({ image: newImage, rating: newRating, titleEn: newTitleEn || newName, titleFr: newTitleFr || newTitleEn || newName }),
         });
         if (!metaRes.ok) {
           const err = await metaRes.json().catch(() => ({}));
           throw new Error(err.error || err.errors?.[0]?.msg || `Meta save failed (${metaRes.status})`);
         }
 
-        if (editingSkill.originalName !== newName) {
+        if (editingSkill && editingSkill.originalName !== newName) {
           await adminFetch(`${API_BASE}/skills/meta/${encodeURIComponent(editingSkill.originalName)}`, { method: "DELETE" }).catch(() => null);
         }
 
@@ -1279,7 +1294,10 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
         window.__homeData = await res.json();
         // Populate display elements if present
         if (homePreview) homePreview.src = window.__homeData.image || "";
-        if (homeImageUrl) homeImageUrl.textContent = window.__homeData.image || "";
+        if (homeImageUrl) {
+          const img = window.__homeData.image || "";
+          homeImageUrl.textContent = img.startsWith("data:image/") ? "Uploaded image" : img;
+        }
         if (homeTitleEnEl) homeTitleEnEl.textContent = window.__homeData.en?.title || "";
         if (homeTitleFrEl) homeTitleFrEl.textContent = window.__homeData.fr?.title || "";
         if (homeSubtitleEnEl) homeSubtitleEnEl.textContent = window.__homeData.en?.subtitle || "";
@@ -1296,6 +1314,7 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     const homePreview = document.getElementById("homePreview");
     const homeImageUrl = document.getElementById("homeImageUrl");
     const homeEditImageBtn = document.getElementById("homeEditImage");
+    const homeImageFileInput = document.getElementById("homeImageFile");
     const homeTitleEnEl = document.getElementById("homeTitleEn");
     const homeTitleFrEl = document.getElementById("homeTitleFr");
     const homeSubtitleEnEl = document.getElementById("homeSubtitleEn");
@@ -1306,133 +1325,242 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     const homeEditSubtitleBtn = document.getElementById("homeEditSubtitle");
     const homeEditCurrentBtn = document.getElementById("homeEditCurrent");
 
-    if (homeEditImageBtn) homeEditImageBtn.addEventListener("click", () => openModal("homeField", "edit", { field: "image" }));
+    async function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(new Error("Failed to read image file."));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function saveHomeImageFromFile(file) {
+      if (!file) return;
+      hMsg.textContent = "Saving...";
+      try {
+        const imageData = await fileToDataUrl(file);
+        const base = window.__homeData || {};
+        const payload = {
+          image: imageData,
+          en: { ...(base.en || {}) },
+          fr: { ...(base.fr || {}) },
+        };
+        const res = await adminFetch(`${API_BASE}/home`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          hMsg.textContent = data.errors?.[0]?.msg || data.error || "Save failed";
+          return;
+        }
+        await loadHome();
+        hMsg.textContent = "Saved.";
+      } catch (err) {
+        console.error(err);
+        hMsg.textContent = err.message || "Network error";
+      }
+    }
+
+    homeEditImageBtn?.addEventListener("click", () => {
+      homeImageFileInput?.click();
+    });
+
+    homeImageFileInput?.addEventListener("change", async () => {
+      const file = homeImageFileInput.files?.[0];
+      await saveHomeImageFromFile(file);
+      homeImageFileInput.value = "";
+    });
+
     if (homeEditTitleBtn) homeEditTitleBtn.addEventListener("click", () => openModal("homeField", "edit", { field: "title" }));
     if (homeEditSubtitleBtn) homeEditSubtitleBtn.addEventListener("click", () => openModal("homeField", "edit", { field: "subtitle" }));
     if (homeEditCurrentBtn) homeEditCurrentBtn.addEventListener("click", () => openModal("homeField", "edit", { field: "current" }));
 
     // Removed old form submit; edits are handled via modal submit
 
-    // Projects
-    const pForm = document.getElementById("projectsForm");
+    // Projects management (flat list + edit modal)
+    const projectsList = document.getElementById("projectsList");
     const pMsg = document.getElementById("projectsMsg");
-    const pId = document.getElementById("proj_id");
-    const pInputs = {
-      image: document.getElementById("proj_image"),
-      en: {
-        title: document.getElementById("proj_en_title"),
-        date: document.getElementById("proj_en_date"),
-        desc: document.getElementById("proj_en_desc"),
-      },
-      fr: {
-        title: document.getElementById("proj_fr_title"),
-        date: document.getElementById("proj_fr_date"),
-        desc: document.getElementById("proj_fr_desc"),
-      },
-    };
+    const projectAddBtn = document.getElementById("projectAddBtn");
+    const projectEditModal = document.getElementById("projectEditModal");
+    const projectEditForm = document.getElementById("projectEditForm");
+    const projectEditTitle = document.getElementById("projectEditTitle");
+    const projectEditDelete = document.getElementById("projectEditDelete");
+    const projectEditCancel = document.getElementById("projectEditCancel");
+    const projectIdInput = document.getElementById("projectIdInput");
+    const projectImageInput = document.getElementById("projectImageInput");
+    const projectEnTitleInput = document.getElementById("projectEnTitleInput");
+    const projectEnDateInput = document.getElementById("projectEnDateInput");
+    const projectEnDescInput = document.getElementById("projectEnDescInput");
+    const projectFrTitleInput = document.getElementById("projectFrTitleInput");
+    const projectFrDateInput = document.getElementById("projectFrDateInput");
+    const projectFrDescInput = document.getElementById("projectFrDescInput");
+    const projectTabEn = document.getElementById("projectTabEn");
+    const projectTabFr = document.getElementById("projectTabFr");
+    const projectEnPanel = document.getElementById("projectEnPanel");
+    const projectFrPanel = document.getElementById("projectFrPanel");
 
-    async function loadProject(id) {
+    let projectsData = {};
+    let editingProjectId = null;
+
+    function setProjectLangTab(lang) {
+      const isEn = lang === "en";
+      projectEnPanel.hidden = !isEn;
+      projectFrPanel.hidden = isEn;
+      projectTabEn?.classList.toggle("active", isEn);
+      projectTabFr?.classList.toggle("active", !isEn);
+      projectTabEn?.setAttribute("aria-selected", isEn ? "true" : "false");
+      projectTabFr?.setAttribute("aria-selected", !isEn ? "true" : "false");
+    }
+
+    function renderProjectsList() {
+      projectsList.innerHTML = "";
+      const rows = Object.entries(projectsData || {}).sort(([a], [b]) => a.localeCompare(b));
+      if (!rows.length) {
+        projectsList.innerHTML = `<p class="muted">${t("projects.empty", "No projects yet.")}</p>`;
+        return;
+      }
+
+      rows.forEach(([id, entry]) => {
+        const item = document.createElement("div");
+        item.className = "card";
+        item.style.display = "grid";
+        item.style.gridTemplateColumns = "1fr 2fr 1.2fr auto";
+        item.style.alignItems = "center";
+        item.style.gap = ".5rem";
+        item.innerHTML = `
+          <span><strong>${id}</strong></span>
+          <span class="muted">${entry.en?.title || id}</span>
+          <span>${entry.en?.date || "-"}</span>
+          <button class="lang-btn" data-edit-project="${id}">Edit</button>
+        `;
+        item.querySelector("[data-edit-project]")?.addEventListener("click", () => openProjectEditModal(id, entry));
+        projectsList.appendChild(item);
+      });
+    }
+
+    function openProjectEditModal(id, entry) {
+      editingProjectId = id || null;
+      const data = entry || {
+        image: "/assets/image1.png",
+        en: { title: "", date: "", desc: "" },
+        fr: { title: "", date: "", desc: "" },
+      };
+
+      projectEditTitle.textContent = editingProjectId ? "Edit Project" : "Add Project";
+      projectEditDelete.style.display = editingProjectId ? "inline-block" : "none";
+      projectIdInput.disabled = !!editingProjectId;
+      projectIdInput.value = editingProjectId || "";
+      projectImageInput.value = data.image || "";
+      projectEnTitleInput.value = data.en?.title || "";
+      projectEnDateInput.value = data.en?.date || "";
+      projectEnDescInput.value = data.en?.desc || "";
+      projectFrTitleInput.value = data.fr?.title || "";
+      projectFrDateInput.value = data.fr?.date || "";
+      projectFrDescInput.value = data.fr?.desc || "";
+      setProjectLangTab("en");
+
+      projectEditModal.hidden = false;
+    }
+
+    function closeProjectEditModal() {
+      projectEditModal.hidden = true;
+      editingProjectId = null;
+    }
+
+    async function loadProjectsList() {
+      projectsList.innerHTML = t("admin.common.loading", "Loading...");
       try {
-        const res = await fetch(`${API_BASE}/projects/${id}`);
-        const data = await res.json();
-        pInputs.image.value = data.image || "";
-        pInputs.en.title.value = data.en?.title || "";
-        pInputs.en.date.value = data.en?.date || "";
-        pInputs.en.desc.value = data.en?.desc || "";
-        pInputs.fr.title.value = data.fr?.title || "";
-        pInputs.fr.date.value = data.fr?.date || "";
-        pInputs.fr.desc.value = data.fr?.desc || "";
+        const res = await fetch(`${API_BASE}/projects`);
+        projectsData = await res.json();
+        renderProjectsList();
+        pMsg.textContent = "";
       } catch (e) {
         console.error(e);
-        pMsg.textContent = "Failed to load project.";
+        projectsList.innerHTML = `<p class="muted">${t("projects.failed", "Failed to load projects.")}</p>`;
       }
     }
 
-    pId.addEventListener("change", () => {
-      const val = pId.value;
-      const isNew = val === "__new__";
-      document.getElementById("proj_new_id").style.display = isNew ? "inline-block" : "none";
-      if (!isNew) loadProject(val);
-      else {
-        // Reset fields for new project
-        pInputs.image.value = "";
-        pInputs.en.title.value = "";
-        pInputs.en.date.value = "";
-        pInputs.en.desc.value = "";
-        pInputs.fr.title.value = "";
-        pInputs.fr.date.value = "";
-        pInputs.fr.desc.value = "";
-      }
+    projectAddBtn?.addEventListener("click", () => openProjectEditModal());
+    projectTabEn?.addEventListener("click", () => setProjectLangTab("en"));
+    projectTabFr?.addEventListener("click", () => setProjectLangTab("fr"));
+    projectEditCancel?.addEventListener("click", closeProjectEditModal);
+    projectEditModal?.addEventListener("click", (e) => {
+      if (e.target === projectEditModal) closeProjectEditModal();
     });
 
-    pForm.addEventListener("submit", async (e) => {
+    projectEditForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
       pMsg.textContent = "Saving...";
+
+      const id = (editingProjectId || projectIdInput.value || "").trim();
+      if (!/^[a-z0-9-]{2,}$/i.test(id)) {
+        pMsg.textContent = "Project ID must use letters, numbers, and dashes.";
+        return;
+      }
+
       const payload = {
-        image: pInputs.image.value.trim(),
+        image: projectImageInput.value.trim(),
         en: {
-          title: pInputs.en.title.value.trim(),
-          date: pInputs.en.date.value.trim(),
-          desc: pInputs.en.desc.value.trim(),
+          title: projectEnTitleInput.value.trim(),
+          date: projectEnDateInput.value.trim(),
+          desc: projectEnDescInput.value.trim(),
         },
         fr: {
-          title: pInputs.fr.title.value.trim(),
-          date: pInputs.fr.date.value.trim(),
-          desc: pInputs.fr.desc.value.trim(),
+          title: projectFrTitleInput.value.trim(),
+          date: projectFrDateInput.value.trim(),
+          desc: projectFrDescInput.value.trim(),
         },
       };
+
       try {
-        const isNew = pId.value === "__new__";
-        const idForNew = document.getElementById("proj_new_id").value.trim();
-        const res = await adminFetch(isNew ? `${API_BASE}/projects` : `${API_BASE}/projects/${pId.value}`, {
-          method: isNew ? "POST" : "PUT",
+        const res = await adminFetch(editingProjectId ? `${API_BASE}/projects/${editingProjectId}` : `${API_BASE}/projects`, {
+          method: editingProjectId ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(isNew ? { id: idForNew, ...payload } : payload),
+          body: JSON.stringify(editingProjectId ? payload : { id, ...payload }),
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          pMsg.textContent = (data.errors?.[0]?.msg) || data.error || "Save failed";
+          pMsg.textContent = data.errors?.[0]?.msg || data.error || "Save failed";
           return;
         }
-        pMsg.textContent = "Saved.";
+
+        closeProjectEditModal();
         await loadProjectsList();
-        if (isNew && idForNew) {
-          pId.value = idForNew;
-        }
-      } catch (e) {
-        console.error(e);
+        pMsg.textContent = "Saved.";
+      } catch (err) {
+        console.error(err);
         pMsg.textContent = "Network error";
       }
     });
 
-    async function loadProjectsList() {
+    projectEditDelete?.addEventListener("click", async () => {
+      if (!editingProjectId) return;
+      if (!confirm("Delete this project?")) return;
+
+      pMsg.textContent = "Deleting...";
       try {
-        const res = await fetch(`${API_BASE}/projects`);
-        const data = await res.json();
-        pId.innerHTML = "";
-        // Add existing projects
-        Object.entries(data).forEach(([id, entry]) => {
-          const opt = document.createElement("option");
-          opt.value = id;
-          opt.textContent = entry.en?.title || id;
-          pId.appendChild(opt);
-        });
-        // Add New option
-        const newOpt = document.createElement("option");
-        newOpt.value = "__new__";
-        newOpt.textContent = "New…";
-        pId.appendChild(newOpt);
-      } catch (e) {
-        console.error(e);
+        const res = await adminFetch(`${API_BASE}/projects/${editingProjectId}`, { method: "DELETE" });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          pMsg.textContent = data.errors?.[0]?.msg || data.error || "Delete failed";
+          return;
+        }
+
+        closeProjectEditModal();
+        await loadProjectsList();
+        pMsg.textContent = "Deleted.";
+      } catch (err) {
+        console.error(err);
+        pMsg.textContent = "Network error";
       }
-    }
+    });
 
     loadHome();
     loadWork();
     loadSchool();
     await loadProjectsList();
-    pId.value = pId.options[0]?.value || "__new__";
-    if (pId.value !== "__new__") loadProject(pId.value);
     renderTestimonials();
     loadAboutSkills();
   </script>
@@ -1473,13 +1601,19 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
 
   <div id="skillEditModal" class="modal-overlay" hidden>
     <div class="modal">
-      <h3 style="margin-top:0;">Edit Skill</h3>
+      <h3 id="skillEditTitle" style="margin-top:0;">Edit Skill</h3>
       <form id="skillEditForm" style="display:grid;gap:.5rem;">
-        <label for="skillNameInput">Title</label>
-        <input id="skillNameInput" required />
+        <label for="skillNameInput">Key / Name (optional)</label>
+        <input id="skillNameInput" placeholder="Defaults to English title" />
 
-        <label for="skillTypeSelect">Type</label>
-        <select id="skillTypeSelect" required></select>
+        <label for="skillNameEnInput">English Title</label>
+        <input id="skillNameEnInput" required />
+
+        <label for="skillNameFrInput">French Title</label>
+        <input id="skillNameFrInput" required />
+
+        <label for="skillTypeInput">Type</label>
+        <input id="skillTypeInput" required />
 
         <label for="skillRatingInput">Rating (1-5)</label>
         <input id="skillRatingInput" type="number" min="1" max="5" step="1" required />
@@ -1496,10 +1630,56 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     </div>
   </div>
 
+  <div id="projectEditModal" class="modal-overlay" hidden>
+    <div class="modal project-modal">
+      <h3 id="projectEditTitle" style="margin-top:0;">Edit Project</h3>
+      <form id="projectEditForm" style="display:grid;gap:.5rem;">
+        <label for="projectIdInput">Project ID</label>
+        <input id="projectIdInput" placeholder="my-project-id" required />
+
+        <label for="projectImageInput">Image URL</label>
+        <input id="projectImageInput" placeholder="/assets/image1.png" />
+
+        <div class="project-lang-tabs" role="tablist" aria-label="Project language tabs">
+          <button type="button" id="projectTabEn" class="project-lang-tab active" role="tab" aria-selected="true">English</button>
+          <button type="button" id="projectTabFr" class="project-lang-tab" role="tab" aria-selected="false">Français</button>
+        </div>
+
+        <div id="projectEnPanel" role="tabpanel" style="display:grid;gap:.5rem;">
+          <label for="projectEnTitleInput">Title</label>
+          <input id="projectEnTitleInput" placeholder="Title" />
+          <label for="projectEnDateInput">Date range</label>
+          <input id="projectEnDateInput" placeholder="Date range" />
+          <label for="projectEnDescInput">Description</label>
+          <textarea id="projectEnDescInput" rows="3" placeholder="Description"></textarea>
+        </div>
+
+        <div id="projectFrPanel" role="tabpanel" style="display:grid;gap:.5rem;" hidden>
+          <label for="projectFrTitleInput">Titre</label>
+          <input id="projectFrTitleInput" placeholder="Titre" />
+          <label for="projectFrDateInput">Période</label>
+          <input id="projectFrDateInput" placeholder="Période" />
+          <label for="projectFrDescInput">Description</label>
+          <textarea id="projectFrDescInput" rows="3" placeholder="Description"></textarea>
+        </div>
+
+        <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem;">
+          <button type="button" id="projectEditDelete" class="lang-btn" style="margin-right:auto;">Delete</button>
+          <button type="button" id="projectEditCancel" class="lang-btn">Cancel</button>
+          <button type="submit" class="lang-btn">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <style>
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: grid; place-items: center; z-index: 1000; }
     .modal-overlay[hidden] { display: none !important; }
-    .modal { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 1rem; border-radius: 12px; width: min(520px, 92vw); box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+    .modal { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 1rem; border-radius: 12px; width: min(520px, 92vw); box-shadow: 0 10px 30px rgba(0,0,0,0.15); max-height: 88vh; overflow: auto; }
+    .project-modal { width: min(470px, 92vw); }
+    .project-lang-tabs { display: inline-flex; gap: .5rem; margin-top: .25rem; }
+    .project-lang-tab { border: 1px solid var(--border); background: rgba(127, 127, 127, 0.08); color: var(--text); border-radius: 999px; padding: .3rem .75rem; cursor: pointer; font-weight: 600; }
+    .project-lang-tab.active { border-color: rgba(127, 127, 127, 0.35); color: var(--brand); }
     .modal input, .modal textarea, .modal select { width: 100%; padding: 0.6rem 0.75rem; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
     .modal input::placeholder, .modal textarea::placeholder { color: var(--muted); opacity: 0.85; }
     .modal input:focus, .modal textarea:focus, .modal select:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(50, 69, 255, 0.2); }
