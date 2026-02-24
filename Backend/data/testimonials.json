@@ -1,12 +1,13 @@
 [
   {
-    "id": "208f18dc-6609-4c0b-a7a3-8752ec5321ef",
-    "accountSub": "google-oauth2|115062651760689069318",
-    "author": "Deante Mirijello",
-    "role": "",
-    "quote": "rf,nqevnl suilkbvwpeu ivmewl",
-    "createdAt": "2026-02-17T20:03:11.859Z",
+    "id": "e7a06f30-1c73-4b01-b0df-8efd19479828",
+    "accountSub": "auth0|699d18a8e24db30c35b64326",
+    "email": "cosimo@email.com",
+    "author": "Cosimo",
+    "role": "Classmate",
+    "quote": "Deante is a great friend. I enjoy working with him and i think he will have a successful future.",
     "approved": true,
-    "approvedAt": "2026-02-17T20:25:39.755Z"
+    "createdAt": "2026-02-24T03:20:20.284Z",
+    "approvedAt": "2026-02-24T03:20:33.864Z"
   }
 ]

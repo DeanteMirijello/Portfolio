@@ -1061,18 +1061,21 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     const skillEditCancel = document.getElementById("skillEditCancel");
     const skillEditDelete = document.getElementById("skillEditDelete");
     const skillEditTitle = document.getElementById("skillEditTitle");
-    const skillNameInput = document.getElementById("skillNameInput");
     const skillNameEnInput = document.getElementById("skillNameEnInput");
     const skillNameFrInput = document.getElementById("skillNameFrInput");
-    const skillTypeInput = document.getElementById("skillTypeInput");
+    const skillTypeEnInput = document.getElementById("skillTypeEnInput");
+    const skillTypeFrInput = document.getElementById("skillTypeFrInput");
     const skillRatingInput = document.getElementById("skillRatingInput");
     const skillImageInput = document.getElementById("skillImageInput");
+    const skillImageBrowseBtn = document.getElementById("skillImageBrowseBtn");
+    const skillImageFileInput = document.getElementById("skillImageFile");
+    const skillImageStatus = document.getElementById("skillImageStatus");
 
     let skillsData = {};
     let skillsTitles = {};
     let skillsMeta = {};
     let editingSkill = null;
-    let skillKeyTouched = false;
+    const MAX_SKILL_IMAGE_BYTES = 300 * 1024;
 
     function flattenSkills(skills) {
       const rows = [];
@@ -1124,13 +1127,18 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       editingSkill = skill ? { ...skill, originalName: skill.name, originalType: skill.type } : null;
       skillEditTitle.textContent = editingSkill ? "Edit Skill" : "Add Skill";
       skillEditDelete.style.display = editingSkill ? "inline-block" : "none";
-      skillKeyTouched = !!skill?.name;
-      skillNameInput.value = skill?.name || "";
       skillNameEnInput.value = skill?.titleEn || skill?.name || "";
       skillNameFrInput.value = skill?.titleFr || skill?.titleEn || skill?.name || "";
-      skillTypeInput.value = skill?.type || "";
+      const typeTitles = skillsTitles?.[skill?.type] || {};
+      skillTypeEnInput.value = typeTitles.en || skill?.type || "";
+      skillTypeFrInput.value = typeTitles.fr || typeTitles.en || skill?.type || "";
       skillRatingInput.value = String(skill?.rating || 3);
       skillImageInput.value = skill?.image || "";
+      if (skillImageStatus) {
+        skillImageStatus.textContent = (skill?.image || "").startsWith("data:image/")
+          ? "Uploaded image selected"
+          : "";
+      }
 
       skillEditModal.hidden = false;
     }
@@ -1160,13 +1168,30 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     }
 
     skillAddBtn?.addEventListener("click", () => openSkillEditModal(null));
-    skillNameInput?.addEventListener("input", () => {
-      skillKeyTouched = skillNameInput.value.trim().length > 0;
+    skillImageBrowseBtn?.addEventListener("click", () => {
+      skillImageFileInput?.click();
     });
-    skillNameEnInput?.addEventListener("input", () => {
-      if (!skillKeyTouched || !skillNameInput.value.trim()) {
-        skillNameInput.value = skillNameEnInput.value.trim();
+    skillImageFileInput?.addEventListener("change", async () => {
+      const file = skillImageFileInput.files?.[0];
+      if (!file) return;
+      if (file.size > MAX_SKILL_IMAGE_BYTES) {
+        const maxKb = Math.round(MAX_SKILL_IMAGE_BYTES / 1024);
+        const actualKb = Math.round(file.size / 1024);
+        if (skillImageStatus) skillImageStatus.textContent = `Image too large (${actualKb} KB). Max allowed is ${maxKb} KB.`;
+        aboutMsg.textContent = `Image too large. Please choose an image up to ${maxKb} KB.`;
+        skillImageFileInput.value = "";
+        return;
       }
+      try {
+        const imageData = await fileToDataUrl(file);
+        skillImageInput.value = imageData;
+        if (skillImageStatus) skillImageStatus.textContent = file.name;
+        aboutMsg.textContent = "";
+      } catch (err) {
+        console.error(err);
+        if (skillImageStatus) skillImageStatus.textContent = "Failed to load image file";
+      }
+      skillImageFileInput.value = "";
     });
     skillEditCancel?.addEventListener("click", closeSkillEditModal);
     skillEditModal?.addEventListener("click", (e) => {
@@ -1179,13 +1204,15 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
       try {
         const newTitleEn = skillNameEnInput.value.trim();
         const newTitleFr = skillNameFrInput.value.trim();
-        const newName = (skillNameInput.value.trim() || newTitleEn).trim();
-        const newType = skillTypeInput.value.trim();
+        const newName = newTitleEn;
+        const newTypeEn = skillTypeEnInput.value.trim();
+        const newTypeFr = skillTypeFrInput.value.trim();
+        const newType = newTypeEn;
         const newRating = Number(skillRatingInput.value || 3);
         const newImage = skillImageInput.value.trim();
 
-        if (!newName || !newTitleEn || !newType) {
-          aboutMsg.textContent = "English title and type are required.";
+        if (!newTitleEn || !newTypeEn || !newTypeFr) {
+          aboutMsg.textContent = "English/French title and type are required.";
           return;
         }
 
@@ -1235,12 +1262,26 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
           }
         }
 
+        const typeTitleRes = await adminFetch(`${API_BASE}/skills/types/${encodeURIComponent(newType)}/titles`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ en: newTypeEn, fr: newTypeFr }),
+        });
+        if (!typeTitleRes.ok) {
+          const err = await typeTitleRes.json().catch(() => ({}));
+          throw new Error(err.error || err.errors?.[0]?.msg || `Type title save failed (${typeTitleRes.status})`);
+        }
+
         const metaRes = await adminFetch(`${API_BASE}/skills/meta/${encodeURIComponent(newName)}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: newImage, rating: newRating, titleEn: newTitleEn || newName, titleFr: newTitleFr || newTitleEn || newName }),
         });
         if (!metaRes.ok) {
+          if (metaRes.status === 413) {
+            const maxKb = Math.round(MAX_SKILL_IMAGE_BYTES / 1024);
+            throw new Error(`Image payload is too large. Please keep skill images under ${maxKb} KB.`);
+          }
           const err = await metaRes.json().catch(() => ({}));
           throw new Error(err.error || err.errors?.[0]?.msg || `Meta save failed (${metaRes.status})`);
         }
@@ -1603,23 +1644,38 @@ const API_BASE_VALUE = import.meta.env.PUBLIC_API_BASE || "http://localhost:3001
     <div class="modal">
       <h3 id="skillEditTitle" style="margin-top:0;">Edit Skill</h3>
       <form id="skillEditForm" style="display:grid;gap:.5rem;">
-        <label for="skillNameInput">Key / Name (optional)</label>
-        <input id="skillNameInput" placeholder="Defaults to English title" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+          <div>
+            <label for="skillNameEnInput">English Title</label>
+            <input id="skillNameEnInput" required />
+          </div>
+          <div>
+            <label for="skillTypeEnInput">English Type</label>
+            <input id="skillTypeEnInput" required />
+          </div>
+        </div>
 
-        <label for="skillNameEnInput">English Title</label>
-        <input id="skillNameEnInput" required />
-
-        <label for="skillNameFrInput">French Title</label>
-        <input id="skillNameFrInput" required />
-
-        <label for="skillTypeInput">Type</label>
-        <input id="skillTypeInput" required />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+          <div>
+            <label for="skillNameFrInput">French Title</label>
+            <input id="skillNameFrInput" required />
+          </div>
+          <div>
+            <label for="skillTypeFrInput">French Type</label>
+            <input id="skillTypeFrInput" required />
+          </div>
+        </div>
 
         <label for="skillRatingInput">Rating (1-5)</label>
         <input id="skillRatingInput" type="number" min="1" max="5" step="1" required />
 
         <label for="skillImageInput">Image URL</label>
         <input id="skillImageInput" placeholder="/assets/placeholder-skill.svg" />
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;">
+          <button type="button" id="skillImageBrowseBtn" class="lang-btn">Choose from explorer</button>
+          <span id="skillImageStatus" class="muted"></span>
+        </div>
+        <input id="skillImageFile" type="file" accept="image/*" style="display:none;" />
 
         <div style="display:flex;gap:.5rem;justify-content:flex-end;margin-top:.5rem;">
           <button type="button" id="skillEditDelete" class="lang-btn" style="margin-right:auto;">Delete</button>
