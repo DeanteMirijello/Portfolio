@@ -116,5 +116,8 @@
   "testimonials.msg.checkFailed": "Could not verify testimonial limit",
   "testimonials.msg.pending": "Thanks! Your testimonial was submitted and is pending admin approval.",
   "testimonials.msg.submitFailed": "Submit failed",
-  "home.current": "Building my portfolio and a full-stack project."
+  "home.current": "Building my portfolio and a full-stack project.",
+  "projects.test.title": "testen",
+  "projects.test.date": "2002",
+  "projects.test.desc": "ergvfcsdfgvbrhdfsdgvbdvf"
 }

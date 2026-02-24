@@ -116,5 +116,8 @@
   "testimonials.msg.checkFailed": "Impossible de vérifier la limite de témoignages",
   "testimonials.msg.pending": "Merci ! Ton témoignage a été soumis et attend l’approbation de l’admin.",
   "testimonials.msg.submitFailed": "Échec de l’envoi",
-  "home.current": "Je construis mon portfolio et un projet full-stack."
+  "home.current": "Je construis mon portfolio et un projet full-stack.",
+  "projects.test.title": "testfr",
+  "projects.test.date": "fvdcs",
+  "projects.test.desc": "vfdcddddddddddddddddddd"
 }
